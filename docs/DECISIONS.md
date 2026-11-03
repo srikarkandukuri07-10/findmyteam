@@ -98,8 +98,34 @@ Code lives at `github.com/srikarkandukuri07-10/findmyteam`; Vercel builds every 
 
 ---
 
+## D9 · Visual style: lavender page, cream cards (2026-11-03)
+
+Taken from the founder's reference image. Colours are tokens in `src/app/globals.css` (page `#c9c5d3`, cards `#f7f4ea`, accent `#6f5fae`, large-number purple `#9d8ccc`), with a dark variant. Reusable pieces (`Card`, `Chip`, `Stat`, `ButtonLink`) live in `src/components/ui.tsx`. Text and button colours were chosen for readable contrast; the lighter purple is used only for large numbers and fills.
+
+---
+
+## D10 · Hackathon catalogue rules (2026-11-03)
+
+- Any signed-in, **onboarded** user can add a hackathon, up to **5 per day**. Everything goes through database functions; direct table writes are blocked.
+- Exact duplicates (same name and start date) are rejected; near-duplicates trigger a warning with links before saving. Admin merge of duplicates arrives in Module 9.
+- A hackathon can last at most 62 days, with dates between 2015 and 2035 (past events are needed for profile history in Module 3).
+- **No seed data.** Dates and links for real events must come from the founder or users, never from guesses. The list starts empty.
+- "Today" for countdown labels is the Indian calendar date.
+- Interest rows are private. Users see only their own, plus an aggregate count per hackathon.
+
+---
+
+## D11 · Intentional `SECURITY DEFINER` functions (2026-11-03)
+
+Supabase's advisor warns that signed-in users can call these functions. That is the design: they are the only write path, and each calls `require_onboarded()` first. The checks in `supabase/tests/` prove anonymous and non-onboarded callers are refused. Do not "fix" the warning by revoking access.
+
+---
+
 ## Still open
 
+- **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
+- **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
+- **Shared database.** Local development and production use one Supabase project. Create a separate production project before launch.
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.
 - **Team invites at launch.** PRD section 6 includes invites in the launch flow, but TEAM-8 is marked P1. This plan includes invites in Module 7.
 - **One team per hackathon (TEAM-10).** Enforce in the database in Module 7.

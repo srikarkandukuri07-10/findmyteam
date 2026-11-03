@@ -58,6 +58,88 @@ export type Database = {
         }
         Relationships: []
       }
+      hackathon_interest: {
+        Row: {
+          created_at: string
+          hackathon_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hackathon_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hackathon_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hackathon_interest_hackathon_id_fkey"
+            columns: ["hackathon_id"]
+            isOneToOne: false
+            referencedRelation: "hackathons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hackathons: {
+        Row: {
+          city: string | null
+          created_at: string
+          created_by: string | null
+          ends_on: string
+          id: string
+          merged_into: string | null
+          mode: Database["public"]["Enums"]["hackathon_mode"]
+          name: string
+          organizer: string | null
+          starts_on: string
+          status: Database["public"]["Enums"]["hackathon_status"]
+          updated_at: string
+          url: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_on: string
+          id?: string
+          merged_into?: string | null
+          mode?: Database["public"]["Enums"]["hackathon_mode"]
+          name: string
+          organizer?: string | null
+          starts_on: string
+          status?: Database["public"]["Enums"]["hackathon_status"]
+          updated_at?: string
+          url?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string
+          id?: string
+          merged_into?: string | null
+          mode?: Database["public"]["Enums"]["hackathon_mode"]
+          name?: string
+          organizer?: string | null
+          starts_on?: string
+          status?: Database["public"]["Enums"]["hackathon_status"]
+          updated_at?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hackathons_merged_into_fkey"
+            columns: ["merged_into"]
+            isOneToOne: false
+            referencedRelation: "hackathons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           birth_year: number | null
@@ -146,10 +228,69 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_hackathon: {
+        Args: {
+          p_city: string
+          p_ends_on: string
+          p_mode: Database["public"]["Enums"]["hackathon_mode"]
+          p_name: string
+          p_organizer: string
+          p_starts_on: string
+          p_url: string
+        }
+        Returns: string
+      }
+      get_hackathon: {
+        Args: { p_id: string }
+        Returns: {
+          city: string
+          ends_on: string
+          id: string
+          interest_count: number
+          is_interested: boolean
+          mode: Database["public"]["Enums"]["hackathon_mode"]
+          name: string
+          organizer: string
+          starts_on: string
+          url: string
+        }[]
+      }
+      list_hackathons: {
+        Args: { p_include_past?: boolean; p_limit?: number; p_query?: string }
+        Returns: {
+          city: string
+          ends_on: string
+          id: string
+          interest_count: number
+          is_interested: boolean
+          mode: Database["public"]["Enums"]["hackathon_mode"]
+          name: string
+          organizer: string
+          starts_on: string
+          url: string
+        }[]
+      }
+      my_hackathon_interest_count: { Args: never; Returns: number }
+      require_onboarded: { Args: never; Returns: string }
+      set_hackathon_interest: {
+        Args: { p_hackathon_id: string; p_interested: boolean }
+        Returns: undefined
+      }
+      similar_hackathons: {
+        Args: { p_name: string }
+        Returns: {
+          id: string
+          name: string
+          similarity: number
+          starts_on: string
+        }[]
+      }
     }
     Enums: {
       account_status: "active" | "suspended" | "banned"
       degree: "btech" | "be"
+      hackathon_mode: "online" | "in_person" | "hybrid"
+      hackathon_status: "active" | "merged" | "removed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -212,6 +353,8 @@ export const Constants = {
     Enums: {
       account_status: ["active", "suspended", "banned"],
       degree: ["btech", "be"],
+      hackathon_mode: ["online", "in_person", "hybrid"],
+      hackathon_status: ["active", "merged", "removed"],
     },
   },
 } as const

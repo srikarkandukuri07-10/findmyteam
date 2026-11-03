@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { blankToUndefined, fieldErrors } from "./common";
+
+export { fieldErrors };
 
 /** Bump when the terms or privacy notice change; stored with each user's consent. */
 export const CONSENT_VERSION = "2026-11-03";
@@ -30,9 +33,6 @@ export const resetPasswordSchema = z
     error: "Passwords don't match.",
     path: ["confirmPassword"],
   });
-
-/** Empty form values become `undefined` so "required" errors read naturally. */
-const blankToUndefined = (v: unknown) => (v === "" || v == null ? undefined : v);
 
 /** A required whole number from a form field, with one message for missing or invalid input. */
 function requiredInt(message: string) {
@@ -92,13 +92,3 @@ export function onboardingSchema(now: Date = new Date()) {
 }
 
 export type OnboardingInput = z.infer<ReturnType<typeof onboardingSchema>>;
-
-/** Field name -> first error message, for showing next to form inputs. */
-export function fieldErrors(error: z.ZodError): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const issue of error.issues) {
-    const key = String(issue.path[0] ?? "form");
-    out[key] ??= issue.message;
-  }
-  return out;
-}

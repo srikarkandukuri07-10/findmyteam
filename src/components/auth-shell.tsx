@@ -26,12 +26,12 @@ export function AuthShell({
             <Logo />
           </div>
         )}
-        <div className="rounded-2xl border border-border bg-surface p-6 shadow-sm sm:p-8">
+        <div className="rounded-3xl bg-surface p-6 shadow-card sm:p-8">
           <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
           {subtitle && <p className="mt-1.5 text-sm text-muted">{subtitle}</p>}
           <div className="mt-6">{children}</div>
         </div>
-        {footer && <div className="mt-6 text-center text-sm text-muted">{footer}</div>}
+        {footer && <div className="mt-6 text-center text-sm">{footer}</div>}
       </div>
     </main>
   );

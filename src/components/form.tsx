@@ -4,7 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 
 const controlClass =
-  "block w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground " +
+  "block w-full rounded-xl border border-border bg-surface-muted px-3.5 py-2.5 text-sm text-foreground " +
   "placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 " +
   "aria-[invalid=true]:border-danger";
 
@@ -105,7 +105,7 @@ export function SubmitButton({ children, pendingText }: { children: ReactNode; p
     <button
       type="submit"
       disabled={pending}
-      className="flex w-full items-center justify-center rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-60"
+      className="flex w-full items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-60"
     >
       {pending ? pendingText : children}
     </button>
@@ -117,7 +117,7 @@ export function FormMessage({ message }: { message?: { ok: boolean; text: string
   return (
     <p
       role={message.ok ? "status" : "alert"}
-      className={`rounded-lg px-3 py-2.5 text-sm ${
+      className={`rounded-xl px-3.5 py-2.5 text-sm ${
         message.ok ? "bg-success-soft text-success" : "bg-danger-soft text-danger"
       }`}
     >
