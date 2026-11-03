@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { CardSkeleton } from "@/components/skeleton";
 import { BACK_TRANSITION, PageTransition } from "@/components/page-transition";
 import { InterestButton, PhaseChip, interestText } from "@/components/hackathon";
 import { Card, Chip } from "@/components/ui";
@@ -17,7 +18,7 @@ export default function HackathonPage(props: PageProps<"/hackathons/[id]">) {
       <Link href="/hackathons" transitionTypes={BACK_TRANSITION} className="inline-block text-sm font-medium text-foreground hover:text-accent-ink">
         ← All hackathons
       </Link>
-      <Suspense fallback={<p className="text-sm">Loading…</p>}>
+      <Suspense fallback={<CardSkeleton lines={6} />}>
         <HackathonDetails params={props.params} />
       </Suspense>
     </main>

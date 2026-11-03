@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation";
 
 const LINKS = [
   { href: "/home", label: "Home" },
+  { href: "/discover", label: "Discover" },
+  { href: "/teams", label: "Teams" },
+  { href: "/requests", label: "Requests" },
   { href: "/hackathons", label: "Hackathons" },
   { href: "/profile", label: "Profile" },
 ];
@@ -12,7 +15,7 @@ const LINKS = [
 /** The links, with the active one highlighted when `pathname` matches. */
 export function NavLinks({ pathname }: { pathname: string }) {
   return (
-    <nav aria-label="Main" className="flex items-center gap-1">
+    <nav aria-label="Main" className="flex max-w-full items-center gap-1 overflow-x-auto">
       {LINKS.map(({ href, label }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (

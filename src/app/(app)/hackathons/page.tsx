@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Form from "next/form";
 import { Suspense } from "react";
+import { GridSkeleton } from "@/components/skeleton";
 import { PageTransition } from "@/components/page-transition";
 import { HackathonCard } from "@/components/hackathon";
 import { ButtonLink, Card, PageHeader, buttonStyles } from "@/components/ui";
@@ -20,7 +21,7 @@ export default function HackathonsPage(props: PageProps<"/hackathons">) {
         subtitle="Pick the events you care about. Teammates and teams are matched around them."
         action={<ButtonLink href="/hackathons/new">Add a hackathon</ButtonLink>}
       />
-      <Suspense fallback={<p className="text-sm">Loading hackathons…</p>}>
+      <Suspense fallback={<GridSkeleton count={4} />}>
         <HackathonList searchParams={props.searchParams} />
       </Suspense>
     </main>

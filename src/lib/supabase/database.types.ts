@@ -58,6 +58,135 @@ export type Database = {
         }
         Relationships: []
       }
+      connection_requests: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          recipient_id: string
+          responded_at: string | null
+          sender_id: string
+          status: Database["public"]["Enums"]["request_status"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          recipient_id: string
+          responded_at?: string | null
+          sender_id: string
+          status?: Database["public"]["Enums"]["request_status"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          recipient_id?: string
+          responded_at?: string | null
+          sender_id?: string
+          status?: Database["public"]["Enums"]["request_status"]
+        }
+        Relationships: []
+      }
+      swipes: {
+        Row: {
+          action: Database["public"]["Enums"]["swipe_action"]
+          actor_id: string
+          created_at: string
+          target_id: string
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["swipe_action"]
+          actor_id: string
+          created_at?: string
+          target_id: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["swipe_action"]
+          actor_id?: string
+          created_at?: string
+          target_id?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          is_owner: boolean
+          joined_at: string
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          is_owner?: boolean
+          joined_at?: string
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          is_owner?: boolean
+          joined_at?: string
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      team_positions: {
+        Row: {
+          id: string
+          role_id: number
+          spots: number
+          team_id: string
+        }
+        Insert: {
+          id?: string
+          role_id: number
+          spots: number
+          team_id: string
+        }
+        Update: {
+          id?: string
+          role_id?: number
+          spots?: number
+          team_id?: string
+        }
+        Relationships: []
+      }
+      teams: {
+        Row: {
+          created_at: string
+          description: string | null
+          hackathon_id: string | null
+          id: string
+          idea: string | null
+          is_demo: boolean
+          name: string
+          owner_id: string | null
+          recruit_status: Database["public"]["Enums"]["recruit_status"]
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          hackathon_id?: string | null
+          id?: string
+          idea?: string | null
+          is_demo?: boolean
+          name: string
+          owner_id?: string | null
+          recruit_status?: Database["public"]["Enums"]["recruit_status"]
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          hackathon_id?: string | null
+          id?: string
+          idea?: string | null
+          is_demo?: boolean
+          name?: string
+          owner_id?: string | null
+          recruit_status?: Database["public"]["Enums"]["recruit_status"]
+        }
+        Relationships: []
+      }
       github_snapshots: {
         Row: {
           account_created_on: string | null
@@ -130,6 +259,7 @@ export type Database = {
           created_by: string | null
           ends_on: string
           id: string
+          is_demo: boolean
           merged_into: string | null
           mode: Database["public"]["Enums"]["hackathon_mode"]
           name: string
@@ -145,6 +275,7 @@ export type Database = {
           created_by?: string | null
           ends_on: string
           id?: string
+          is_demo?: boolean
           merged_into?: string | null
           mode?: Database["public"]["Enums"]["hackathon_mode"]
           name: string
@@ -160,6 +291,7 @@ export type Database = {
           created_by?: string | null
           ends_on?: string
           id?: string
+          is_demo?: boolean
           merged_into?: string | null
           mode?: Database["public"]["Enums"]["hackathon_mode"]
           name?: string
@@ -214,6 +346,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          is_demo: boolean
           github_connected_at: string | null
           github_id: number | null
           bio: string | null
@@ -236,6 +369,7 @@ export type Database = {
           year_of_study: number | null
         }
         Insert: {
+          is_demo?: boolean
           github_connected_at?: string | null
           github_id?: number | null
           bio?: string | null
@@ -258,6 +392,7 @@ export type Database = {
           year_of_study?: number | null
         }
         Update: {
+          is_demo?: boolean
           github_connected_at?: string | null
           github_id?: number | null
           bio?: string | null
@@ -380,6 +515,88 @@ export type Database = {
           year_of_study: number
         }[]
       }
+      cancel_request: { Args: { p_id: string }; Returns: undefined }
+      respond_request: {
+        Args: { p_accept: boolean; p_id: string }
+        Returns: undefined
+      }
+      my_connects_left: { Args: never; Returns: number }
+      swipe_person: {
+        Args: {
+          p_action: Database["public"]["Enums"]["swipe_action"]
+          p_target: string
+        }
+        Returns: string
+      }
+      discover_people: {
+        Args: { p_limit?: number }
+        Returns: {
+          bio: string
+          branch_name: string
+          college_name: string
+          degree: Database["public"]["Enums"]["degree"]
+          display_name: string
+          github: Json
+          github_verified: boolean
+          graduation_year: number
+          id: string
+          is_demo: boolean
+          reason: string
+          roles: Json
+          skills: Json
+          year_of_study: number
+        }[]
+      }
+      list_requests: {
+        Args: { p_direction: string }
+        Returns: {
+          created_at: string
+          id: string
+          note: string
+          other_branch: string
+          other_college: string
+          other_id: string
+          other_is_demo: boolean
+          other_name: string
+          other_roles: Json
+          other_year: number
+          responded_at: string
+          status: Database["public"]["Enums"]["request_status"]
+        }[]
+      }
+      list_teams: {
+        Args: { p_hackathon?: string }
+        Returns: {
+          description: string
+          hackathon_id: string
+          hackathon_name: string
+          hackathon_starts_on: string
+          id: string
+          is_demo: boolean
+          member_count: number
+          members: Json
+          name: string
+          positions: Json
+          recruit_status: Database["public"]["Enums"]["recruit_status"]
+        }[]
+      }
+      get_team: {
+        Args: { p_id: string }
+        Returns: {
+          description: string
+          hackathon_ends_on: string
+          hackathon_id: string
+          hackathon_name: string
+          hackathon_starts_on: string
+          id: string
+          idea: string
+          is_demo: boolean
+          members: Json
+          name: string
+          positions: Json
+          recruit_status: Database["public"]["Enums"]["recruit_status"]
+        }[]
+      }
       connect_github: { Args: { p_token: string }; Returns: undefined }
       disconnect_github: { Args: never; Returns: undefined }
       set_linkedin_url: { Args: { p_url: string }; Returns: undefined }
@@ -459,6 +676,9 @@ export type Database = {
       degree: "btech" | "be"
       hackathon_mode: "online" | "in_person" | "hybrid"
       hackathon_status: "active" | "merged" | "removed"
+      recruit_status: "open" | "partially_filled" | "full" | "closed"
+      request_status: "pending" | "accepted" | "rejected" | "cancelled" | "expired"
+      swipe_action: "connect" | "skip"
       skill_category: "technical" | "non_technical"
       skill_level: "beginner" | "intermediate" | "advanced"
     }
@@ -525,6 +745,9 @@ export const Constants = {
       degree: ["btech", "be"],
       hackathon_mode: ["online", "in_person", "hybrid"],
       hackathon_status: ["active", "merged", "removed"],
+      recruit_status: ["open", "partially_filled", "full", "closed"],
+      request_status: ["pending", "accepted", "rejected", "cancelled", "expired"],
+      swipe_action: ["connect", "skip"],
       skill_category: ["technical", "non_technical"],
       skill_level: ["beginner", "intermediate", "advanced"],
     },

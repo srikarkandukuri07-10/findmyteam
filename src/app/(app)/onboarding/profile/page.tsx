@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { CardSkeleton } from "@/components/skeleton";
 import { AuthShell } from "@/components/auth-shell";
 import { OnboardingStepper } from "@/components/onboarding-stepper";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
@@ -18,7 +19,7 @@ export default function OnboardingProfilePage() {
       title="Build your profile"
       subtitle="Step 3 of 3. Tell other students what you bring. You can change all of this later."
     >
-      <Suspense fallback={<p className="text-sm text-muted">Loading…</p>}>
+      <Suspense fallback={<CardSkeleton lines={5} />}>
         <ProfileStep />
       </Suspense>
     </AuthShell>

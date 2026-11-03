@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { CardSkeleton } from "@/components/skeleton";
 import { AuthShell } from "@/components/auth-shell";
 import { OnboardingStepper } from "@/components/onboarding-stepper";
 import { GithubConnectCard, GithubNotice } from "@/components/github-connect-card";
@@ -19,7 +20,7 @@ export default function ConnectStepPage(props: PageProps<"/onboarding/connect">)
       title="Connect GitHub (optional)"
       subtitle="Step 2 of 3. Show your work on your profile. LinkedIn is optional too, and you can add both later."
     >
-      <Suspense fallback={<p className="text-sm text-muted">Loading…</p>}>
+      <Suspense fallback={<CardSkeleton lines={5} />}>
         <ConnectStep searchParams={props.searchParams} />
       </Suspense>
     </AuthShell>

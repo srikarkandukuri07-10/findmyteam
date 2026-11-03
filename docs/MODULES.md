@@ -12,8 +12,8 @@ Requirement IDs refer to `PRD.md`, as amended by `DECISIONS.md`.
 | 1 | Auth and onboarding | Sign-up, verification, B.Tech declaration, consent, sign-in, reset | AUTH-1, 2, 4, 6, 7 | Built; email-link steps await dashboard settings; Turnstile deferred |
 | 2 | Hackathons catalogue | Hackathon records anyone can add; mark interest | HACK-1, 2, 3 | Built; list starts empty by design (no seed data) |
 | 3 | Profiles | Profile, skills, roles, photo, GitHub repos, past hackathons, projects | PROF-1 to 6, 8 | 3a built (profile, skills, roles, links, completeness); GitHub connection built (needs dashboard setup, see D13); 3b next (photo, past hackathons, manual projects) |
-| 4 | People discovery | One card at a time, Connect / Skip, filters, ranking v1, daily cap | DISC-1 to 4, 6, 7 | |
-| 5 | Requests and connections | Sent / Received, accept, reject, cancel, expiry, block | REQ-1 to 7 | |
+| 4 | People discovery | One card at a time, Connect / Skip, filters, ranking v1, daily cap | DISC-1 to 4, 6, 7 | Built early (D18): swipe deck and ranking v1; filters pending |
+| 5 | Requests and connections | Sent / Received, accept, reject, cancel, expiry, block | REQ-1 to 7 | Built early (D18): send, accept, decline, cancel, expiry; block pending |
 | 6 | Messaging | 1:1 chat, unread counts, read state, typing, block and report | MSG-1 to 5, 7 | |
 | 7 | Teams | Create team, positions, directory, join requests, invites, group chat, leave / remove | TEAM-1 to 10 | |
 | 8 | Notifications | In-app notification centre, email for key events | NOTIF-1, 3, 4 | |

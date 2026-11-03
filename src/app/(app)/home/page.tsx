@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { DashboardSkeleton } from "@/components/skeleton";
 import { PageTransition } from "@/components/page-transition";
 import { ButtonLink, Card, CardTitle, Chip, Stat } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
@@ -16,7 +17,7 @@ export default function HomePage() {
   return (
     <PageTransition>
     <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6">
-      <Suspense fallback={<p className="text-sm">Loading your dashboard…</p>}>
+      <Suspense fallback={<DashboardSkeleton />}>
         <Dashboard />
       </Suspense>
     </main>
@@ -43,7 +44,7 @@ async function Dashboard() {
     { label: "Connect GitHub (optional)", done: completeness.githubConnected, href: "/onboarding/connect" },
     { label: "Build your profile", done: completeness.percent >= PROFILE_BUILT_THRESHOLD, href: "/onboarding/profile" },
     { label: "Follow a hackathon you care about", done: myInterests > 0, href: "/hackathons" },
-    { label: "Find teammates and teams", soon: true },
+    { label: "Find teammates and teams", href: "/discover", done: false },
   ];
   const next = nextSetupStep({ githubConnected: completeness.githubConnected, profilePercent: completeness.percent });
 
@@ -128,7 +129,6 @@ async function Dashboard() {
                   s.label
                 )}
               </span>
-              {s.soon && <Chip>Soon</Chip>}
             </li>
           ))}
         </ul>

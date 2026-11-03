@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { CardSkeleton } from "@/components/skeleton";
 import { BACK_TRANSITION, PageTransition } from "@/components/page-transition";
 import { Card, PageHeader } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
@@ -17,7 +18,7 @@ export default function NewHackathonPage() {
       </Link>
       <PageHeader title="Add a hackathon" subtitle="Check the list first, then add it so others can find it." />
       <Card className="sm:p-8">
-        <Suspense fallback={<p className="text-sm">Loading…</p>}>
+        <Suspense fallback={<CardSkeleton lines={6} />}>
           <FormGate />
         </Suspense>
       </Card>

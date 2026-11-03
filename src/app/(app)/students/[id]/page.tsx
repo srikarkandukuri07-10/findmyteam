@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { CardSkeleton } from "@/components/skeleton";
 import { BACK_TRANSITION, PageTransition } from "@/components/page-transition";
 import { ProfileCard } from "@/components/profile-view";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
@@ -16,7 +17,7 @@ export default function StudentPage(props: PageProps<"/students/[id]">) {
       <Link href="/hackathons" transitionTypes={BACK_TRANSITION} className="inline-block text-sm font-medium hover:text-accent-ink">
         ← Back
       </Link>
-      <Suspense fallback={<p className="text-sm">Loading profile…</p>}>
+      <Suspense fallback={<CardSkeleton lines={5} />}>
         <Student params={props.params} />
       </Suspense>
     </main>

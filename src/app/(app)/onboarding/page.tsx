@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { CardSkeleton } from "@/components/skeleton";
 import { AuthShell } from "@/components/auth-shell";
 import { OnboardingStepper } from "@/components/onboarding-stepper";
 import { getMyProfile, requireUser } from "@/lib/auth/dal";
@@ -17,7 +18,7 @@ export default function OnboardingPage() {
       title="Finish creating your account"
       subtitle="Step 1 of 3. Tell us about your studies. Only B.Tech and B.E. students can join."
     >
-      <Suspense fallback={<p className="text-sm text-muted">Loading…</p>}>
+      <Suspense fallback={<CardSkeleton lines={5} />}>
         <OnboardingLoader />
       </Suspense>
     </AuthShell>

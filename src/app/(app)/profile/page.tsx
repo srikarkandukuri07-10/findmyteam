@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { CardSkeleton } from "@/components/skeleton";
 import { PageTransition } from "@/components/page-transition";
 import { CompletenessCard } from "@/components/completeness-card";
 import { GithubNotice } from "@/components/github-connect-card";
@@ -19,7 +20,7 @@ export default function MyProfilePage(props: PageProps<"/profile">) {
         subtitle="This is what other students see."
         action={<ButtonLink href="/profile/edit">Edit profile</ButtonLink>}
       />
-      <Suspense fallback={<p className="text-sm">Loading your profile…</p>}>
+      <Suspense fallback={<CardSkeleton lines={5} />}>
         <MyProfile searchParams={props.searchParams} />
       </Suspense>
     </main>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { CardSkeleton } from "@/components/skeleton";
 import { BACK_TRANSITION, PageTransition } from "@/components/page-transition";
 import { GithubConnectCard, GithubNotice } from "@/components/github-connect-card";
 import { Card, PageHeader } from "@/components/ui";
@@ -18,7 +19,7 @@ export default function EditProfilePage(props: PageProps<"/profile/edit">) {
         ← My profile
       </Link>
       <PageHeader title="Edit your profile" subtitle="Tell other students what you bring to a team." />
-      <Suspense fallback={<p className="text-sm">Loading…</p>}>
+      <Suspense fallback={<CardSkeleton lines={5} />}>
         <EditLoader searchParams={props.searchParams} />
       </Suspense>
     </main>

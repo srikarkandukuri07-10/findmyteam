@@ -180,6 +180,19 @@ Students who skip steps see the same list on the home page ("Get started") with 
 
 ---
 
+## D18 · Sample students, swiping and teams built early (2026-11-03)
+
+At the founder's request, a first version of **people discovery (Module 4)**, **requests (Module 5)** and a **read-only teams directory (part of Module 7)** was built ahead of order so the product can be tried with realistic data.
+
+- **Swiping.** `/discover` opens on a "Start discovering" card; the deck zooms in. Swipe right (or tap the tick, or press the right arrow) sends a request; swipe left (or the cross, or the left arrow) skips. A skip sends nothing and tells nobody. Limits: 25 requests per 24 hours, a skipped student returns after 30 days, a request expires after 14 days, one live request per pair. Motion uses the `motion` library; everything respects reduced motion.
+- **Requests.** `/requests` has Received and Sent tabs. Accepting only connects the two students for now (chat is Module 6). A sender whose request was declined sees the neutral "Not a match right now".
+- **Teams.** `/teams` and `/teams/[id]` list teams, members and open positions. Creating teams, joining and invites are still Module 7; the join button is disabled ("opens soon").
+- **Ranking stays internal (D14).** Complementary roles and shared hackathon interest lead; a modest boost for fuller profiles exists in the database function, and no screen mentions it.
+- **Sample data.** 50 fictional students (emails `@demo.fmt.invalid`), 4 sample hackathons and 12 teams, flagged `is_demo` and labelled "Sample" in the app. 14 students are deliberately in no team. Seed: `supabase/seed/demo-data.sql`. **Remove before launch** with `supabase/seed/remove-demo.sql`; it deletes the sample users, teams and hackathons and everything attached to them.
+- Each real account also gets 3 pending requests from sample students so accepting can be tried.
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
@@ -187,6 +200,7 @@ Students who skip steps see the same list on the home page ("Get started") with 
 - **Email confirmation is off (D15).** Turn it back on, with a real email sender, before launch.
 - **Unused Vercel variable.** `GITHUB_SNAPSHOT_SECRET` exists in the Vercel project from an abandoned design (D13). Nothing reads it; delete it in Vercel's settings.
 - **Test account in the shared database.** The `dev-tester` account (a fake "Dev Tester" profile) exists in the same database production uses. Remove it before people-discovery (Module 4) goes live, or it will appear in real students' decks.
+- **Sample data (D18).** Run `supabase/seed/remove-demo.sql` before real students arrive.
 - **Shared database.** Local development and production use one Supabase project. Create a separate production project before launch.
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.
 - **Team invites at launch.** PRD section 6 includes invites in the launch flow, but TEAM-8 is marked P1. This plan includes invites in Module 7.

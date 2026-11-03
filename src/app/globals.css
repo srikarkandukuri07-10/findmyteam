@@ -112,6 +112,23 @@ body {
   box-shadow: var(--shadow-lift);
 }
 
+/* Loading placeholders: a soft light sweeps across from the left. */
+.shimmer {
+  background-color: var(--chip);
+  background-image: linear-gradient(100deg, transparent 20%, rgb(255 255 255 / 0.55) 50%, transparent 80%);
+  background-repeat: no-repeat;
+  background-size: 220% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 160% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
+}
+
 /* Onboarding progress line grows when a step is completed. */
 .step-line {
   transform-origin: left center;
@@ -173,7 +190,8 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .reveal,
-  .step-line {
+  .step-line,
+  .shimmer {
     animation: none;
   }
   .lift,
