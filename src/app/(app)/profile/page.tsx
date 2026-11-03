@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { PageTransition } from "@/components/page-transition";
 import { CompletenessCard } from "@/components/completeness-card";
 import { GithubNotice } from "@/components/github-connect-card";
 import { ProfileCard } from "@/components/profile-view";
@@ -11,6 +12,7 @@ export const metadata: Metadata = { title: "My profile" };
 
 export default function MyProfilePage(props: PageProps<"/profile">) {
   return (
+    <PageTransition>
     <main className="mx-auto w-full max-w-3xl flex-1 space-y-4 px-4 py-8">
       <PageHeader
         title="My profile"
@@ -21,6 +23,7 @@ export default function MyProfilePage(props: PageProps<"/profile">) {
         <MyProfile searchParams={props.searchParams} />
       </Suspense>
     </main>
+    </PageTransition>
   );
 }
 

@@ -12,12 +12,12 @@ export default function AuthErrorPage() {
     >
       <div className="space-y-3 text-sm">
         <p>
-          To get a new verification link, <Link href="/login" className="font-medium text-accent">log in</Link> with
+          To get a new verification link, <Link href="/login" className="font-medium text-accent-ink">log in</Link> with
           your email and password.
         </p>
         <p>
           To reset your password again, use{" "}
-          <Link href="/forgot-password" className="font-medium text-accent">
+          <Link href="/forgot-password" className="font-medium text-accent-ink">
             Forgot password
           </Link>
           .

@@ -3,7 +3,7 @@ import type { ComponentProps, ReactNode } from "react";
 
 /** Cream card on the lavender page, the base building block of every screen. */
 export function Card({ className = "", ...props }: ComponentProps<"div">) {
-  return <div className={`rounded-3xl bg-surface p-6 shadow-card ${className}`} {...props} />;
+  return <div className={`reveal rounded-3xl bg-surface p-6 shadow-card ${className}`} {...props} />;
 }
 
 export function CardTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
@@ -25,7 +25,7 @@ export function Chip({
 }) {
   const tones = {
     neutral: "bg-chip text-foreground",
-    accent: "bg-accent-soft text-accent",
+    accent: "bg-accent-soft text-accent-ink",
     sand: "bg-sand text-foreground",
     success: "bg-success-soft text-success",
   };
@@ -47,7 +47,7 @@ export function Stat({ label, value }: { label: string; value: ReactNode }) {
 }
 
 const buttonBase =
-  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-colors";
+  "inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.97]";
 export const buttonStyles = {
   primary: `${buttonBase} bg-accent text-accent-foreground hover:bg-accent-hover`,
   secondary: `${buttonBase} bg-chip text-foreground hover:bg-accent-soft`,

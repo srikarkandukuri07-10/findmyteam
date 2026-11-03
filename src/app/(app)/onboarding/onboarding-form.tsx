@@ -124,11 +124,11 @@ export function OnboardingForm({
         </Checkbox>
         <Checkbox name="acceptTerms" defaultChecked={v.acceptTerms === "on"} error={e.acceptTerms}>
           I accept the{" "}
-          <Link href="/terms" target="_blank" className="font-medium text-accent">
+          <Link href="/terms" target="_blank" className="font-medium text-accent-ink">
             terms
           </Link>{" "}
           and{" "}
-          <Link href="/privacy" target="_blank" className="font-medium text-accent">
+          <Link href="/privacy" target="_blank" className="font-medium text-accent-ink">
             privacy notice
           </Link>
           .

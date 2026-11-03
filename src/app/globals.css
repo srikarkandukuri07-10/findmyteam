@@ -1,51 +1,39 @@
 @import "tailwindcss";
 
 /*
- * Palette: muted lavender-grey page, warm cream cards, soft purple accents.
- * Text colours meet WCAG AA on both the page and card backgrounds.
+ * Palette measured from the founder's reference image (see docs/DECISIONS.md D9, D16):
+ * lavender-grey page, warm cream cards, soft purples. One look only: no dark mode.
+ * Small text uses --accent-ink, a deeper shade of the same purple, so it stays readable.
  */
 :root {
-  --background: #c9c5d3;
-  --surface: #f7f4ea;
-  --surface-muted: #efebdf;
+  color-scheme: light;
+
+  --background: #c4c1cb;
+  --surface: #f6f4e8;
+  --surface-muted: #ece9dc;
   --foreground: #1f1d24;
-  --muted: #5f5b69;
-  --border: #e2ddd0;
-  --accent: #6f5fae; /* buttons, links: white text passes AA */
-  --accent-hover: #5e4f9b;
-  --accent-foreground: #ffffff;
-  --accent-strong: #9d8ccc; /* large numbers and chart fills */
-  --accent-soft: #e4ddf3; /* tints, selected states */
-  --chip: #dcd8e0;
-  --sand: #ece4d2;
+  --muted: #4f4c5a;
+  --border: #e0dcce;
+
+  --accent: #a18ccd; /* fills: buttons, charts, big numbers */
+  --accent-hover: #9680c6;
+  --accent-foreground: #1f1b2e; /* dark text on the purple fill */
+  --accent-strong: #a18ccd;
+  --accent-ink: #66549f; /* purple text and links */
+  --accent-soft: #e4ddf0;
+  --chip: #d2cdd2;
+  --sand: #e9e4d0;
+  --cell-empty: #e4e0d2;
+
   --danger: #b4334a;
   --danger-soft: #f6e1e3;
   --success: #2d6e4c;
   --success-soft: #dcece0;
-  --shadow: 0 1px 2px rgb(60 50 90 / 0.06), 0 8px 24px -12px rgb(60 50 90 / 0.18);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1d1b23;
-    --surface: #2a2732;
-    --surface-muted: #322f3b;
-    --foreground: #f1eee6;
-    --muted: #b4aec0;
-    --border: #3b3745;
-    --accent: #b3a5e4;
-    --accent-hover: #c5baed;
-    --accent-foreground: #1d1b23;
-    --accent-strong: #b9abe6;
-    --accent-soft: #3a3352;
-    --chip: #3d3948;
-    --sand: #3a3529;
-    --danger: #f08a9b;
-    --danger-soft: #45202a;
-    --success: #8fd4ae;
-    --success-soft: #1d3628;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px -12px rgb(0 0 0 / 0.5);
-  }
+  --shadow: 0 1px 2px rgb(60 50 90 / 0.06), 0 8px 24px -12px rgb(60 50 90 / 0.18);
+  --shadow-lift: 0 2px 4px rgb(60 50 90 / 0.08), 0 16px 32px -14px rgb(60 50 90 / 0.28);
+
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 @theme inline {
@@ -59,14 +47,17 @@
   --color-accent-hover: var(--accent-hover);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
   --color-accent-soft: var(--accent-soft);
   --color-chip: var(--chip);
   --color-sand: var(--sand);
+  --color-cell-empty: var(--cell-empty);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --shadow-card: var(--shadow);
+  --shadow-lift: var(--shadow-lift);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -74,4 +65,125 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* ------------------------------------------------------------------------- *
+ * Motion
+ * Everything slides and fades in from the left; leaving pages slide out to the left.
+ * ------------------------------------------------------------------------- */
+
+@keyframes reveal-left {
+  from {
+    opacity: 0;
+    transform: translateX(-22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Cards and sections arrive one after another. */
+.reveal {
+  /* "backwards", not "both": the end state must not be held, or it would block hover effects. */
+  animation: reveal-left 560ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+/* Put on a grid or list: its children reveal in sequence. */
+.stagger > :nth-child(1) { --i: 0; }
+.stagger > :nth-child(2) { --i: 1; }
+.stagger > :nth-child(3) { --i: 2; }
+.stagger > :nth-child(4) { --i: 3; }
+.stagger > :nth-child(5) { --i: 4; }
+.stagger > :nth-child(6) { --i: 5; }
+.stagger > :nth-child(7) { --i: 6; }
+.stagger > :nth-child(8) { --i: 7; }
+.stagger > :nth-child(n + 9) { --i: 8; }
+
+/* Cards that can be opened lift slightly on hover. */
+.lift {
+  transition:
+    transform 220ms var(--ease-out),
+    box-shadow 220ms var(--ease-out);
+}
+.lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Onboarding progress line grows when a step is completed. */
+.step-line {
+  transform-origin: left center;
+  animation: grow-x 700ms var(--ease-out) both;
+}
+@keyframes grow-x {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Page changes (React <ViewTransition>, see PageTransition). Old page out to the left, new page in from the right. */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -64px;
+  animation:
+    170ms ease-in both fade reverse,
+    460ms var(--ease-out) both slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 64px;
+  animation:
+    300ms ease-out 140ms both fade,
+    460ms var(--ease-out) both slide;
+}
+
+/* Going back: the mirror image. */
+::view-transition-old(.nav-back) {
+  --slide-offset: 64px;
+  animation:
+    170ms ease-in both fade reverse,
+    460ms var(--ease-out) both slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -64px;
+  animation:
+    300ms ease-out 140ms both fade,
+    460ms var(--ease-out) both slide;
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slide {
+  from {
+    translate: var(--slide-offset);
+  }
+  to {
+    translate: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .step-line {
+    animation: none;
+  }
+  .lift,
+  .lift:hover {
+    transition: none;
+    transform: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

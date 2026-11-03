@@ -31,7 +31,7 @@ export function LinkedinForm({ defaultValue }: { defaultValue: string }) {
       <div className="space-y-3">
         <SubmitButton pendingText="Saving…">Continue</SubmitButton>
         <p className="text-center text-sm">
-          <Link href="/home" className="font-medium text-muted hover:text-foreground">
+          <Link href="/onboarding/profile" className="font-medium text-muted hover:text-foreground">
             Skip for now
           </Link>
         </p>

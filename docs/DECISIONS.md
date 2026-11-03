@@ -98,7 +98,7 @@ Code lives at `github.com/srikarkandukuri07-10/findmyteam`; Vercel builds every 
 
 ---
 
-## D9 · Visual style: lavender page, cream cards (2026-11-03)
+## D9 · Visual style: lavender page, cream cards (2026-11-03; colors and dark mode superseded by D16)
 
 Taken from the founder's reference image. Colours are tokens in `src/app/globals.css` (page `#c9c5d3`, cards `#f7f4ea`, accent `#6f5fae`, large-number purple `#9d8ccc`), with a dark variant. Reusable pieces (`Card`, `Chip`, `Stat`, `ButtonLink`) live in `src/components/ui.tsx`. Text and button colours were chosen for readable contrast; the lighter purple is used only for large numbers and fills.
 
@@ -159,6 +159,24 @@ Founder's rule: students who give more information are suggested more often by t
 - Done by turning **Confirm email** off in Supabase (Authentication → Sign In / Providers → Email). The app already copes: `signUp` goes straight to `/onboarding` when Supabase returns a session, and still shows "check your email" if confirmation is ever switched back on. The database check that onboarding needs a verified email still holds, because Supabase marks accounts confirmed automatically while confirmation is off.
 - **Risks accepted for now.** Nobody proves they own the email they type, so (1) fake or mistyped addresses can sign up, (2) someone can register a stranger's address first and the real owner then can't use it, and (3) "Forgot password" only helps when the address is real and email delivery works. A sign-up with an existing address now says "This email already has an account", which reveals that the address is registered.
 - **Re-enable before launch** together with a real email sender (Resend with a domain, or Brevo), and send the existing accounts a verification link.
+
+---
+
+## D16 · Exact reference palette, one look, motion (2026-11-03)
+
+- **Colors are measured from the reference image**, not approximated: page `#c4c1cb`, cards `#f6f4e8`, purple fills and big numbers `#a18ccd`, chips and pills `#d2cdd2`, cream accent `#e9e4d0`. They live as tokens in `src/app/globals.css`.
+- **No dark mode.** The app used to switch to a dark theme on dark-mode devices, which broke the look. It is now locked to the reference palette (`color-scheme: light`). Do not add dark variants.
+- Purple *text* (links, small labels) uses a deeper shade of the same purple, `--accent-ink` `#66549f`, because `#a18ccd` is too pale to read at small sizes. Buttons use the exact purple with dark text.
+- **Motion.** Page changes use React `<ViewTransition>` (the `PageTransition` wrapper, one per page): the page being left slides out to the left and fades, the new page slides in from the right; "back" links (`transitionTypes={BACK_TRANSITION}`) run it the other way. Cards and list items fade in from the left in sequence (`.reveal`, `.stagger`), cards that open lift on hover (`.lift`), and buttons respond to hover and press. All of it is switched off for people who ask their device for reduced motion.
+- Gotcha: put `PageTransition` around each page's own element, never in a layout (layouts stay mounted, so they never enter or exit).
+
+---
+
+## D17 · Guided onboarding after sign-up (2026-11-03)
+
+Right after sign-up (or the first login) a student walks through three steps with a progress indicator: **1 Create your account** (studies and consent, required), **2 Connect GitHub (optional)** with an optional LinkedIn link, **3 Build your profile (optional)** with bio, skills and roles. Steps 2 and 3 each have "Skip for now". Routes: `/onboarding`, `/onboarding/connect`, `/onboarding/profile`; step logic in `src/lib/onboarding/steps.ts`.
+
+Students who skip steps see the same list on the home page ("Get started") with a "Continue setup" button to the next unfinished step, so logging in later still leads back into the flow.
 
 ---
 

@@ -47,7 +47,7 @@ export function NewHackathonForm() {
           <ul className="mt-2 space-y-1">
             {similar.map((s) => (
               <li key={s.id}>
-                <Link href={`/hackathons/${s.id}`} className="font-medium text-accent underline-offset-2 hover:underline">
+                <Link href={`/hackathons/${s.id}`} className="font-medium text-accent-ink underline-offset-2 hover:underline">
                   {s.name}
                 </Link>{" "}
                 <span className="text-muted">({formatDateRange(s.starts_on, s.starts_on)})</span>

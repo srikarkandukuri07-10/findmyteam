@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Form from "next/form";
 import { Suspense } from "react";
+import { PageTransition } from "@/components/page-transition";
 import { HackathonCard } from "@/components/hackathon";
 import { ButtonLink, Card, PageHeader, buttonStyles } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
@@ -12,6 +13,7 @@ export const metadata: Metadata = { title: "Hackathons" };
 
 export default function HackathonsPage(props: PageProps<"/hackathons">) {
   return (
+    <PageTransition>
     <main className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
       <PageHeader
         title="Hackathons"
@@ -22,6 +24,7 @@ export default function HackathonsPage(props: PageProps<"/hackathons">) {
         <HackathonList searchParams={props.searchParams} />
       </Suspense>
     </main>
+    </PageTransition>
   );
 }
 
@@ -73,7 +76,7 @@ async function HackathonList({ searchParams }: { searchParams: PageProps<"/hacka
           </div>
         </Card>
       ) : (
-        <ul className="grid gap-4 md:grid-cols-2">
+        <ul className="stagger grid gap-4 md:grid-cols-2">
           {hackathons.map((h) => (
             <li key={h.id} className="flex">
               <div className="flex w-full flex-col">

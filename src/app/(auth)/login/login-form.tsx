@@ -34,7 +34,7 @@ export function LogInForm() {
         />
       </Field>
       <div className="flex justify-end">
-        <Link href="/forgot-password" className="text-sm text-accent">
+        <Link href="/forgot-password" className="text-sm text-accent-ink">
           Forgot password?
         </Link>
       </div>

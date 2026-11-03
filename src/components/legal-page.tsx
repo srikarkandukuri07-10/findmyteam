@@ -1,9 +1,11 @@
 import type { ReactNode } from "react";
+import { PageTransition } from "@/components/page-transition";
 import { Logo } from "./logo";
 import { CONSENT_VERSION } from "@/lib/validation/auth";
 
 export function LegalPage({ title, children }: { title: string; children: ReactNode }) {
   return (
+    <PageTransition>
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10">
       <Logo />
       <h1 className="mt-8 text-2xl font-semibold tracking-tight">{title}</h1>
@@ -13,5 +15,6 @@ export function LegalPage({ title, children }: { title: string; children: ReactN
       </div>
       <div className="mt-6 space-y-4 text-sm leading-6">{children}</div>
     </main>
+    </PageTransition>
   );
 }

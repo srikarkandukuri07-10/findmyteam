@@ -105,7 +105,7 @@ export function SubmitButton({ children, pendingText }: { children: ReactNode; p
     <button
       type="submit"
       disabled={pending}
-      className="flex w-full items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent-hover disabled:opacity-60"
+      className="flex w-full items-center justify-center rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-[background-color,transform] duration-200 hover:bg-accent-hover active:scale-[0.98] disabled:opacity-60"
     >
       {pending ? pendingText : children}
     </button>

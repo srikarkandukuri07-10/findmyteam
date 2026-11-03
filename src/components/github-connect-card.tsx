@@ -38,7 +38,7 @@ export function GithubConnectCard({
                 href={githubProfileUrl(username)}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="font-medium text-accent underline-offset-2 hover:underline"
+                className="font-medium text-accent-ink underline-offset-2 hover:underline"
               >
                 @{username}
               </a>

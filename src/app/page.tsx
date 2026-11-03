@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { PageTransition } from "@/components/page-transition";
 import { ButtonLink, Card, Chip } from "@/components/ui";
 import { APP_TAGLINE } from "@/lib/brand";
 
@@ -40,6 +41,7 @@ export default function LandingPage() {
         </div>
       </header>
 
+      <PageTransition>
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-4">
         <section className="grid gap-4 lg:grid-cols-5">
           <Card className="flex flex-col justify-center gap-6 py-10 sm:p-10 lg:col-span-3">
@@ -70,7 +72,7 @@ export default function LandingPage() {
               <div className="flex items-center gap-3">
                 <span
                   aria-hidden
-                  className="grid size-12 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent"
+                  className="grid size-12 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent-ink"
                 >
                   AR
                 </span>
@@ -84,7 +86,7 @@ export default function LandingPage() {
                 <Chip>PyTorch</Chip>
                 <Chip>OpenCV</Chip>
               </div>
-              <p className="rounded-2xl bg-accent-soft px-4 py-3 text-sm text-accent">
+              <p className="rounded-2xl bg-accent-soft px-4 py-3 text-sm text-accent-ink">
                 Why you match: complements your frontend skills.
               </p>
             </Card>
@@ -103,7 +105,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="grid gap-4 md:grid-cols-3">
+        <section className="stagger grid gap-4 md:grid-cols-3">
           {REASONS.map((r) => (
             <Card key={r.title} className="space-y-2">
               <h2 className="text-lg font-semibold tracking-tight">{r.title}</h2>
@@ -117,7 +119,7 @@ export default function LandingPage() {
           <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s) => (
               <li key={s.n} className="space-y-2">
-                <span className="grid size-9 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent">
+                <span className="grid size-9 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent-ink">
                   {s.n}
                 </span>
                 <p className="font-semibold">{s.title}</p>
@@ -127,6 +129,7 @@ export default function LandingPage() {
           </ol>
         </Card>
       </main>
+      </PageTransition>
 
       <footer className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-sm">
         <p>FindMyTeam</p>

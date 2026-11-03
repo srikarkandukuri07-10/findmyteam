@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { BACK_TRANSITION, PageTransition } from "@/components/page-transition";
 import { GithubConnectCard, GithubNotice } from "@/components/github-connect-card";
 import { Card, PageHeader } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
@@ -11,8 +12,9 @@ export const metadata: Metadata = { title: "Edit profile" };
 
 export default function EditProfilePage(props: PageProps<"/profile/edit">) {
   return (
+    <PageTransition>
     <main className="mx-auto w-full max-w-2xl flex-1 space-y-4 px-4 py-8">
-      <Link href="/profile" className="inline-block text-sm font-medium hover:text-accent">
+      <Link href="/profile" transitionTypes={BACK_TRANSITION} className="inline-block text-sm font-medium hover:text-accent-ink">
         ← My profile
       </Link>
       <PageHeader title="Edit your profile" subtitle="Tell other students what you bring to a team." />
@@ -20,6 +22,7 @@ export default function EditProfilePage(props: PageProps<"/profile/edit">) {
         <EditLoader searchParams={props.searchParams} />
       </Suspense>
     </main>
+    </PageTransition>
   );
 }
 

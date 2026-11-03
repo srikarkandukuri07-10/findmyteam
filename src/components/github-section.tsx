@@ -9,7 +9,7 @@ const STEP = CELL + GAP;
 const LABEL_HEIGHT = 16;
 
 const LEVEL_FILL: Record<HeatLevel, string> = {
-  0: "fill-chip",
+  0: "fill-cell-empty",
   1: "fill-accent/25",
   2: "fill-accent/50",
   3: "fill-accent/75",
@@ -98,7 +98,7 @@ export function GithubSection({ github, verified }: { github: GithubSnapshot; ve
           href={githubProfileUrl(github.login)}
           target="_blank"
           rel="noopener noreferrer nofollow"
-          className="text-sm font-medium text-accent underline-offset-2 hover:underline"
+          className="text-sm font-medium text-accent-ink underline-offset-2 hover:underline"
         >
           @{github.login} ↗
         </a>
@@ -130,15 +130,15 @@ export function GithubSection({ github, verified }: { github: GithubSnapshot; ve
       {github.top_repos.length > 0 && (
         <div className="space-y-3">
           <h3 className="text-xs font-medium uppercase tracking-wide text-muted">Top projects</h3>
-          <ul className="grid gap-3 sm:grid-cols-2">
+          <ul className="stagger grid gap-3 sm:grid-cols-2">
             {github.top_repos.map((repo) => (
-              <li key={repo.url} className="flex flex-col gap-2 rounded-2xl bg-surface-muted p-4">
+              <li key={repo.url} className="lift flex flex-col gap-2 rounded-2xl bg-surface-muted p-4">
                 {isGithubUrl(repo.url) ? (
                   <a
                     href={repo.url}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
-                    className="break-words font-semibold text-accent underline-offset-2 hover:underline"
+                    className="break-words font-semibold text-accent-ink underline-offset-2 hover:underline"
                   >
                     {repo.name}
                   </a>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { BACK_TRANSITION, PageTransition } from "@/components/page-transition";
 import { InterestButton, PhaseChip, interestText } from "@/components/hackathon";
 import { Card, Chip } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
@@ -11,14 +12,16 @@ export const metadata: Metadata = { title: "Hackathon" };
 
 export default function HackathonPage(props: PageProps<"/hackathons/[id]">) {
   return (
+    <PageTransition>
     <main className="mx-auto w-full max-w-3xl flex-1 space-y-4 px-4 py-8">
-      <Link href="/hackathons" className="inline-block text-sm font-medium text-foreground hover:text-accent">
+      <Link href="/hackathons" transitionTypes={BACK_TRANSITION} className="inline-block text-sm font-medium text-foreground hover:text-accent-ink">
         ← All hackathons
       </Link>
       <Suspense fallback={<p className="text-sm">Loading…</p>}>
         <HackathonDetails params={props.params} />
       </Suspense>
     </main>
+    </PageTransition>
   );
 }
 
@@ -60,7 +63,7 @@ async function HackathonDetails({ params }: { params: PageProps<"/hackathons/[id
             href={hackathon.url}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            className="break-all font-medium text-accent underline-offset-2 hover:underline"
+            className="break-all font-medium text-accent-ink underline-offset-2 hover:underline"
           >
             Official page ↗
           </a>

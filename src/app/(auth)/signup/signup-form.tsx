@@ -13,7 +13,7 @@ export function SignUpForm() {
       <div className="space-y-4">
         <FormMessage message={state.message} />
         <p className="text-sm text-muted">
-          Didn&apos;t get it? Check spam, or <Link href="/login" className="font-medium text-accent">log in</Link> to
+          Didn&apos;t get it? Check spam, or <Link href="/login" className="font-medium text-accent-ink">log in</Link> to
           have a new link sent.
         </p>
       </div>

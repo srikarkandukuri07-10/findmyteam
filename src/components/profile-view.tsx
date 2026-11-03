@@ -35,7 +35,7 @@ export function ProfileCard({ profile }: { profile: ProfileView }) {
       <div className="flex items-center gap-4">
         <span
           aria-hidden
-          className="grid size-16 shrink-0 place-items-center rounded-full bg-accent-soft text-xl font-semibold text-accent"
+          className="grid size-16 shrink-0 place-items-center rounded-full bg-accent-soft text-xl font-semibold text-accent-ink"
         >
           {initials(profile.displayName)}
         </span>
@@ -86,7 +86,7 @@ export function ProfileCard({ profile }: { profile: ProfileView }) {
                 href={githubProfileUrl(profile.githubUsername)}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="font-medium text-accent underline-offset-2 hover:underline"
+                className="font-medium text-accent-ink underline-offset-2 hover:underline"
               >
                 GitHub · {profile.githubUsername} ↗
               </a>
@@ -98,7 +98,7 @@ export function ProfileCard({ profile }: { profile: ProfileView }) {
                 href={profile.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer nofollow"
-                className="font-medium text-accent underline-offset-2 hover:underline"
+                className="font-medium text-accent-ink underline-offset-2 hover:underline"
               >
                 LinkedIn ↗
               </a>

@@ -30,7 +30,7 @@ export function CompletenessCard({ completeness }: { completeness: ReturnType<ty
           {missing.map((m) => (
             <li key={m.key} className="flex items-center gap-2">
               <span aria-hidden className="size-4 shrink-0 rounded border border-accent-strong" />
-              <Link href="/profile/edit" className="hover:text-accent">
+              <Link href="/profile/edit" className="hover:text-accent-ink">
                 {m.label}
               </Link>
             </li>

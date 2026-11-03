@@ -35,14 +35,14 @@ export function interestText(count: number) {
 
 export function HackathonCard({ hackathon, today }: { hackathon: HackathonRow; today: string }) {
   return (
-    <Card className="flex flex-col gap-4">
+    <Card className="lift flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-2">
         <PhaseChip hackathon={hackathon} today={today} />
         <Chip tone="sand">{MODE_LABELS[hackathon.mode]}</Chip>
       </div>
       <div className="space-y-1">
         <h2 className="text-lg font-semibold leading-snug tracking-tight">
-          <Link href={`/hackathons/${hackathon.id}`} className="hover:text-accent">
+          <Link href={`/hackathons/${hackathon.id}`} className="hover:text-accent-ink">
             {hackathon.name}
           </Link>
         </h2>
