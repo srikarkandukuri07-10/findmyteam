@@ -130,10 +130,33 @@ Supabase's advisor warns that signed-in users can call these functions. That is 
 
 ---
 
+## D13 · GitHub is an optional connection, not a sign-in method (2026-11-03)
+
+Sign-in is still email and password (D2 stands). Onboarding now has an **optional step 2** at `/onboarding/connect`: "Connect GitHub" (OAuth through Supabase `linkIdentity`) and a LinkedIn link, both skippable and available later from the profile.
+
+- When a student authorizes GitHub, the **database itself** fetches their public activity from GitHub's API (extension `http`, function `connect_github`) using the one-time token the server passes along. Students therefore can't submit made-up numbers, and no signing secret is needed. The token is never stored or logged.
+- Stored as a snapshot in `github_snapshots`: repository count, followers, the past year's contribution calendar, top 6 repositories (shown as "Top projects") and top languages. The profile shows a "Verified with GitHub" badge.
+- The snapshot is refreshed only by disconnecting and connecting again. Automatic refresh would need a server-side GitHub token or stored user tokens; not built.
+- The free-text GitHub username field is gone from profile editing. A username typed before this change shows as an unverified plain link until the student connects or removes it.
+- Needs setup in two dashboards (GitHub OAuth app, Supabase GitHub provider and "manual linking"); see the module 3 hand-over notes. Until then the Connect button shows "Connecting GitHub isn't available right now".
+
+---
+
+## D14 · Richer profiles are suggested more (internal rule; never shown to students)
+
+Founder's rule: students who give more information are suggested more often by the matching algorithm. "More" means a verified GitHub connection (and its activity), LinkedIn, skills, roles and a bio, i.e. the same facts behind the profile strength score.
+
+- Implement it in Module 4's quality signal (TRD section 7, "Quality" weight), not in the UI.
+- **Do not mention it anywhere in the product**: onboarding, profile strength card, settings, emails, help text. UI copy must not promise better matches or visibility.
+- Keep the boost modest, so students with sparse profiles, including non-coders for whom GitHub is less relevant, still appear regularly (the PRD's cold-start and fairness requirements still apply).
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
+- **Unused Vercel variable.** `GITHUB_SNAPSHOT_SECRET` exists in the Vercel project from an abandoned design (D13). Nothing reads it; delete it in Vercel's settings.
 - **Test account in the shared database.** The `dev-tester` account (a fake "Dev Tester" profile) exists in the same database production uses. Remove it before people-discovery (Module 4) goes live, or it will appear in real students' decks.
 - **Shared database.** Local development and production use one Supabase project. Create a separate production project before launch.
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.

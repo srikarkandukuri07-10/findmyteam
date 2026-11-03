@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CHECKS, PROFILE_BUILT_THRESHOLD, profileCompleteness } from "./completeness";
 
-const empty = { bio: null, skillCount: 0, roleCount: 0, githubUsername: null, linkedinUrl: null };
+const empty = { bio: null, skillCount: 0, roleCount: 0, githubConnected: false, linkedinUrl: null };
 
 describe("profileCompleteness", () => {
   it("weights add up to 100", () => {
@@ -15,10 +15,15 @@ describe("profileCompleteness", () => {
         bio: "I build computer vision systems for hackathons and love shipping fast.",
         skillCount: 5,
         roleCount: 2,
-        githubUsername: "octocat",
+        githubConnected: true,
         linkedinUrl: "https://www.linkedin.com/in/octocat",
       }).percent,
     ).toBe(100);
+  });
+
+  it("counts GitHub only when connected", () => {
+    expect(profileCompleteness({ ...empty, githubConnected: true }).percent).toBe(20);
+    expect(profileCompleteness({ ...empty, githubConnected: false }).percent).toBe(0);
   });
 
   it("needs 3 skills and a bio of 40+ characters", () => {

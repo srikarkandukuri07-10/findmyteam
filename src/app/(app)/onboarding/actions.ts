@@ -50,5 +50,6 @@ export async function completeOnboarding(_prev: FormState, formData: FormData): 
     return { values, message: { ok: false, text: "Couldn't save your details. Check them and try again." } };
   }
 
-  redirect("/home");
+  // Step 2 (GitHub and LinkedIn) is optional; it has its own skip button.
+  redirect("/onboarding/connect");
 }

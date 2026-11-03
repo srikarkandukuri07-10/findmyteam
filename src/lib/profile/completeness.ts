@@ -2,7 +2,8 @@ export type CompletenessInput = {
   bio?: string | null;
   skillCount: number;
   roleCount: number;
-  githubUsername?: string | null;
+  /** True only after authorizing GitHub; a typed-in username does not count. */
+  githubConnected?: boolean;
   linkedinUrl?: string | null;
 };
 
@@ -15,7 +16,7 @@ type Check = { key: string; label: string; weight: number; done: (p: Completenes
 export const CHECKS: Check[] = [
   { key: "skills", label: "Add at least 3 skills", weight: 30, done: (p) => p.skillCount >= 3 },
   { key: "bio", label: "Write a short bio (40+ characters)", weight: 25, done: (p) => (p.bio?.trim().length ?? 0) >= 40 },
-  { key: "github", label: "Add your GitHub username", weight: 20, done: (p) => Boolean(p.githubUsername) },
+  { key: "github", label: "Connect your GitHub", weight: 20, done: (p) => Boolean(p.githubConnected) },
   { key: "roles", label: "Pick the roles you want", weight: 15, done: (p) => p.roleCount >= 1 },
   { key: "linkedin", label: "Add your LinkedIn link", weight: 10, done: (p) => Boolean(p.linkedinUrl) },
 ];

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fieldErrors } from "./common";
-import { initials, profileSchema, rolesFromForm, skillsFromForm } from "./profile";
+import { initials, linkedinSchema, profileSchema, rolesFromForm, skillsFromForm } from "./profile";
 
 const NOW = new Date("2026-11-03T00:00:00Z");
 const schema = profileSchema(NOW);
@@ -8,7 +8,6 @@ const schema = profileSchema(NOW);
 const valid = {
   displayName: "  Asha Rao ",
   bio: "I build ML things.",
-  githubUsername: "asha-rao",
   linkedinUrl: "https://www.linkedin.com/in/asha-rao/",
   branchId: "2",
   yearOfStudy: "3",
@@ -26,21 +25,14 @@ describe("profileSchema (PROF-1, PROF-2, PROF-8)", () => {
   });
 
   it("treats blank optional fields as missing", () => {
-    const r = schema.parse({ ...valid, bio: "  ", githubUsername: "", linkedinUrl: "" });
+    const r = schema.parse({ ...valid, bio: "  ", linkedinUrl: "" });
     expect(r.bio).toBeUndefined();
-    expect(r.githubUsername).toBeUndefined();
     expect(r.linkedinUrl).toBeUndefined();
   });
 
-  it.each(["octo cat", "-octocat", "octocat-", "octo--cat", "a".repeat(40), "octo/cat", "@octocat"])(
-    "rejects the GitHub username %s",
-    (githubUsername) => {
-      expect(schema.safeParse({ ...valid, githubUsername }).success).toBe(false);
-    },
-  );
-
-  it.each(["octocat", "a", "Octo-Cat-1", "a".repeat(39)])("accepts the GitHub username %s", (githubUsername) => {
-    expect(schema.safeParse({ ...valid, githubUsername }).success).toBe(true);
+  it("does not accept a GitHub username: GitHub comes only from connecting", () => {
+    const r = schema.parse({ ...valid, githubUsername: "someone-else" });
+    expect(r).not.toHaveProperty("githubUsername");
   });
 
   it.each([
@@ -103,6 +95,19 @@ describe("profileSchema (PROF-1, PROF-2, PROF-8)", () => {
       });
       expect(Object.values(errors).join(" ")).not.toMatch(/Invalid input|NaN|undefined/);
     }
+  });
+});
+
+describe("linkedinSchema (optional onboarding step)", () => {
+  it("lets students skip it", () => {
+    expect(linkedinSchema.parse({ linkedinUrl: "" }).linkedinUrl).toBeUndefined();
+    expect(linkedinSchema.parse({ linkedinUrl: "   " }).linkedinUrl).toBeUndefined();
+    expect(linkedinSchema.parse({}).linkedinUrl).toBeUndefined();
+  });
+
+  it("still rejects a wrong link when one is given", () => {
+    expect(linkedinSchema.safeParse({ linkedinUrl: "https://evil.example/in/asha" }).success).toBe(false);
+    expect(linkedinSchema.safeParse({ linkedinUrl: "https://www.linkedin.com/in/asha-rao" }).success).toBe(true);
   });
 });
 

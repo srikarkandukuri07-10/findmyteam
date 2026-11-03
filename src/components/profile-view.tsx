@@ -1,5 +1,7 @@
+import { githubProfileUrl } from "@/lib/github/snapshot";
 import type { ProfileSkill, ProfileView } from "@/lib/profile/data";
-import { SKILL_LEVEL_LABELS, githubProfileUrl, initials } from "@/lib/validation/profile";
+import { SKILL_LEVEL_LABELS, initials } from "@/lib/validation/profile";
+import { GithubSection } from "./github-section";
 import { Card, Chip } from "./ui";
 
 const LEVEL_TONE = { advanced: "accent", intermediate: "neutral", beginner: "sand" } as const;
@@ -70,12 +72,15 @@ export function ProfileCard({ profile }: { profile: ProfileView }) {
       <SkillGroup title="Technical skills" skills={technical} />
       <SkillGroup title="Other skills" skills={other} />
       {profile.skills.length === 0 && profile.isMe && (
-        <p className="text-sm text-muted">No skills added yet. Skills are what matches you with teammates.</p>
+        <p className="text-sm text-muted">No skills added yet. Add the skills you bring so teammates can see them.</p>
       )}
 
-      {(profile.githubUsername || profile.linkedinUrl) && (
+      {profile.github && <GithubSection github={profile.github} verified={profile.githubVerified} />}
+
+      {/* A username with no GitHub data behind it is shown as a plain, unverified link. */}
+      {((!profile.github && profile.githubUsername) || profile.linkedinUrl) && (
         <ul className="flex flex-wrap gap-x-6 gap-y-2 border-t border-border pt-5 text-sm">
-          {profile.githubUsername && (
+          {!profile.github && profile.githubUsername && (
             <li>
               <a
                 href={githubProfileUrl(profile.githubUsername)}

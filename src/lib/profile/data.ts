@@ -2,6 +2,7 @@ import "server-only";
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/dal";
+import { parseGithubSnapshot } from "@/lib/github/snapshot";
 import { SKILL_LEVELS } from "@/lib/validation/profile";
 import { profileCompleteness } from "./completeness";
 
@@ -29,6 +30,8 @@ export async function getProfileView(id: string) {
     displayName: row.display_name,
     bio: row.bio,
     githubUsername: row.github_username,
+    githubVerified: row.github_verified,
+    github: parseGithubSnapshot(row.github),
     linkedinUrl: row.linkedin_url,
     degree: row.degree,
     collegeName: row.college_name,
@@ -49,7 +52,7 @@ export async function getProfileForEdit() {
   const [profile, mySkills, myRoles, skills, roles, branches] = await Promise.all([
     supabase
       .from("profiles")
-      .select("display_name, bio, github_username, linkedin_url, branch_id, year_of_study, graduation_year")
+      .select("display_name, bio, linkedin_url, github_username, github_id, branch_id, year_of_study, graduation_year")
       .eq("id", userId)
       .single(),
     supabase.from("profile_skills").select("skill_id, level"),
@@ -70,21 +73,41 @@ export async function getProfileForEdit() {
   };
 }
 
+/** My GitHub connection state, for the connect/disconnect panel. */
+export async function getMyGithubConnection() {
+  const { supabase, userId } = await requireUser();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("github_username, github_id, linkedin_url")
+    .eq("id", userId)
+    .single();
+  if (error) throw error;
+  return {
+    username: data.github_username,
+    verified: data.github_id != null,
+    linkedinUrl: data.linkedin_url,
+  };
+}
+
 /** Completeness of my own profile (RLS limits every query below to my rows). */
 export async function getMyCompleteness() {
   const { supabase, userId } = await requireUser();
   const [profile, skills, roles] = await Promise.all([
-    supabase.from("profiles").select("bio, github_username, linkedin_url").eq("id", userId).single(),
+    supabase.from("profiles").select("bio, github_id, linkedin_url").eq("id", userId).single(),
     supabase.from("profile_skills").select("*", { count: "exact", head: true }),
     supabase.from("profile_roles").select("*", { count: "exact", head: true }),
   ]);
   for (const r of [profile, skills, roles]) if (r.error) throw r.error;
 
-  return profileCompleteness({
-    bio: profile.data!.bio,
-    githubUsername: profile.data!.github_username,
-    linkedinUrl: profile.data!.linkedin_url,
-    skillCount: skills.count ?? 0,
-    roleCount: roles.count ?? 0,
-  });
+  const githubConnected = profile.data!.github_id != null;
+  return {
+    ...profileCompleteness({
+      bio: profile.data!.bio,
+      githubConnected,
+      linkedinUrl: profile.data!.linkedin_url,
+      skillCount: skills.count ?? 0,
+      roleCount: roles.count ?? 0,
+    }),
+    githubConnected,
+  };
 }

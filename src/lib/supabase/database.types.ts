@@ -58,6 +58,45 @@ export type Database = {
         }
         Relationships: []
       }
+      github_snapshots: {
+        Row: {
+          account_created_on: string | null
+          calendar: Json
+          contributions_total: number
+          followers: number
+          languages: Json
+          login: string
+          public_repos: number
+          synced_at: string
+          top_repos: Json
+          user_id: string
+        }
+        Insert: {
+          account_created_on?: string | null
+          calendar: Json
+          contributions_total: number
+          followers: number
+          languages: Json
+          login: string
+          public_repos: number
+          synced_at?: string
+          top_repos: Json
+          user_id: string
+        }
+        Update: {
+          account_created_on?: string | null
+          calendar?: Json
+          contributions_total?: number
+          followers?: number
+          languages?: Json
+          login?: string
+          public_repos?: number
+          synced_at?: string
+          top_repos?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       hackathon_interest: {
         Row: {
           created_at: string
@@ -175,6 +214,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          github_connected_at: string | null
+          github_id: number | null
           bio: string | null
           github_username: string | null
           linkedin_url: string | null
@@ -195,6 +236,8 @@ export type Database = {
           year_of_study: number | null
         }
         Insert: {
+          github_connected_at?: string | null
+          github_id?: number | null
           bio?: string | null
           github_username?: string | null
           linkedin_url?: string | null
@@ -215,6 +258,8 @@ export type Database = {
           year_of_study?: number | null
         }
         Update: {
+          github_connected_at?: string | null
+          github_id?: number | null
           bio?: string | null
           github_username?: string | null
           linkedin_url?: string | null
@@ -323,7 +368,9 @@ export type Database = {
           college_name: string
           degree: Database["public"]["Enums"]["degree"]
           display_name: string
+          github: Json
           github_username: string
+          github_verified: boolean
           graduation_year: number
           id: string
           is_me: boolean
@@ -333,12 +380,14 @@ export type Database = {
           year_of_study: number
         }[]
       }
+      connect_github: { Args: { p_token: string }; Returns: undefined }
+      disconnect_github: { Args: never; Returns: undefined }
+      set_linkedin_url: { Args: { p_url: string }; Returns: undefined }
       save_profile: {
         Args: {
           p_bio: string
           p_branch_id: number
           p_display_name: string
-          p_github_username: string
           p_graduation_year: number
           p_linkedin_url: string
           p_role_ids: number[]

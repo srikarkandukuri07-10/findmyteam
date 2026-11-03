@@ -11,7 +11,6 @@ type Props = {
   profile: {
     display_name: string | null;
     bio: string | null;
-    github_username: string | null;
     linkedin_url: string | null;
     branch_id: number | null;
     year_of_study: number | null;
@@ -109,23 +108,7 @@ export function ProfileForm({ profile, branches, skills, roles, selectedSkills, 
 
       <section className="space-y-5">
         <h2 className="text-lg font-semibold tracking-tight">Links</h2>
-        <Field
-          label="GitHub username"
-          name="githubUsername"
-          error={e.githubUsername}
-          hint="Just the username, like octocat. Your repositories will be shown here soon."
-        >
-          <Input
-            name="githubUsername"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            maxLength={39}
-            defaultValue={v("githubUsername", profile.github_username)}
-            error={e.githubUsername}
-          />
-        </Field>
-        <Field label="LinkedIn profile" name="linkedinUrl" error={e.linkedinUrl} hint="Paste your full profile link.">
+        <Field label="LinkedIn profile (optional)" name="linkedinUrl" error={e.linkedinUrl} hint="Paste your full profile link.">
           <Input
             name="linkedinUrl"
             type="url"

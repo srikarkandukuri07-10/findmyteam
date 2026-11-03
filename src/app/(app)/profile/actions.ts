@@ -7,7 +7,7 @@ import { fieldErrors } from "@/lib/validation/common";
 import { profileSchema, rolesFromForm, skillsFromForm } from "@/lib/validation/profile";
 import type { FormState } from "@/app/(auth)/actions";
 
-const TEXT_FIELDS = ["displayName", "bio", "githubUsername", "linkedinUrl", "branchId", "yearOfStudy", "graduationYear"] as const;
+const TEXT_FIELDS = ["displayName", "bio", "linkedinUrl", "branchId", "yearOfStudy", "graduationYear"] as const;
 
 /** PROF-1, PROF-2, PROF-8: save my profile in one database call. */
 export async function saveProfile(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -29,7 +29,6 @@ export async function saveProfile(_prev: FormState, formData: FormData): Promise
   const { error } = await supabase.rpc("save_profile", {
     p_display_name: input.displayName,
     p_bio: (input.bio ?? null) as string,
-    p_github_username: (input.githubUsername ?? null) as string,
     p_linkedin_url: (input.linkedinUrl ?? null) as string,
     p_branch_id: input.branchId,
     p_year_of_study: input.yearOfStudy,

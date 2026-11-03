@@ -36,6 +36,7 @@ async function Dashboard() {
   const steps = [
     { label: "Create your account", done: true },
     { label: "Follow a hackathon you care about", done: myInterests > 0, href: "/hackathons" },
+    { label: "Connect GitHub (optional)", done: completeness.githubConnected, href: "/profile/edit" },
     { label: "Build your profile", done: completeness.percent >= PROFILE_BUILT_THRESHOLD, href: "/profile/edit" },
     { label: "Find teammates and teams", soon: true },
   ];

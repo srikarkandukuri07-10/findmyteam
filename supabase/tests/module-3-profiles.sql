@@ -29,7 +29,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
 
   perform public.save_profile(
-    '  Asha Rao ', 'I build ML things.', 'asha-rao', 'https://www.linkedin.com/in/asha-rao/',
+    '  Asha Rao ', 'I build ML things.', 'https://www.linkedin.com/in/asha-rao/',
     2::smallint, 3::smallint, 2028::smallint,
     jsonb_build_array(
       jsonb_build_object('id', skill_ids[1], 'level', 'advanced'),
@@ -45,14 +45,14 @@ begin
   if r.branch_name is null or r.college_name is null then raise exception 'FAIL 5: branch/college names missing from get_profile.'; end if;
 
   -- Saving again replaces, not appends.
-  perform public.save_profile('Asha Rao', null, null, null, 2::smallint, 3::smallint, 2028::smallint,
+  perform public.save_profile('Asha Rao', null, null, 2::smallint, 3::smallint, 2028::smallint,
     jsonb_build_array(jsonb_build_object('id', skill_ids[3], 'level', 'intermediate')), array[]::smallint[]);
   select * into r from public.get_profile(a);
   if jsonb_array_length(r.skills) <> 1 or jsonb_array_length(r.roles) <> 0 then raise exception 'FAIL 6: saving did not replace the previous skills and roles.'; end if;
-  if r.bio is not null or r.github_username is not null or r.linkedin_url is not null then raise exception 'FAIL 7: blank optional fields were not cleared.'; end if;
+  if r.bio is not null or r.linkedin_url is not null then raise exception 'FAIL 7: blank optional fields were not cleared.'; end if;
 
   -- Restore the fuller profile for B's checks.
-  perform public.save_profile('Asha Rao', 'I build ML things.', 'asha-rao', 'https://www.linkedin.com/in/asha-rao/',
+  perform public.save_profile('Asha Rao', 'I build ML things.', 'https://www.linkedin.com/in/asha-rao/',
     2::smallint, 3::smallint, 2028::smallint,
     jsonb_build_array(jsonb_build_object('id', skill_ids[1], 'level', 'advanced')), array[1]::smallint[]);
 
@@ -60,56 +60,49 @@ begin
   failed := false;
   begin
     select jsonb_agg(jsonb_build_object('id', s, 'level', 'beginner')) into skills_json from unnest(skill_ids) s; -- 16 skills
-    perform public.save_profile('Asha Rao', null, null, null, 2::smallint, 3::smallint, 2028::smallint, skills_json, array[]::smallint[]);
+    perform public.save_profile('Asha Rao', null, null, 2::smallint, 3::smallint, 2028::smallint, skills_json, array[]::smallint[]);
   exception when raise_exception then failed := sqlerrm = 'too_many_skills';
   end;
   if not failed then raise exception 'FAIL 8: 16 skills were accepted (limit is 15).'; end if;
 
   failed := false;
   begin
-    perform public.save_profile('Asha Rao', null, null, null, 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[1, 2, 3, 4]::smallint[]);
+    perform public.save_profile('Asha Rao', null, null, 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[1, 2, 3, 4]::smallint[]);
   exception when raise_exception then failed := sqlerrm = 'too_many_roles';
   end;
   if not failed then raise exception 'FAIL 9: 4 roles were accepted (limit is 3).'; end if;
 
   failed := false;
   begin
-    perform public.save_profile('Asha Rao', repeat('x', 501), null, null, 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
+    perform public.save_profile('Asha Rao', repeat('x', 501), null, 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
   exception when check_violation then failed := true;
   end;
   if not failed then raise exception 'FAIL 10: a 501-character bio was accepted.'; end if;
 
   failed := false;
   begin
-    perform public.save_profile('Asha Rao', null, 'bad name--', null, 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
-  exception when check_violation then failed := true;
-  end;
-  if not failed then raise exception 'FAIL 11: an invalid GitHub username was accepted.'; end if;
-
-  failed := false;
-  begin
-    perform public.save_profile('Asha Rao', null, null, 'javascript:alert(1)', 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
+    perform public.save_profile('Asha Rao', null, 'javascript:alert(1)', 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
   exception when check_violation then failed := true;
   end;
   if not failed then raise exception 'FAIL 12: a javascript: link was accepted as a LinkedIn URL.'; end if;
 
   failed := false;
   begin
-    perform public.save_profile('Asha Rao', null, null, 'https://evil.example/in/asha', 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
+    perform public.save_profile('Asha Rao', null, 'https://evil.example/in/asha', 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
   exception when check_violation then failed := true;
   end;
   if not failed then raise exception 'FAIL 13: a non-LinkedIn address was accepted.'; end if;
 
   failed := false;
   begin
-    perform public.save_profile('Asha Rao', null, null, 'https://linkedin.com.evil.example/in/asha', 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
+    perform public.save_profile('Asha Rao', null, 'https://linkedin.com.evil.example/in/asha', 2::smallint, 3::smallint, 2028::smallint, '[]'::jsonb, array[]::smallint[]);
   exception when check_violation then failed := true;
   end;
   if not failed then raise exception 'FAIL 14: a look-alike LinkedIn domain was accepted.'; end if;
 
   failed := false;
   begin
-    perform public.save_profile('Asha Rao', null, null, null, 2::smallint, 3::smallint, 2028::smallint,
+    perform public.save_profile('Asha Rao', null, null, 2::smallint, 3::smallint, 2028::smallint,
       jsonb_build_array(jsonb_build_object('id', 32000, 'level', 'beginner')), array[]::smallint[]);
   exception when foreign_key_violation then failed := true;
   end;
@@ -177,7 +170,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', c, 'role', 'authenticated')::text, true);
   failed := false;
   begin
-    perform public.save_profile('Cee', null, null, null, 1::smallint, 1::smallint, 2029::smallint, '[]'::jsonb, array[]::smallint[]);
+    perform public.save_profile('Cee', null, null, 1::smallint, 1::smallint, 2029::smallint, '[]'::jsonb, array[]::smallint[]);
   exception when insufficient_privilege then failed := true;
   end;
   if not failed then raise exception 'FAIL 29: a non-onboarded user could save a profile.'; end if;

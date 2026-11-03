@@ -15,12 +15,21 @@ export const SKILL_LEVEL_LABELS: Record<SkillLevel, string> = {
 };
 
 // Same rules as the database checks, so errors show next to the field instead of as a failed save.
-const GITHUB_USERNAME = /^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$/;
 const LINKEDIN_URL = /^https:\/\/([a-z]{2,3}\.)?linkedin\.com\/in\/[^\s/?#]{3,100}\/?$/i;
 
 function optional(schema: z.ZodType<string>) {
   return z.preprocess(blankToUndefined, schema.optional());
 }
+
+/** LinkedIn is always optional: blank is fine, anything else must be a real profile link. */
+const linkedinField = optional(
+  z
+    .string()
+    .trim()
+    .regex(LINKEDIN_URL, { error: "Enter your profile link, like https://www.linkedin.com/in/your-name" }),
+);
+
+export const linkedinSchema = z.object({ linkedinUrl: linkedinField });
 
 /** Builds the profile schema relative to `now` so the graduation-year range stays current. */
 export function profileSchema(now: Date = new Date()) {
@@ -37,18 +46,7 @@ export function profileSchema(now: Date = new Date()) {
         .trim()
         .max(BIO_MAX, { error: `Keep your bio under ${BIO_MAX} characters.` }),
     ),
-    githubUsername: optional(
-      z
-        .string()
-        .trim()
-        .regex(GITHUB_USERNAME, { error: "Enter just your GitHub username, for example octocat." }),
-    ),
-    linkedinUrl: optional(
-      z
-        .string()
-        .trim()
-        .regex(LINKEDIN_URL, { error: "Enter your profile link, like https://www.linkedin.com/in/your-name" }),
-    ),
+    linkedinUrl: linkedinField,
     branchId: requiredInt("Select your branch.").pipe(z.number().positive({ error: "Select your branch." })),
     yearOfStudy: requiredInt("Select your year of study.").pipe(
       z.number().min(1, { error: "Select your year of study." }).max(5, { error: "Select your year of study." }),
@@ -89,10 +87,6 @@ export function skillsFromForm(values: FormDataEntryValue[]) {
 
 export function rolesFromForm(values: FormDataEntryValue[]) {
   return values.filter((v): v is string => typeof v === "string").map(Number);
-}
-
-export function githubProfileUrl(username: string) {
-  return `https://github.com/${encodeURIComponent(username)}`;
 }
 
 export function initials(name: string | null | undefined) {
