@@ -78,6 +78,26 @@ Until then, the app collects birth year at sign-up so this can be enforced later
 
 ---
 
+## D6 · B.E. counts as B.Tech (2026-11-03, built; awaiting founder confirmation)
+
+**Decision.** Onboarding accepts **B.Tech or B.E.** Osmania University's affiliated colleges (CBIT, Vasavi, MJCET, Matrusri, Methodist and others) award a B.E., which is the same engineering degree under another name. A B.Tech-only rule would stop students from several top Hyderabad colleges from joining honestly.
+
+**To allow B.Tech only:** remove `'be'` from the `public.degree` enum in a new migration and from the `degree` enum in `src/lib/validation/auth.ts`.
+
+---
+
+## D7 · Name: FMT, short for FindMyTeam (2026-11-03)
+
+Set by the founder. `src/lib/brand.ts` holds the name; renaming means changing that one file.
+
+---
+
+## D8 · Hosting on Vercel, deployed from GitHub (2026-11-03)
+
+Code lives at `github.com/srikarkandukuri07-10/findmyteam`; Vercel builds every push to `main` to production and every other branch to a preview URL. Vercel's free Hobby plan is for non-commercial use, which covers building and testing; revisit before charging anyone or at public launch.
+
+---
+
 ## Still open
 
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.

@@ -8,8 +8,8 @@ Requirement IDs refer to `PRD.md`, as amended by `DECISIONS.md`.
 
 | # | Module | What it delivers | PRD IDs | Status |
 | --- | --- | --- | --- | --- |
-| 0 | Foundations | App skeleton, Supabase wiring, CI, docs | none | In progress |
-| 1 | Auth and onboarding | Sign-up, verification, B.Tech declaration, consent, sign-in, reset | AUTH-1, 2, 4, 6, 7 | |
+| 0 | Foundations | App skeleton, Supabase wiring, CI, docs | none | Done (GitHub repo pending) |
+| 1 | Auth and onboarding | Sign-up, verification, B.Tech declaration, consent, sign-in, reset | AUTH-1, 2, 4, 6, 7 | Built; email-link steps await dashboard settings; Turnstile deferred |
 | 2 | Hackathons catalogue | Hackathon records anyone can add; mark interest | HACK-1, 2, 3 | |
 | 3 | Profiles | Profile, skills, roles, photo, GitHub repos, past hackathons, projects | PROF-1 to 6, 8 | |
 | 4 | People discovery | One card at a time, Connect / Skip, filters, ranking v1, daily cap | DISC-1 to 4, 6, 7 | |

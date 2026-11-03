@@ -1,4 +1,4 @@
-# Hackathon Teammate Network
+# FMT (FindMyTeam)
 
 Web app where B.Tech students find hackathon teammates outside their friend circle: one-card-at-a-time people discovery, a teams directory, request/accept connections, chat, and (later) reviews tied to real teams.
 
@@ -16,7 +16,10 @@ Next.js 16 renamed `middleware.ts` to `src/proxy.ts`. Check `node_modules/next/d
 
 ## Commands
 - `npm run dev` — start the app
-- `npm run lint` / `npm run typecheck` / `npm run build` — all must pass before a module is done
+- `npm run lint` / `npm run typecheck` / `npm test` / `npm run build` — all must pass before a module is done
+- `supabase/tests/*.sql` — database security checks; run against the dev project, success is the error `ALL_TESTS_PASSED`
+- After a migration, regenerate `src/lib/supabase/database.types.ts`
+- Local test account: `DEV_TEST_EMAIL` / `DEV_TEST_PASSWORD` in `.env.local` (never print them)
 
 ## Rules
 - Work one module at a time (`docs/MODULES.md`). Propose a plan before editing; don't start the next module unasked.
