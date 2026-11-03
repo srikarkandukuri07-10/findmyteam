@@ -152,10 +152,21 @@ Founder's rule: students who give more information are suggested more often by t
 
 ---
 
+## D15 · Email confirmation switched off for now (2026-11-03)
+
+**Decision.** New accounts are signed in immediately after sign-up, with no confirmation email. This temporarily replaces PRD AUTH-2 (verified email required). Reason: Supabase's built-in email sender only reaches your own team's addresses, and there is no budget for a domain or email provider yet.
+
+- Done by turning **Confirm email** off in Supabase (Authentication → Sign In / Providers → Email). The app already copes: `signUp` goes straight to `/onboarding` when Supabase returns a session, and still shows "check your email" if confirmation is ever switched back on. The database check that onboarding needs a verified email still holds, because Supabase marks accounts confirmed automatically while confirmation is off.
+- **Risks accepted for now.** Nobody proves they own the email they type, so (1) fake or mistyped addresses can sign up, (2) someone can register a stranger's address first and the real owner then can't use it, and (3) "Forgot password" only helps when the address is real and email delivery works. A sign-up with an existing address now says "This email already has an account", which reveals that the address is registered.
+- **Re-enable before launch** together with a real email sender (Resend with a domain, or Brevo), and send the existing accounts a verification link.
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
+- **Email confirmation is off (D15).** Turn it back on, with a real email sender, before launch.
 - **Unused Vercel variable.** `GITHUB_SNAPSHOT_SECRET` exists in the Vercel project from an abandoned design (D13). Nothing reads it; delete it in Vercel's settings.
 - **Test account in the shared database.** The `dev-tester` account (a fake "Dev Tester" profile) exists in the same database production uses. Remove it before people-discovery (Module 4) goes live, or it will appear in real students' decks.
 - **Shared database.** Local development and production use one Supabase project. Create a separate production project before launch.

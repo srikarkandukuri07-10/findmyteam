@@ -36,19 +36,27 @@ function authErrorText(code: string | undefined, fallback: string) {
       return "Email or password is incorrect.";
     case "same_password":
       return "Choose a password different from your current one.";
+    case "user_already_exists":
+    case "email_exists":
+      return "This email already has an account. Log in instead.";
     default:
       return fallback;
   }
 }
 
-/** AUTH-1, AUTH-2: email + password, verification link required. */
+/**
+ * AUTH-1: email + password. Email verification (AUTH-2) is switched off for now (DECISIONS D15):
+ * with "Confirm email" off in Supabase, signUp returns a session and the student goes straight
+ * to onboarding. If it is switched back on, no session comes back and the "check your email"
+ * message below is shown, so nothing here needs to change.
+ */
 export async function signUp(_prev: FormState, formData: FormData): Promise<FormState> {
   const values = { email: str(formData, "email") };
   const parsed = signUpSchema.safeParse({ email: values.email, password: str(formData, "password") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     ...parsed.data,
     options: { emailRedirectTo: `${await siteUrl()}/auth/confirm?next=/onboarding` },
   });
@@ -60,7 +68,9 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
     };
   }
 
-  // Same reply whether or not the email already has an account, so accounts can't be probed.
+  if (data.session) redirect("/onboarding");
+
+  // Verification is on: same reply whether or not the email already has an account, so accounts can't be probed.
   return {
     message: {
       ok: true,
