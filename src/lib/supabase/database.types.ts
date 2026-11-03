@@ -140,8 +140,44 @@ export type Database = {
           },
         ]
       }
+      profile_roles: {
+        Row: {
+          role_id: number
+          user_id: string
+        }
+        Insert: {
+          role_id: number
+          user_id: string
+        }
+        Update: {
+          role_id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profile_skills: {
+        Row: {
+          level: Database["public"]["Enums"]["skill_level"]
+          skill_id: number
+          user_id: string
+        }
+        Insert: {
+          level?: Database["public"]["Enums"]["skill_level"]
+          skill_id: number
+          user_id: string
+        }
+        Update: {
+          level?: Database["public"]["Enums"]["skill_level"]
+          skill_id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
+          bio: string | null
+          github_username: string | null
+          linkedin_url: string | null
           birth_year: number | null
           branch_id: number | null
           college_id: number | null
@@ -159,6 +195,9 @@ export type Database = {
           year_of_study: number | null
         }
         Insert: {
+          bio?: string | null
+          github_username?: string | null
+          linkedin_url?: string | null
           birth_year?: number | null
           branch_id?: number | null
           college_id?: number | null
@@ -176,6 +215,9 @@ export type Database = {
           year_of_study?: number | null
         }
         Update: {
+          bio?: string | null
+          github_username?: string | null
+          linkedin_url?: string | null
           birth_year?: number | null
           branch_id?: number | null
           college_id?: number | null
@@ -209,6 +251,51 @@ export type Database = {
           },
         ]
       }
+      roles: {
+        Row: {
+          id: number
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          id?: never
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          id?: never
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      skills: {
+        Row: {
+          category: Database["public"]["Enums"]["skill_category"]
+          id: number
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["skill_category"]
+          id?: never
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["skill_category"]
+          id?: never
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -224,6 +311,38 @@ export type Database = {
           p_degree: Database["public"]["Enums"]["degree"]
           p_display_name: string
           p_graduation_year: number
+          p_year_of_study: number
+        }
+        Returns: undefined
+      }
+      get_profile: {
+        Args: { p_id: string }
+        Returns: {
+          bio: string
+          branch_name: string
+          college_name: string
+          degree: Database["public"]["Enums"]["degree"]
+          display_name: string
+          github_username: string
+          graduation_year: number
+          id: string
+          is_me: boolean
+          linkedin_url: string
+          roles: Json
+          skills: Json
+          year_of_study: number
+        }[]
+      }
+      save_profile: {
+        Args: {
+          p_bio: string
+          p_branch_id: number
+          p_display_name: string
+          p_github_username: string
+          p_graduation_year: number
+          p_linkedin_url: string
+          p_role_ids: number[]
+          p_skills: Json
           p_year_of_study: number
         }
         Returns: undefined
@@ -291,6 +410,8 @@ export type Database = {
       degree: "btech" | "be"
       hackathon_mode: "online" | "in_person" | "hybrid"
       hackathon_status: "active" | "merged" | "removed"
+      skill_category: "technical" | "non_technical"
+      skill_level: "beginner" | "intermediate" | "advanced"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -355,6 +476,8 @@ export const Constants = {
       degree: ["btech", "be"],
       hackathon_mode: ["online", "in_person", "hybrid"],
       hackathon_status: ["active", "merged", "removed"],
+      skill_category: ["technical", "non_technical"],
+      skill_level: ["beginner", "intermediate", "advanced"],
     },
   },
 } as const

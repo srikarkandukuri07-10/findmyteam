@@ -121,10 +121,20 @@ Supabase's advisor warns that signed-in users can call these functions. That is 
 
 ---
 
+## D12 · Profile privacy and limits (2026-11-03)
+
+- Other students never read the `profiles` table. They get a safe subset through `get_profile()`: no birth year, consent data, email or account status. Suspended and banned students are hidden from others.
+- Up to **15 skills** (each with a beginner / intermediate / advanced level) and **3 roles** per student, chosen from fixed lists seeded in the migration. Adding to those lists is a migration, not a user action.
+- GitHub is a username only; LinkedIn is a plain link that must be an `https://…linkedin.com/in/…` address. Both are format-checked in the database.
+- A profile counts as "built" at 70% completeness (3 skills, a 40+ character bio and a role).
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
+- **Test account in the shared database.** The `dev-tester` account (a fake "Dev Tester" profile) exists in the same database production uses. Remove it before people-discovery (Module 4) goes live, or it will appear in real students' decks.
 - **Shared database.** Local development and production use one Supabase project. Create a separate production project before launch.
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.
 - **Team invites at launch.** PRD section 6 includes invites in the launch flow, but TEAM-8 is marked P1. This plan includes invites in Module 7.

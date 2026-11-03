@@ -5,6 +5,8 @@ import { Card, CardTitle, Chip, Stat } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
 import { countMyUpcomingInterests, listHackathons } from "@/lib/hackathons/data";
 import { MODE_LABELS, formatShortDate, phaseLabel, todayInIndia } from "@/lib/hackathons/dates";
+import { PROFILE_BUILT_THRESHOLD } from "@/lib/profile/completeness";
+import { getMyCompleteness } from "@/lib/profile/data";
 
 export const metadata: Metadata = { title: "Home" };
 
@@ -20,7 +22,11 @@ export default function HomePage() {
 
 async function Dashboard() {
   const profile = await requireOnboardedProfile();
-  const [upcoming, myInterests] = await Promise.all([listHackathons({ limit: 5 }), countMyUpcomingInterests()]);
+  const [upcoming, myInterests, completeness] = await Promise.all([
+    listHackathons({ limit: 5 }),
+    countMyUpcomingInterests(),
+    getMyCompleteness(),
+  ]);
   const today = todayInIndia();
 
   const college = profile.colleges?.name ?? profile.college_other;
@@ -30,7 +36,7 @@ async function Dashboard() {
   const steps = [
     { label: "Create your account", done: true },
     { label: "Follow a hackathon you care about", done: myInterests > 0, href: "/hackathons" },
-    { label: "Build your profile", soon: true },
+    { label: "Build your profile", done: completeness.percent >= PROFILE_BUILT_THRESHOLD, href: "/profile/edit" },
     { label: "Find teammates and teams", soon: true },
   ];
 

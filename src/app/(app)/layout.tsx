@@ -17,7 +17,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
             <form action={logOut}>
               <button
                 type="submit"
-                className="rounded-full px-3.5 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
+                className="whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-surface-muted hover:text-foreground"
               >
                 Log out
               </button>

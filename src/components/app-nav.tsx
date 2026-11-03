@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/home", label: "Home" },
   { href: "/hackathons", label: "Hackathons" },
+  { href: "/profile", label: "Profile" },
 ];
 
 /** The links, with the active one highlighted when `pathname` matches. */
@@ -19,7 +20,7 @@ export function NavLinks({ pathname }: { pathname: string }) {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={`rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+            className={`whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
               active ? "bg-accent-soft text-accent" : "text-muted hover:bg-surface-muted hover:text-foreground"
             }`}
           >

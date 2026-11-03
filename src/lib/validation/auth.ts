@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { blankToUndefined, fieldErrors } from "./common";
+import { blankToUndefined, fieldErrors, requiredInt } from "./common";
 
 export { fieldErrors };
 
@@ -33,11 +33,6 @@ export const resetPasswordSchema = z
     error: "Passwords don't match.",
     path: ["confirmPassword"],
   });
-
-/** A required whole number from a form field, with one message for missing or invalid input. */
-function requiredInt(message: string) {
-  return z.preprocess(blankToUndefined, z.coerce.number({ error: message }).int({ error: message }));
-}
 
 /** Builds the onboarding schema relative to `now` so year ranges stay current. */
 export function onboardingSchema(now: Date = new Date()) {
