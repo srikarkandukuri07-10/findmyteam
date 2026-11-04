@@ -116,7 +116,9 @@ export function WaitlistForm({ options, stats }: { options: WaitlistOptions; sta
   const message = state.kind === "error" ? state.message : undefined;
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    // The success screen replaces the form at once (with its own entrance), never waiting on an exit animation:
+    // a paused or slow browser must not leave someone looking at a form that has already been sent.
+    <>
       {success ? (
         <Success
           key="success"
@@ -130,15 +132,7 @@ export function WaitlistForm({ options, stats }: { options: WaitlistOptions; sta
           }}
         />
       ) : (
-        <motion.form
-          key="form"
-          action={formAction}
-          noValidate
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, x: -60, transition: { duration: 0.3 } }}
-          className="space-y-5"
-        >
+        <form key="form" action={formAction} noValidate className="space-y-5">
           {/* React clears a form after each submit; remounting the fields with the echoed values keeps what was typed. */}
           <Fragment key={state.kind === "error" ? state.attempt : 0}>
             {ref && (
@@ -386,9 +380,9 @@ export function WaitlistForm({ options, stats }: { options: WaitlistOptions; sta
               ? `${stats.total.toLocaleString("en-IN")} students are already waiting.`
               : "Be one of the first."}
           </p>
-        </motion.form>
+        </form>
       )}
-    </AnimatePresence>
+    </>
   );
 }
 
