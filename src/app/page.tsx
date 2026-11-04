@@ -1,145 +1,269 @@
+import type { CSSProperties } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { Logo } from "@/components/logo";
-import { PageTransition } from "@/components/page-transition";
-import { ButtonLink, Card, Chip } from "@/components/ui";
-import { APP_TAGLINE } from "@/lib/brand";
+import { Faq } from "@/components/landing/faq";
+import { HeroDeck } from "@/components/landing/hero-deck";
+import { Reveal } from "@/components/landing/reveal";
+import { WaitlistForm } from "@/components/landing/waitlist-form";
+import { APP_NAME } from "@/lib/brand";
+import { getWaitlistOptions, getWaitlistStats } from "@/lib/waitlist/data";
 
-const REASONS = [
-  {
-    title: "Beyond your college",
-    body: "Meet designers, ML engineers and builders from other campuses, not just your classmates.",
-  },
-  {
-    title: "Skills that complete yours",
-    body: "See what someone can actually contribute: projects, past hackathons and the role they want.",
-  },
-  {
-    title: "Join a team or build one",
-    body: "Find one teammate, or browse teams that are recruiting for the hackathon you're targeting.",
-  },
+const ROLES = [
+  "UI/UX designer",
+  "Frontend",
+  "Backend",
+  "ML engineer",
+  "App developer",
+  "Pitch person",
+  "Hardware",
+  "Data analyst",
+  "DevOps",
+  "Product",
+  "Cybersecurity",
+  "Blockchain",
 ];
 
 const STEPS = [
-  { n: "1", title: "Sign up", body: "Use your email and tell us your B.Tech or B.E. details." },
-  { n: "2", title: "Pick a hackathon", body: "Follow the events you want to compete in." },
-  { n: "3", title: "Find your people", body: "Browse profiles and teams that fit what you're missing." },
-  { n: "4", title: "Team up", body: "Send a request. Once accepted, chat and plan." },
+  {
+    title: "Show what you bring",
+    body: "Your skills, the role you want and your GitHub, in one card. Takes two minutes.",
+  },
+  {
+    title: "Swipe students from other colleges",
+    body: "Right sends a team-up request. Left skips, and nobody is told.",
+  },
+  {
+    title: "Team up and build",
+    body: "Accept a request, or join a team that's already building for your hackathon.",
+  },
 ];
 
-export default function LandingPage() {
+const FEATURES = [
+  { icon: "↔", title: "Discover", body: "One card at a time: students whose skills complete yours, from colleges across the city." },
+  { icon: "✉", title: "Requests", body: "Send and accept team-up requests. A skip is private, so there's no awkwardness." },
+  { icon: "◎", title: "Teams", body: "Browse teams recruiting for a hackathon and see exactly which spots are open." },
+  { icon: "</>", title: "Real profiles", body: "Connect GitHub to show your repos and contribution graph, not just a list of skills." },
+];
+
+const AVENGERS = [
+  { name: "Iron Man", chip: "HTML · Beginner" },
+  { name: "Thor", chip: "VS Code: opened 6 months ago" },
+  { name: "Hulk", chip: "PowerPoint · Expert" },
+  { name: "Captain America", chip: "“What's the problem statement?”" },
+];
+
+export default async function LandingPage() {
+  const [options, stats] = await Promise.all([getWaitlistOptions(), getWaitlistStats()]);
+
   return (
-    <div className="flex flex-1 flex-col">
-      <header className="px-4 pt-4">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-full bg-surface px-4 py-2.5 shadow-card sm:pl-5">
-          <Logo />
-          <div className="flex items-center gap-1.5">
-            <ButtonLink href="/login" variant="ghost">
-              Log in
-            </ButtonLink>
-            <ButtonLink href="/signup">Sign up</ButtonLink>
-          </div>
-        </div>
+    <div className="relative flex flex-1 flex-col overflow-x-clip">
+      {/* Soft light behind everything. */}
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[900px] overflow-hidden">
+        <div className="drift absolute -left-40 -top-32 size-[520px] rounded-full bg-accent/40 blur-3xl" />
+        <div className="drift-slow absolute -right-32 top-40 size-[460px] rounded-full bg-accent-soft/80 blur-3xl" />
+        <div className="drift absolute left-1/3 top-[520px] size-[380px] rounded-full bg-surface/60 blur-3xl" />
+      </div>
+
+      <header className="sticky top-0 z-40 px-4 pt-4">
+        <nav className="mx-auto flex w-full max-w-6xl items-center justify-between rounded-full bg-surface/85 px-3 py-2 shadow-card backdrop-blur-md sm:px-4">
+          <Link href="/" className="flex items-center gap-2.5" aria-label={`${APP_NAME} home`}>
+            <Image src="/brand/fmt-mark.png" alt="" width={68} height={42} className="h-9 w-auto rounded-lg" priority />
+            <span className="text-lg font-semibold tracking-tight">
+              Find<span className="text-accent-ink">My</span>Team
+            </span>
+          </Link>
+          <a
+            href="#join"
+            className="rounded-full bg-accent px-4 py-2 text-sm font-bold text-accent-foreground transition hover:bg-accent-hover active:scale-95 sm:px-5"
+          >
+            Join the waitlist
+          </a>
+        </nav>
       </header>
 
-      <PageTransition>
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 px-4 py-4">
-        <section className="grid gap-4 lg:grid-cols-5">
-          <Card className="flex flex-col justify-center gap-6 py-10 sm:p-10 lg:col-span-3">
-            <div className="self-start">
-              <Chip tone="accent">For B.Tech and B.E. students</Chip>
-            </div>
-            <h1 className="max-w-xl text-4xl font-semibold leading-tight tracking-tight sm:text-5xl">{APP_TAGLINE}</h1>
-            <p className="max-w-lg text-lg text-muted">
-              Stop forming the same team with the same friends. Find people whose skills complete yours, for the
-              hackathons you actually want to win.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <ButtonLink href="/signup" className="px-7 py-3">
-                Create your account
-              </ButtonLink>
-              <ButtonLink href="/login" variant="secondary" className="px-7 py-3">
-                Log in
-              </ButtonLink>
-            </div>
-          </Card>
-
-          <div className="grid gap-4 lg:col-span-2" aria-label="Preview of what is coming">
-            <Card className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted">Profile card</p>
-                <Chip>Preview</Chip>
-              </div>
-              <div className="flex items-center gap-3">
-                <span
-                  aria-hidden
-                  className="grid size-12 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent-ink"
-                >
-                  AR
-                </span>
-                <div>
-                  <p className="font-semibold">Example student</p>
-                  <p className="text-sm text-muted">ML engineer · 3rd year</p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Chip>Python</Chip>
-                <Chip>PyTorch</Chip>
-                <Chip>OpenCV</Chip>
-              </div>
-              <p className="rounded-2xl bg-accent-soft px-4 py-3 text-sm text-accent-ink">
-                Why you match: complements your frontend skills.
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pb-16 pt-12 lg:grid-cols-[1.1fr_1fr] lg:pt-20">
+          <div className="space-y-7">
+            <div className="reveal">
+              <p className="inline-flex items-center gap-2.5 rounded-full bg-surface px-4 py-1.5 text-sm font-semibold shadow-card">
+                <span className="pulse-dot size-2.5 rounded-full bg-accent-ink" />
+                Launching soon · for B.Tech &amp; B.E. students
               </p>
-            </Card>
-            <Card className="space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted">Team looking for a member</p>
-                <Chip>Preview</Chip>
+            </div>
+            <div className="reveal" style={{ "--i": 1 } as CSSProperties}>
+              <h1 className="text-5xl font-bold leading-[1.02] tracking-tight sm:text-6xl lg:text-7xl">
+                Find your hackathon team.
+                <span className="mt-2 block text-accent-ink">Beyond your friend circle.</span>
+              </h1>
+            </div>
+            <div className="reveal" style={{ "--i": 2 } as CSSProperties}>
+              <p className="max-w-xl text-lg text-muted sm:text-xl">
+                See students from other colleges, with their skills, roles and GitHub. Swipe right to team up. Build
+                something that actually wins.
+              </p>
+            </div>
+            <div className="reveal" style={{ "--i": 3 } as CSSProperties}>
+              <div className="flex flex-wrap items-center gap-4">
+                <a
+                  href="#join"
+                  className="relative overflow-hidden rounded-full bg-accent px-8 py-4 text-base font-bold text-accent-foreground shadow-lift transition hover:-translate-y-0.5 hover:bg-accent-hover active:scale-95"
+                >
+                  <span className="relative z-10">Join the waitlist</span>
+                  <span aria-hidden className="button-shine absolute inset-0" />
+                </a>
+                <a href="#how" className="rounded-full px-5 py-4 text-base font-semibold text-foreground transition hover:bg-surface/70">
+                  How it works ↓
+                </a>
               </div>
-              <p className="font-semibold">Example team</p>
-              <p className="text-sm text-muted">Needs: backend developer · 1 spot open</p>
-              <div className="flex flex-wrap gap-2">
-                <Chip tone="success">Open</Chip>
-                <Chip tone="sand">Hybrid</Chip>
+            </div>
+            {stats.total >= 50 && (
+              <div className="reveal" style={{ "--i": 4 } as CSSProperties}>
+                <p className="text-sm font-medium text-muted">
+                  <b className="text-foreground">{stats.total.toLocaleString("en-IN")}</b> students are already waiting.
+                </p>
               </div>
-            </Card>
+            )}
+          </div>
+          <div className="reveal" style={{ "--i": 3 } as CSSProperties}>
+            <HeroDeck />
           </div>
         </section>
 
-        <section className="stagger grid gap-4 md:grid-cols-3">
-          {REASONS.map((r) => (
-            <Card key={r.title} className="space-y-2">
-              <h2 className="text-lg font-semibold tracking-tight">{r.title}</h2>
-              <p className="text-sm text-muted">{r.body}</p>
-            </Card>
-          ))}
+        {/* Roles band */}
+        <div aria-hidden className="overflow-hidden border-y border-surface/60 bg-surface/50 py-4">
+          <div className="marquee flex w-max gap-3">
+            {[...ROLES, ...ROLES].map((r, i) => (
+              <span key={i} className="whitespace-nowrap rounded-full bg-surface px-4 py-2 text-sm font-semibold text-accent-ink shadow-card">
+                {r}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* The problem, as in the reel */}
+        <section className="mx-auto w-full max-w-6xl px-4 py-20">
+          <div className="grid items-center gap-10 lg:grid-cols-2">
+            <Reveal className="space-y-4">
+              <p className="text-sm font-bold uppercase tracking-widest text-accent-ink">Sound familiar?</p>
+              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">You assembled the Avengers. Then round one happened.</h2>
+              <p className="text-lg text-muted">
+                Your friends are great, but a hackathon needs a designer, a backend dev and someone who can pitch. Those
+                people are out there. Usually in the college next door.
+              </p>
+            </Reveal>
+            <Reveal from="below" delay={0.1}>
+              <div className="relative grid grid-cols-2 gap-3">
+                {AVENGERS.map((a) => (
+                  <div key={a.name} className="lift rounded-3xl bg-surface p-4 shadow-card">
+                    <p className="font-semibold">{a.name}</p>
+                    <p className="mt-2 inline-block rounded-2xl bg-sand px-3 py-1.5 text-xs font-semibold">{a.chip}</p>
+                  </div>
+                ))}
+                <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-6 whitespace-nowrap rounded-2xl border-[6px] border-danger bg-surface/90 px-5 py-2 text-2xl font-black tracking-wider text-danger shadow-lift sm:text-3xl">
+                  ELIMINATED
+                </span>
+              </div>
+            </Reveal>
+          </div>
         </section>
 
-        <Card className="space-y-6 sm:p-8">
-          <h2 className="text-xl font-semibold tracking-tight">How it works</h2>
-          <ol className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {STEPS.map((s) => (
-              <li key={s.n} className="space-y-2">
-                <span className="grid size-9 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent-ink">
-                  {s.n}
-                </span>
-                <p className="font-semibold">{s.title}</p>
-                <p className="text-sm text-muted">{s.body}</p>
+        {/* How it works */}
+        <section id="how" className="mx-auto w-full max-w-6xl scroll-mt-28 px-4 pb-20">
+          <Reveal className="mb-10 max-w-2xl space-y-3">
+            <p className="text-sm font-bold uppercase tracking-widest text-accent-ink">How it works</p>
+            <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">From strangers to teammates in three steps.</h2>
+          </Reveal>
+          <ol className="grid gap-4 md:grid-cols-3">
+            {STEPS.map((s, i) => (
+              <li key={s.title}>
+                <Reveal delay={i * 0.1} className="h-full">
+                  <div className="lift h-full rounded-3xl bg-surface p-7 shadow-card">
+                    <span className="grid size-12 place-items-center rounded-2xl bg-accent text-xl font-bold text-accent-foreground">
+                      {i + 1}
+                    </span>
+                    <h3 className="mt-5 text-xl font-semibold tracking-tight">{s.title}</h3>
+                    <p className="mt-2 text-muted">{s.body}</p>
+                  </div>
+                </Reveal>
               </li>
             ))}
           </ol>
-        </Card>
-      </main>
-      </PageTransition>
+        </section>
 
-      <footer className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-sm">
-        <p>FindMyTeam</p>
-        <div className="flex gap-5">
-          <Link href="/terms" className="hover:underline">
-            Terms
-          </Link>
-          <Link href="/privacy" className="hover:underline">
-            Privacy
-          </Link>
+        {/* Features */}
+        <section className="mx-auto w-full max-w-6xl px-4 pb-20">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {FEATURES.map((f, i) => (
+              <Reveal key={f.title} delay={i * 0.08} className="h-full">
+                <div className="lift h-full rounded-3xl bg-surface/80 p-6 shadow-card">
+                  <span aria-hidden className="grid size-11 place-items-center rounded-full bg-accent-soft font-bold text-accent-ink">
+                    {f.icon}
+                  </span>
+                  <h3 className="mt-4 font-semibold">{f.title}</h3>
+                  <p className="mt-1.5 text-sm text-muted">{f.body}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </section>
+
+        {/* Join */}
+        <section id="join" className="mx-auto w-full max-w-6xl scroll-mt-24 px-4 pb-20">
+          <div className="grid gap-8 rounded-[2.5rem] bg-surface p-6 shadow-lift sm:p-10 lg:grid-cols-[0.8fr_1.2fr] lg:p-12">
+            <Reveal className="space-y-6">
+              <Image src="/brand/fmt-logo.png" alt={`${APP_NAME} logo`} width={640} height={640} className="w-40 rounded-3xl shadow-card sm:w-48" />
+              <div className="space-y-3">
+                <h2 className="text-4xl font-bold tracking-tight">Get in before your college opens.</h2>
+                <p className="text-muted">
+                  We&apos;re opening college by college. Join now and you&apos;ll be first in when yours goes live.
+                </p>
+              </div>
+              <ul className="space-y-3 text-sm font-medium">
+                {[
+                  "Early access the day your college opens",
+                  "A Founding member badge on your profile",
+                  "Move up 10 places for every friend who joins",
+                ].map((perk) => (
+                  <li key={perk} className="flex items-center gap-3">
+                    <span aria-hidden className="grid size-6 shrink-0 place-items-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
+                      ✓
+                    </span>
+                    {perk}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+            <Reveal from="below" delay={0.1}>
+              <WaitlistForm options={options} stats={stats} />
+            </Reveal>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="mx-auto w-full max-w-3xl px-4 pb-24">
+          <Reveal className="mb-8 text-center">
+            <h2 className="text-4xl font-bold tracking-tight">Questions</h2>
+          </Reveal>
+          <Reveal from="below">
+            <Faq />
+          </Reveal>
+        </section>
+      </main>
+
+      <footer className="px-4 pb-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-4 rounded-3xl bg-surface/70 px-6 py-5 text-sm text-muted">
+          <span>
+            © 2026 {APP_NAME}. Discover · Connect · Build.
+          </span>
+          <span className="flex gap-5">
+            <Link href="/privacy" className="hover:text-foreground">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground">
+              Terms
+            </Link>
+          </span>
         </div>
       </footer>
     </div>

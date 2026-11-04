@@ -10,6 +10,10 @@ import {
   resetPasswordSchema,
   signUpSchema,
 } from "@/lib/validation/auth";
+import { WAITLIST_LOCKED_MESSAGE, isWaitlistMode } from "@/lib/waitlist/mode";
+
+/** Defence in depth for the pre-launch lock (D19): proxy.ts already hides these pages. */
+const LOCKED: FormState = { message: { ok: false, text: WAITLIST_LOCKED_MESSAGE } };
 
 export type FormState = {
   errors?: Record<string, string>;
@@ -51,6 +55,7 @@ function authErrorText(code: string | undefined, fallback: string) {
  * message below is shown, so nothing here needs to change.
  */
 export async function signUp(_prev: FormState, formData: FormData): Promise<FormState> {
+  if (isWaitlistMode()) return LOCKED;
   const values = { email: str(formData, "email") };
   const parsed = signUpSchema.safeParse({ email: values.email, password: str(formData, "password") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -80,6 +85,7 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
 }
 
 export async function logIn(_prev: FormState, formData: FormData): Promise<FormState> {
+  if (isWaitlistMode()) return LOCKED;
   const values = { email: str(formData, "email") };
   const parsed = logInSchema.safeParse({ email: values.email, password: str(formData, "password") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -113,6 +119,7 @@ export async function logOut() {
 
 /** AUTH-6: password reset by email. */
 export async function requestPasswordReset(_prev: FormState, formData: FormData): Promise<FormState> {
+  if (isWaitlistMode()) return LOCKED;
   const values = { email: str(formData, "email") };
   const parsed = forgotPasswordSchema.safeParse(values);
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
@@ -133,6 +140,7 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
 }
 
 export async function resetPassword(_prev: FormState, formData: FormData): Promise<FormState> {
+  if (isWaitlistMode()) return LOCKED;
   const parsed = resetPasswordSchema.safeParse({
     password: str(formData, "password"),
     confirmPassword: str(formData, "confirmPassword"),

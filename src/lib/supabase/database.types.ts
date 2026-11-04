@@ -521,6 +521,26 @@ export type Database = {
         Returns: undefined
       }
       my_connects_left: { Args: never; Returns: number }
+      join_waitlist: {
+        Args: {
+          p_college_id: number | null
+          p_college_other: string | null
+          p_consent_version: string
+          p_email: string
+          p_ip_hash: string | null
+          p_name: string
+          p_pain_point: string | null
+          p_ref: string | null
+          p_role_ids: number[]
+          p_source: string | null
+          p_branch_id: number | null
+          p_year: number
+        }
+        Returns: Json
+      }
+      waitlist_options: { Args: never; Returns: Json }
+      waitlist_stats: { Args: never; Returns: Json }
+      waitlist_standing: { Args: { p_code: string }; Returns: Json }
       swipe_person: {
         Args: {
           p_action: Database["public"]["Enums"]["swipe_action"]
@@ -678,6 +698,7 @@ export type Database = {
       hackathon_status: "active" | "merged" | "removed"
       recruit_status: "open" | "partially_filled" | "full" | "closed"
       request_status: "pending" | "accepted" | "rejected" | "cancelled" | "expired"
+      waitlist_status: "waiting" | "invited" | "joined"
       swipe_action: "connect" | "skip"
       skill_category: "technical" | "non_technical"
       skill_level: "beginner" | "intermediate" | "advanced"
@@ -747,6 +768,7 @@ export const Constants = {
       hackathon_status: ["active", "merged", "removed"],
       recruit_status: ["open", "partially_filled", "full", "closed"],
       request_status: ["pending", "accepted", "rejected", "cancelled", "expired"],
+      waitlist_status: ["waiting", "invited", "joined"],
       swipe_action: ["connect", "skip"],
       skill_category: ["technical", "non_technical"],
       skill_level: ["beginner", "intermediate", "advanced"],

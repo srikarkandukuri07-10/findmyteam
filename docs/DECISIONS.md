@@ -193,6 +193,22 @@ At the founder's request, a first version of **people discovery (Module 4)**, **
 
 ---
 
+## D19 · Waitlist only until launch (2026-11-05)
+
+Before launch the public site is a **waitlist landing page and nothing else**. The founder will promote it with an Instagram reel and a "link in bio".
+
+- **Lock.** `src/lib/waitlist/mode.ts`: while waitlist mode is on, `proxy.ts` redirects every route except `/`, `/privacy` and `/terms` to `/` (sign-up, log-in, auth callbacks and all app pages included), and the sign-up, log-in and password-reset actions refuse to run. It is **on unless `WAITLIST_MODE=off`**, so a missing variable can never open sign-ups. Set `WAITLIST_MODE=off` only in a local `.env.local` to work on the app.
+- **Supabase side.** "Allow new users to sign up" must be **off** in Supabase Auth settings, so nobody can create an account by calling Supabase directly with the public key. Existing accounts (founders, the dev tester, sample students) are unaffected.
+- **Data.** Table `waitlist`, invisible to the API (RLS on, no policies, privileges revoked). Four public functions: `join_waitlist` (validates everything, one row per email in any case, at most 5 sign-ups an hour per network), `waitlist_standing(code)` (place and referral count, no personal data), `waitlist_stats()` (total and top colleges only), `waitlist_options()` (colleges, branches, roles for the form). A repeat email gets "already on the list" and nothing else. Checks: `supabase/tests/module-6-waitlist.sql`.
+- **Fields.** Name, email, college (or a typed one), optional branch, year, roles, an optional "hardest part of finding a team" answer, a B.Tech/B.E. confirmation and consent (`waitlist-2026-11-05`). No phone number.
+- **Referrals.** Each person gets an 8-character code; `/?ref=CODE` credits whoever shared it, and each friend who joins moves them up 10 places. `?src=` (or an Instagram referrer) is kept as the source, so the reel's sign-ups can be counted.
+- **Spam.** A hidden honeypot field, and the network limit above. The network is stored only as an HMAC with `WAITLIST_HASH_SECRET` (set in Vercel), never as an address. Without the secret (local) there is no limit.
+- **Founders' view.** In the Supabase dashboard: table `waitlist` and views `waitlist_daily`, `waitlist_by_college`, `waitlist_top_referrers` (not exposed to the API).
+- **Same database for now.** The free plan allows two active projects and the founder's account already has two, so the waitlist lives in the FMT project for now. Move it to its own production project before launch (see Still open).
+- **At launch:** invite in waves college by college, with a personal link that fills in the details; set `status` to `invited`, then `joined` with `joined_user_id`; give waitlisters a Founding member badge.
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
@@ -202,6 +218,8 @@ At the founder's request, a first version of **people discovery (Module 4)**, **
 - **Test account in the shared database.** The `dev-tester` account (a fake "Dev Tester" profile) exists in the same database production uses. Remove it before people-discovery (Module 4) goes live, or it will appear in real students' decks.
 - **Sample data (D18).** Run `supabase/seed/remove-demo.sql` before real students arrive.
 - **Shared database.** Local development and production use one Supabase project. Create a separate production project before launch.
+- **Waitlist data (D19).** It sits in the shared project. Before launch, pause or delete one of the two active free projects (the account limit), create the production project, and move the `waitlist` table there.
+- **Supabase sign-ups (D19).** Keep "Allow new users to sign up" off until launch.
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.
 - **Team invites at launch.** PRD section 6 includes invites in the launch flow, but TEAM-8 is marked P1. This plan includes invites in Module 7.
 - **One team per hackathon (TEAM-10).** Enforce in the database in Module 7.

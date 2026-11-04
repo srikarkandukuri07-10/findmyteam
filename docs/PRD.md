@@ -198,6 +198,14 @@ Priority: **P0** = needed for launch, **P1** = soon after, **P2** = later. Each 
 | SAFE-5 | Users can hide their profile from specific colleges or pause discovery | P1 |
 | SAFE-6 | Achievement verification workflow: organizer link, certificate or Devpost URL check, teammate attestation | P1 |
 
+### 5.11 Pre-launch waitlist (added 2026-11-05, see DECISIONS D19)
+
+| ID | Requirement | Priority |
+| --- | --- | --- |
+| WAIT-1 | Anyone can join a waitlist from the landing page with name, email, college, year and optional branch, roles and one question; one entry per email | P0 |
+| WAIT-2 | Each person gets an invite link; friends who join through it move them up the list; the source of each sign-up is recorded | P0 |
+| WAIT-3 | Until launch the site is the waitlist only: no sign-up, log-in or app page is reachable | P0 |
+
 ## 6. Key user flows
 
 **Onboarding.**
