@@ -8,7 +8,7 @@ import { getShellInfo } from "@/lib/shell/data";
 
 async function SidebarNavWithCounts() {
   const info = await getShellInfo();
-  return <SidebarNav layoutGroup="sidebar" pendingRequests={info.pendingRequests} />;
+  return <SidebarNav layoutGroup="sidebar" pendingRequests={info.pendingRequests} unreadMessages={info.unreadMessages} />;
 }
 
 async function TopbarWithInfo() {

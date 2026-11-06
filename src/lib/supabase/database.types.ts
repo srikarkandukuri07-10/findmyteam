@@ -16,6 +16,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      conversations: {
+        Row: { id: string; user_a: string; user_b: string; created_at: string; last_message_at: string | null }
+        Insert: { id?: string; user_a: string; user_b: string; created_at?: string; last_message_at?: string | null }
+        Update: { id?: string; user_a?: string; user_b?: string; created_at?: string; last_message_at?: string | null }
+        Relationships: []
+      }
+      conversation_members: {
+        Row: { conversation_id: string; user_id: string; last_read_at: string; muted: boolean }
+        Insert: { conversation_id: string; user_id: string; last_read_at?: string; muted?: boolean }
+        Update: { conversation_id?: string; user_id?: string; last_read_at?: string; muted?: boolean }
+        Relationships: []
+      }
+      messages: {
+        Row: { id: number; conversation_id: string; sender_id: string; body: string; created_at: string }
+        Insert: { id?: never; conversation_id: string; sender_id: string; body: string; created_at?: string }
+        Update: { id?: never; conversation_id?: string; sender_id?: string; body?: string; created_at?: string }
+        Relationships: []
+      }
+      blocks: {
+        Row: { blocker_id: string; blocked_id: string; created_at: string }
+        Insert: { blocker_id: string; blocked_id: string; created_at?: string }
+        Update: { blocker_id?: string; blocked_id?: string; created_at?: string }
+        Relationships: []
+      }
       branches: {
         Row: {
           id: number
@@ -548,6 +572,40 @@ export type Database = {
       }
       waitlist_options: { Args: never; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      open_conversation: { Args: { p_other: string }; Returns: string }
+      send_message: {
+        Args: { p_conversation: string; p_body: string }
+        Returns: { id: number; created_at: string }[]
+      }
+      mark_conversation_read: { Args: { p_conversation: string }; Returns: undefined }
+      set_conversation_muted: { Args: { p_conversation: string; p_muted: boolean }; Returns: undefined }
+      block_user: { Args: { p_other: string }; Returns: undefined }
+      report_user: {
+        Args: {
+          p_other: string
+          p_reason: Database["public"]["Enums"]["report_reason"]
+          p_details: string | null
+          p_conversation: string | null
+        }
+        Returns: undefined
+      }
+      list_conversations: {
+        Args: never
+        Returns: {
+          id: string
+          other_id: string
+          other_name: string
+          other_avatar_path: string | null
+          other_is_demo: boolean
+          last_body: string | null
+          last_sender_is_me: boolean | null
+          last_at: string
+          unread: number
+          muted: boolean
+          blocked: boolean
+        }[]
+      }
+      my_unread_total: { Args: never; Returns: number }
       set_avatar: { Args: { p_path: string | null }; Returns: undefined }
       connection_state: {
         Args: { p_other: string }
@@ -717,6 +775,7 @@ export type Database = {
       request_status: "pending" | "accepted" | "rejected" | "cancelled" | "expired"
       waitlist_status: "waiting" | "invited" | "joined"
       user_role: "student" | "investor" | "admin"
+      report_reason: "spam" | "harassment" | "fake_profile" | "inappropriate" | "other"
       swipe_action: "connect" | "skip"
       skill_category: "technical" | "non_technical"
       skill_level: "beginner" | "intermediate" | "advanced"
@@ -788,6 +847,7 @@ export const Constants = {
       request_status: ["pending", "accepted", "rejected", "cancelled", "expired"],
       waitlist_status: ["waiting", "invited", "joined"],
       user_role: ["student", "investor", "admin"],
+      report_reason: ["spam", "harassment", "fake_profile", "inappropriate", "other"],
       swipe_action: ["connect", "skip"],
       skill_category: ["technical", "non_technical"],
       skill_level: ["beginner", "intermediate", "advanced"],

@@ -10,13 +10,15 @@ export type ShellInfo = {
   role: "student" | "investor" | "admin";
   /** Requests waiting for this student's answer (the 14-day expiry included). */
   pendingRequests: number;
+  /** Unread messages, muted and blocked conversations left out. */
+  unreadMessages: number;
 };
 
 /** What the sidebar and top bar show. Cached per request, since both ask for it. */
 export const getShellInfo = cache(async (): Promise<ShellInfo> => {
   const profile = await requireOnboardedProfile();
   const { supabase, userId } = await requireUser();
-  const [{ data: me }, { count }] = await Promise.all([
+  const [{ data: me }, { count }, unread] = await Promise.all([
     supabase.from("profiles").select("role, avatar_path").eq("id", userId).single(),
     supabase
       .from("connection_requests")
@@ -24,6 +26,7 @@ export const getShellInfo = cache(async (): Promise<ShellInfo> => {
       .eq("recipient_id", userId)
       .eq("status", "pending")
       .gt("created_at", new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString()),
+    supabase.rpc("my_unread_total"),
   ]);
   const name = profile.display_name ?? "Student";
   return {
@@ -33,5 +36,6 @@ export const getShellInfo = cache(async (): Promise<ShellInfo> => {
     firstName: name.split(" ")[0] ?? name,
     role: me?.role ?? "student",
     pendingRequests: count ?? 0,
+    unreadMessages: unread.data ?? 0,
   };
 });

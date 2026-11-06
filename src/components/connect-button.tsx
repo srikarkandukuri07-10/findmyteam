@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState, useTransition } from "react";
 import { connectFromProfile } from "@/app/(app)/(shell)/students/[id]/actions";
 import { cancelMyRequest, respondToRequest } from "@/app/(app)/(shell)/requests/actions";
-import { CheckIcon, CloseIcon, RequestsIcon } from "@/components/icons";
+import { openChatWith } from "@/app/(app)/(shell)/messages/actions";
+import { CheckIcon, CloseIcon, MessagesIcon, RequestsIcon } from "@/components/icons";
 import type { ConnectionState } from "@/lib/profile/data";
 import { swipeToast } from "@/lib/discover/swipe-logic";
 
@@ -124,9 +125,19 @@ export function ConnectButton({
             </>
           )}
           {conn.state === "connected" && (
-            <span className={`${base} bg-success-soft text-success`}>
-              <CheckIcon className="size-4" /> Connected
-            </span>
+            <>
+              <span className={`${base} bg-success-soft text-success`}>
+                <CheckIcon className="size-4" /> Connected
+              </span>
+              <form action={openChatWith.bind(null, targetId)}>
+                <button
+                  type="submit"
+                  className={`${base} bg-accent text-accent-foreground shadow-lift hover:-translate-y-0.5 hover:bg-accent-hover`}
+                >
+                  <MessagesIcon className="size-4" /> Message
+                </button>
+              </form>
+            </>
           )}
         </motion.div>
       </AnimatePresence>

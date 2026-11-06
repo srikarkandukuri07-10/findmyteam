@@ -199,6 +199,7 @@ function MobileDrawer({ info }: { info: ShellInfo | null }) {
                   <SidebarNav
                     layoutGroup="drawer"
                     pendingRequests={info?.pendingRequests}
+                    unreadMessages={info?.unreadMessages}
                     onNavigate={() => setOpen(false)}
                   />
                   <div className="mt-auto">

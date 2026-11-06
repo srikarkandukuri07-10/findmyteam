@@ -23,7 +23,7 @@ type Item = {
   icon: ComponentType<SVGProps<SVGSVGElement>>;
   /** Shown but not clickable yet. */
   soon?: boolean;
-  badge?: "requests";
+  badge?: "requests" | "messages";
 };
 
 const MAIN: Item[] = [
@@ -32,7 +32,7 @@ const MAIN: Item[] = [
   { href: "/teams", label: "Teams", icon: TeamsIcon },
   { href: "/requests", label: "Requests", icon: RequestsIcon, badge: "requests" },
   { href: "/hackathons", label: "Events", icon: EventsIcon },
-  { href: "/messages", label: "Messages", icon: MessagesIcon, soon: true },
+  { href: "/messages", label: "Messages", icon: MessagesIcon, badge: "messages" },
   { href: "/notifications", label: "Notifications", icon: BellIcon, soon: true },
 ];
 
@@ -51,7 +51,12 @@ function isActive(pathname: string, href: string) {
  * The sidebar's links. The active one sits on a purple pill that glides between items.
  * `layoutGroup` keeps the desktop sidebar and the mobile drawer from sharing one pill.
  */
-export function SidebarNav(props: { pendingRequests?: number; layoutGroup: string; onNavigate?: () => void }) {
+export function SidebarNav(props: {
+  pendingRequests?: number;
+  unreadMessages?: number;
+  layoutGroup: string;
+  onNavigate?: () => void;
+}) {
   return <SidebarLinks {...props} pathname={usePathname()} />;
 }
 
@@ -59,18 +64,21 @@ export function SidebarNav(props: { pendingRequests?: number; layoutGroup: strin
 export function SidebarLinks({
   pathname,
   pendingRequests = 0,
+  unreadMessages = 0,
   layoutGroup,
   onNavigate,
 }: {
   pathname: string;
   pendingRequests?: number;
+  unreadMessages?: number;
   layoutGroup: string;
   onNavigate?: () => void;
 }) {
   const render = (item: Item) => {
     const active = !item.soon && isActive(pathname, item.href);
     const Icon = item.icon;
-    const badge = item.badge === "requests" && pendingRequests > 0 ? pendingRequests : null;
+    const count = item.badge === "requests" ? pendingRequests : item.badge === "messages" ? unreadMessages : 0;
+    const badge = count > 0 ? count : null;
     const inner = (
       <>
         {active && (
@@ -80,7 +88,9 @@ export function SidebarLinks({
             transition={{ type: "spring", stiffness: 420, damping: 34 }}
           />
         )}
-        <Icon className={`relative size-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${active ? "text-accent-ink" : ""}`} />
+        <Icon
+          className={`relative size-5 shrink-0 transition-transform duration-200 group-hover:scale-110 ${active ? "text-accent-ink" : ""}`}
+        />
         <span className="relative flex-1">{item.label}</span>
         {badge !== null && (
           <motion.span
@@ -101,7 +111,11 @@ export function SidebarLinks({
       </>
     );
     const cls = `group relative flex items-center gap-3 rounded-2xl px-4 py-2 text-[15px] font-medium transition-colors ${
-      active ? "text-accent-ink" : item.soon ? "cursor-default text-muted/70" : "text-muted hover:bg-surface-muted/70 hover:text-foreground"
+      active
+        ? "text-accent-ink"
+        : item.soon
+          ? "cursor-default text-muted/70"
+          : "text-muted hover:bg-surface-muted/70 hover:text-foreground"
     }`;
     return (
       <li key={item.href}>

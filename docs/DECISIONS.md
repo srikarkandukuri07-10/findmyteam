@@ -240,6 +240,17 @@ Before launch the public site is a **waitlist landing page and nothing else**. T
 
 ---
 
+## D23 · Messages (2026-11-06)
+
+- **Who can chat (MSG-1).** Only accepted connections. "Message" appears on a connected student's profile and on accepted requests; the first message opens the conversation (`open_conversation`). Sample students can be messaged but never reply, and the chat says so.
+- **Live (MSG-3).** New messages, the other person's read position ("Seen") and typing ("typing…" with dots) arrive through Supabase Realtime. Messages and read state use database changes, so RLS decides who receives them; typing uses a **private** broadcast channel `typing:<conversation id>` that only the two members may join (policies on `realtime.messages`). Unread counts show per conversation and on the sidebar (muted and closed conversations left out). Bubbles slide in, days are separated, failed sends can be retried.
+- **Text and links (MSG-4).** Up to 2,000 characters; http(s) and www. links are clickable (`rel="noopener noreferrer nofollow ugc"`), nothing else becomes a link. **Link previews are not built:** fetching other sites from our server needs care (SSRF), so they wait.
+- **Block and report (MSG-5).** Blocking ends the connection and any pending request, closes the conversation so **neither person can send or read** it, and hides both from each other in Scout, search and requests. The blocked person isn't told. Reports (spam, harassment, fake profile, inappropriate, other, with optional details) go to a table nobody can read from the app; the admin screen comes later. Up to 10 reports a day.
+- **Mute (MSG-7)** per conversation. **Limits:** 30 messages a minute per sender (SAFE-3).
+- Team group chat (MSG-2) comes with the Teams module. Checks: `supabase/tests/module-9-messages.sql`.
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useState, useTransition } from "react";
 import { cancelMyRequest, respondToRequest } from "@/app/(app)/(shell)/requests/actions";
+import { openChatWith } from "@/app/(app)/(shell)/messages/actions";
 import type { RequestDirection, RequestItem } from "@/lib/requests/data";
 import { timeAgo } from "@/lib/time";
 import { StudentAvatar } from "./student-avatar";
@@ -100,7 +101,21 @@ export function RequestList({ items, direction }: { items: RequestItem[]; direct
 
               <div className="flex items-center gap-2">
                 {item.status !== "pending" ? (
-                  statusChip(item, direction)
+                  <>
+                    {statusChip(item, direction)}
+                    {item.status === "accepted" && (
+                      <form action={openChatWith.bind(null, item.otherId)}>
+                        <motion.button
+                          type="submit"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.93 }}
+                          className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground"
+                        >
+                          Message
+                        </motion.button>
+                      </form>
+                    )}
+                  </>
                 ) : direction === "received" ? (
                   <>
                     <motion.button
