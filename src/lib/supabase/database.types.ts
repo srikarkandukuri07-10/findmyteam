@@ -572,6 +572,18 @@ export type Database = {
       }
       waitlist_options: { Args: never; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      admin_list_early_access: {
+        Args: never
+        Returns: {
+          id: string
+          display_name: string | null
+          onboarded: boolean
+          role: Database["public"]["Enums"]["user_role"]
+          granted_at: string
+        }[]
+      }
+      admin_grant_early_access: { Args: { p_email: string; p_password: string | null }; Returns: string }
+      admin_revoke_early_access: { Args: { p_user: string }; Returns: undefined }
       open_conversation: { Args: { p_other: string }; Returns: string }
       send_message: {
         Args: { p_conversation: string; p_body: string }

@@ -6,7 +6,7 @@ import { useActionState } from "react";
 import { Field, FormMessage, Input, SubmitButton } from "@/components/form";
 import { logIn, type FormState } from "../actions";
 
-export function LogInForm() {
+export function LogInForm({ showForgot = true }: { showForgot?: boolean }) {
   const [state, action] = useActionState<FormState, FormData>(logIn, {});
   const next = useSearchParams().get("next") ?? "";
 
@@ -33,11 +33,13 @@ export function LogInForm() {
           error={state.errors?.password}
         />
       </Field>
-      <div className="flex justify-end">
-        <Link href="/forgot-password" className="text-sm text-accent-ink">
-          Forgot password?
-        </Link>
-      </div>
+      {showForgot && (
+        <div className="flex justify-end">
+          <Link href="/forgot-password" className="text-sm text-accent-ink">
+            Forgot password?
+          </Link>
+        </div>
+      )}
       <SubmitButton pendingText="Logging in…">Log in</SubmitButton>
     </form>
   );

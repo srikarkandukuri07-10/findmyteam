@@ -10,9 +10,14 @@ import {
   resetPasswordSchema,
   signUpSchema,
 } from "@/lib/validation/auth";
-import { WAITLIST_LOCKED_MESSAGE, isWaitlistMode } from "@/lib/waitlist/mode";
+import {
+  EARLY_ACCESS_ONLY_MESSAGE,
+  WAITLIST_LOCKED_MESSAGE,
+  hasEarlyAccess,
+  isWaitlistMode,
+} from "@/lib/waitlist/mode";
 
-/** Defence in depth for the pre-launch lock (D19): proxy.ts already hides these pages. */
+/** Defence in depth for the pre-launch lock (D19, D24): proxy.ts already hides these pages. */
 const LOCKED: FormState = { message: { ok: false, text: WAITLIST_LOCKED_MESSAGE } };
 
 export type FormState = {
@@ -85,13 +90,12 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
 }
 
 export async function logIn(_prev: FormState, formData: FormData): Promise<FormState> {
-  if (isWaitlistMode()) return LOCKED;
   const values = { email: str(formData, "email") };
   const parsed = logInSchema.safeParse({ email: values.email, password: str(formData, "password") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
+  const { data: signedIn, error } = await supabase.auth.signInWithPassword(parsed.data);
 
   if (error?.code === "email_not_confirmed") {
     await supabase.auth.resend({
@@ -106,6 +110,12 @@ export async function logIn(_prev: FormState, formData: FormData): Promise<FormS
   }
   if (error) {
     return { values, message: { ok: false, text: authErrorText(error.code, "Couldn't log you in. Try again.") } };
+  }
+
+  // Before launch (D24) only early-access accounts may stay signed in; everyone else is signed out again.
+  if (isWaitlistMode() && !hasEarlyAccess(signedIn.user)) {
+    await supabase.auth.signOut();
+    return { values, message: { ok: false, text: EARLY_ACCESS_ONLY_MESSAGE } };
   }
 
   redirect(safeNextPath(str(formData, "next")));
@@ -140,7 +150,6 @@ export async function requestPasswordReset(_prev: FormState, formData: FormData)
 }
 
 export async function resetPassword(_prev: FormState, formData: FormData): Promise<FormState> {
-  if (isWaitlistMode()) return LOCKED;
   const parsed = resetPasswordSchema.safeParse({
     password: str(formData, "password"),
     confirmPassword: str(formData, "confirmPassword"),
@@ -150,6 +159,8 @@ export async function resetPassword(_prev: FormState, formData: FormData): Promi
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims) redirect("/forgot-password");
+  // Signed-in early-access accounts may change their password before launch (D24).
+  if (isWaitlistMode() && !hasEarlyAccess(data.claims)) return LOCKED;
 
   const { error } = await supabase.auth.updateUser({ password: parsed.data.password });
   if (error) {

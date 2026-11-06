@@ -251,6 +251,19 @@ Before launch the public site is a **waitlist landing page and nothing else**. T
 
 ---
 
+## D24 · Early access on the live site (2026-11-07)
+
+The founder and their testers use the real site (findmyteam.tech) before launch, while everyone else still sees only the waitlist.
+
+- **The mark.** An account gets in when its Supabase `app_metadata` has `early_access: true`. Only the server can write `app_metadata` (students cannot), and it travels inside the sign-in token, so `proxy.ts` checks it on every request without a database query. `requireUser()` checks it again.
+- **What the public sees.** `/`, `/privacy`, `/terms` and `/login` (titled "Early access"). Every other page sends visitors and non-early accounts to `/`. Signing in with a non-early account is refused, and the session is ended at once.
+- **Closed for everyone until launch:** `/signup` and `/forgot-password` (no emails are sent yet). Early-access accounts can change their password while signed in (profile menu → Change password).
+- **Granting access.** Admins use **Team access** (`/admin/access`, profile menu): enter an email; if it has no account, set a temporary password and an account is created (confirmed, email and password). Share the temporary password privately; they change it after signing in. Access can be removed there (never from admins). The list shows names only, no emails. Functions: `admin_grant_early_access`, `admin_revoke_early_access`, `admin_list_early_access`. Checks: `supabase/tests/module-10-early-access.sql`.
+- The founder's account has early access. The QA test account (`qa-tester@fmt.test`) also has it, for automated checks; remove it before launch.
+- A mark given or removed takes effect at the person's next sign-in (or within the hour, when their token refreshes).
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.

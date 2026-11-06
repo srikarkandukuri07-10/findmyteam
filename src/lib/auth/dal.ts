@@ -2,6 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
 
 /**
  * Data access layer for the signed-in user. Every Server Component and Server Action
@@ -14,6 +15,8 @@ export async function requireUser() {
   const supabase = await createClient();
   const { data } = await supabase.auth.getClaims();
   if (!data?.claims) redirect("/login");
+  // Before launch only early-access accounts use the app (D24); proxy.ts enforces this too.
+  if (isWaitlistMode() && !hasEarlyAccess(data.claims)) redirect("/");
   return { supabase, userId: data.claims.sub };
 }
 

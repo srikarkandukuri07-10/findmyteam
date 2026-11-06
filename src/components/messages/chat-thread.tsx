@@ -116,6 +116,18 @@ export function ChatThread({
   const lastTypingSent = useRef(0);
   const typingTimer = useRef<number | undefined>(undefined);
 
+  // Esc closes the open dialog first, then the ⋯ menu.
+  useEffect(() => {
+    if (!menu && !dialog) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      if (dialog) setDialog(null);
+      else setMenu(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menu, dialog]);
+
   const scrollToEnd = useCallback((smooth = true) => {
     requestAnimationFrame(() => {
       const el = scroller.current;

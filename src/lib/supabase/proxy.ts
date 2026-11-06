@@ -1,7 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
+import { EARLY_ACCESS_SIGN_IN_PATHS, WAITLIST_OPEN_PATHS, hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
 import type { Database } from "./database.types";
+
+/** Closed even to early-access accounts before launch: new accounts and emailed reset links. */
+const CLOSED_WHILE_LOCKED = ["/signup", "/forgot-password"];
 
 /** Paths anyone can open. Everything else needs a signed-in (and therefore email-verified) user. */
 const PUBLIC_PATHS = ["/", "/login", "/signup", "/forgot-password", "/terms", "/privacy"];
@@ -50,6 +54,22 @@ export async function updateSession(request: NextRequest) {
   const { data } = await supabase.auth.getClaims();
   const signedIn = Boolean(data?.claims);
   const { pathname, search } = request.nextUrl;
+
+  // Pre-launch lock (D19, D24): only the waitlist pages and the sign-in page are public, and only
+  // early-access accounts get past it. Sign-up and password-reset emails stay closed for everyone.
+  if (isWaitlistMode()) {
+    const early = signedIn && hasEarlyAccess(data?.claims);
+    const allowed =
+      WAITLIST_OPEN_PATHS.includes(pathname) ||
+      EARLY_ACCESS_SIGN_IN_PATHS.includes(pathname) ||
+      (early && !CLOSED_WHILE_LOCKED.includes(pathname));
+    if (!allowed) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/";
+      url.search = "";
+      return redirectKeepingCookies(url, response);
+    }
+  }
 
   if (!signedIn && !isPublic(pathname)) {
     const url = request.nextUrl.clone();
