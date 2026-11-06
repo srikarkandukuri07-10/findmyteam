@@ -1,4 +1,4 @@
-import { connectGithub, disconnectGithub } from "@/app/(app)/github/actions";
+import { connectGithub, disconnectGithub } from "@/app/(app)/(shell)/github/actions";
 import { githubNotice } from "@/lib/github/notices";
 import { githubProfileUrl } from "@/lib/github/snapshot";
 import { FormMessage } from "./form";

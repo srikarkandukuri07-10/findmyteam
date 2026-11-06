@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { useState, useTransition } from "react";
-import { cancelMyRequest, respondToRequest } from "@/app/(app)/requests/actions";
+import { cancelMyRequest, respondToRequest } from "@/app/(app)/(shell)/requests/actions";
 import type { RequestDirection, RequestItem } from "@/lib/requests/data";
 import { timeAgo } from "@/lib/time";
 import { initials } from "@/lib/validation/profile";

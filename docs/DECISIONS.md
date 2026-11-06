@@ -209,6 +209,17 @@ Before launch the public site is a **waitlist landing page and nothing else**. T
 
 ---
 
+## D20 · Roles and private test access (2026-11-06)
+
+- **Roles.** `profiles.role` is `student` (default), `investor` or `admin`. Nobody can change a role from the API (profiles writes are revoked); the founder's account is `admin`. `is_admin()` is the check for policies and functions. Investors arrive with the pitch module (not built yet).
+- **Testing while the site is locked (D19).** The full app runs only on previews of the **`dev` branch**: Vercel has `WAITLIST_MODE=off` for Preview + branch `dev` only, and Vercel Authentication protects every preview URL, so only someone logged into the founder's Vercel account can open it. Production (`main`, findmyteam.tech) stays waitlist-only. Locally, `.env.local` has `WAITLIST_MODE=off`.
+- **Workflow.** Work lands on `dev` first and is tested on its preview; it reaches `main` (production) only when the founder approves, and stays behind the lock there until launch.
+- **Plans are display-only.** A Free and a Pro card describe the plans; no payment provider until the founder approves one.
+- **Build order agreed with the founder:** 1 roles and test access, 2 new app layout and homepage, 3 universal search and profiles with photos, 4 Scout (the pop-up swipe deck; skipped people return after 7 days), 5 Messages. Pitches to investors and hosted hackathons come later.
+- Checks: `supabase/tests/module-7-roles.sql`.
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.

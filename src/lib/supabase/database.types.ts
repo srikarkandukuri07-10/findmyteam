@@ -364,6 +364,7 @@ export type Database = {
           graduation_year: number | null
           id: string
           onboarded_at: string | null
+          role: Database["public"]["Enums"]["user_role"]
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
           year_of_study: number | null
@@ -387,6 +388,7 @@ export type Database = {
           graduation_year?: number | null
           id: string
           onboarded_at?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           year_of_study?: number | null
@@ -410,6 +412,7 @@ export type Database = {
           graduation_year?: number | null
           id?: string
           onboarded_at?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           year_of_study?: number | null
@@ -539,6 +542,7 @@ export type Database = {
         Returns: Json
       }
       waitlist_options: { Args: never; Returns: Json }
+      is_admin: { Args: never; Returns: boolean }
       waitlist_stats: { Args: never; Returns: Json }
       waitlist_standing: { Args: { p_code: string }; Returns: Json }
       swipe_person: {
@@ -699,6 +703,7 @@ export type Database = {
       recruit_status: "open" | "partially_filled" | "full" | "closed"
       request_status: "pending" | "accepted" | "rejected" | "cancelled" | "expired"
       waitlist_status: "waiting" | "invited" | "joined"
+      user_role: "student" | "investor" | "admin"
       swipe_action: "connect" | "skip"
       skill_category: "technical" | "non_technical"
       skill_level: "beginner" | "intermediate" | "advanced"
@@ -769,6 +774,7 @@ export const Constants = {
       recruit_status: ["open", "partially_filled", "full", "closed"],
       request_status: ["pending", "accepted", "rejected", "cancelled", "expired"],
       waitlist_status: ["waiting", "invited", "joined"],
+      user_role: ["student", "investor", "admin"],
       swipe_action: ["connect", "skip"],
       skill_category: ["technical", "non_technical"],
       skill_level: ["beginner", "intermediate", "advanced"],

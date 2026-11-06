@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import type { FormState } from "@/app/(auth)/actions";
 import { Field, FormMessage, SubmitButton } from "@/components/form";
-import { RolePicker, SkillPicker } from "@/app/(app)/profile/edit/profile-pickers";
+import { RolePicker, SkillPicker } from "@/app/(app)/(shell)/profile/edit/profile-pickers";
 import { BIO_MAX, type SkillLevel } from "@/lib/validation/profile";
 import { saveOnboardingProfile } from "./actions";
 

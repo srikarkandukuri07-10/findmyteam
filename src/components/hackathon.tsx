@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { setInterest } from "@/app/(app)/hackathons/actions";
+import { setInterest } from "@/app/(app)/(shell)/hackathons/actions";
 import type { HackathonRow } from "@/lib/hackathons/data";
 import { MODE_LABELS, formatDateRange, hackathonPhase, phaseLabel } from "@/lib/hackathons/dates";
 import { Card, Chip, buttonStyles } from "./ui";

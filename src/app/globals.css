@@ -251,9 +251,106 @@ html {
   }
 }
 
+/* ------------------------------------------------------------------------- *
+ * App illustrations (home banner, sidebar card)
+ * ------------------------------------------------------------------------- */
+
+.float {
+  animation: float 5s ease-in-out infinite;
+}
+.float-slow {
+  animation: float 7s ease-in-out infinite;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(-2deg);
+  }
+}
+
+.twinkle {
+  animation: twinkle 2.8s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.6);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* The hand in "Hey Srikar! 👋". */
+.wave {
+  animation: wave 2.4s ease-in-out 0.6s 2;
+}
+@keyframes wave {
+  0%,
+  60%,
+  100% {
+    transform: rotate(0deg);
+  }
+  10%,
+  30% {
+    transform: rotate(16deg);
+  }
+  20%,
+  40% {
+    transform: rotate(-8deg);
+  }
+}
+
+/* "Coming soon" event cards bob gently, one after another. */
+.float-card {
+  animation: float-card 6s ease-in-out infinite;
+}
+@keyframes float-card {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Lines of code being typed on the laptop. */
+.type-line {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: type-line 3.2s ease-in-out infinite;
+}
+@keyframes type-line {
+  0% {
+    transform: scaleX(0);
+  }
+  35%,
+  80% {
+    transform: scaleX(1);
+  }
+  100% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+  .float,
+  .float-slow,
+  .twinkle,
+  .type-line,
+  .wave,
+  .float-card {
+    animation: none;
   }
   .reveal,
   .step-line,

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { AnimatePresence, animate, motion, useMotionValue, useReducedMotion, useTransform } from "motion/react";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
-import { swipePerson } from "@/app/(app)/discover/actions";
+import { swipePerson } from "@/app/(app)/(shell)/discover/actions";
 import type { DiscoverCandidate } from "@/lib/discover/data";
 import {
   connectsLeftText,
