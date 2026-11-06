@@ -12,10 +12,13 @@ export function OnboardingForm({
   colleges,
   branches,
   currentYear,
+  suggestedName = "",
 }: {
   colleges: Option[];
   branches: Option[];
   currentYear: number;
+  /** From the student's Google account (D25). */
+  suggestedName?: string;
 }) {
   const [state, action] = useActionState<FormState, FormData>(completeOnboarding, {});
   const v = state.values ?? {};
@@ -28,7 +31,7 @@ export function OnboardingForm({
       <FormMessage message={state.message} />
 
       <Field label="Full name" name="displayName" error={e.displayName} hint="Shown on your profile.">
-        <Input name="displayName" autoComplete="name" required defaultValue={v.displayName} error={e.displayName} />
+        <Input name="displayName" autoComplete="name" required defaultValue={v.displayName ?? suggestedName} error={e.displayName} />
       </Field>
 
       <Field label="Degree" name="degree" error={e.degree}>

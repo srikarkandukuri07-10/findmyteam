@@ -80,7 +80,7 @@ Priority: **P0** = needed for launch, **P1** = soon after, **P2** = later. Each 
 
 | ID | Requirement | Priority |
 | --- | --- | --- |
-| AUTH-1 | Sign up with GitHub OAuth or email; email verification is mandatory | P0 |
+| AUTH-1 | Sign in and sign up with Google only (D25); an optional college-email code gives a Verified student badge | P0 |
 |  |  | P0 |
 | AUTH-3 | College email verification gives a "college verified" badge; non-college emails can join but are labelled unverified | P0 |
 | AUTH-4 | Bot protection (Turnstile) on signup and OTP requests; OTP rate limits per phone, IP and device | P0 |

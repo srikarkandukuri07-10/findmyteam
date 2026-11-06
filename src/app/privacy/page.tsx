@@ -25,7 +25,16 @@ export default function PrivacyPage() {
         We collect your email, name, college, branch, year of study, graduation year and birth year to run your account
         and to help you find hackathon teammates.
       </p>
-      <p>Your email is never shown to other users. We do not collect phone numbers.</p>
+      <p>
+        You sign in with Google. Google tells us your email address, name and whether the email is verified; we
+        never see your Google password.
+      </p>
+      <p>
+        If you choose to verify your college email, we keep that address and the time you confirmed it, and send it
+        a one-time code through our email provider, Resend. Other students only see a &quot;Verified student&quot;
+        badge, never the address.
+      </p>
+      <p>Your emails are never shown to other users. We do not collect phone numbers.</p>
       <p>You will be able to export or delete your data from your account settings.</p>
     </LegalPage>
   );

@@ -4,7 +4,7 @@ import { blankToUndefined, fieldErrors, requiredInt } from "./common";
 export { fieldErrors };
 
 /** Bump when the terms or privacy notice change; stored with each user's consent. */
-export const CONSENT_VERSION = "2026-11-03";
+export const CONSENT_VERSION = "2026-11-07";
 
 const email = z
   .string()
@@ -12,27 +12,11 @@ const email = z
   .toLowerCase()
   .pipe(z.email({ error: "Enter a valid email address." }));
 
-// Supabase hashes with bcrypt, which ignores bytes past 72.
-const password = z
-  .string()
-  .min(8, { error: "Use at least 8 characters." })
-  .max(72, { error: "Use at most 72 characters." });
-
-export const signUpSchema = z.object({ email, password });
-
+/** Local test accounts only (D25): everyone else signs in with Google. */
 export const logInSchema = z.object({
   email,
   password: z.string().min(1, { error: "Enter your password." }),
 });
-
-export const forgotPasswordSchema = z.object({ email });
-
-export const resetPasswordSchema = z
-  .object({ password, confirmPassword: z.string() })
-  .refine((v) => v.password === v.confirmPassword, {
-    error: "Passwords don't match.",
-    path: ["confirmPassword"],
-  });
 
 /** Builds the onboarding schema relative to `now` so year ranges stay current. */
 export function onboardingSchema(now: Date = new Date()) {

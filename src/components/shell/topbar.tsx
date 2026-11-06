@@ -7,10 +7,10 @@ import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } fro
 import { createPortal } from "react-dom";
 import { logOut } from "@/app/(auth)/actions";
 import {
+  BadgeCheckIcon,
   BellIcon,
   ChevronDownIcon,
   CloseIcon,
-  LockIcon,
   LogOutIcon,
   MenuIcon,
   PlansIcon,
@@ -98,7 +98,7 @@ function ProfileMenu({ info }: { info: ShellInfo | null }) {
             {item("/profile", "Your profile", <UserIcon className="size-4" />)}
             {item("/profile/edit", "Edit profile", <SettingsIcon className="size-4" />)}
             {item("/plans", "Plans", <PlansIcon className="size-4" />)}
-            {item("/reset-password", "Change password", <LockIcon className="size-4" />)}
+            {item("/profile/verify", "Verify college email", <BadgeCheckIcon className="size-4" />)}
             {info?.role === "admin" && item("/admin/access", "Team access", <UserIcon className="size-4" />)}
             <hr className="my-1.5 border-border" />
             <form action={logOut}>

@@ -262,13 +262,31 @@ The founder and their testers use the real site (findmyteam.tech) before launch,
 - The founder's account has early access. The QA test account (`qa-tester@fmt.test`) also has it, for automated checks; remove it before launch.
 - A mark given or removed takes effect at the person's next sign-in (or within the hour, when their token refreshes).
 
+## D25 · Google sign-in and the Verified student badge (2026-11-07)
+
+Replaces email and password sign-in (D2, D15, the password parts of D24) and PRD AUTH-1, AUTH-2 and AUTH-6. Clerk with SMS codes was considered for fewer fake accounts and rejected: SMS isn't included in Clerk's free Student plan, India costs $0.10 per SMS, and it would have meant rebuilding every security rule.
+
+- **Sign-in.** One **Continue with Google** button on `/login`, through Supabase's Google provider. It signs students in and, after launch, creates new accounts. Supabase returns to `/auth/confirm`, which finishes the sign-in. `/signup`, `/forgot-password` and `/reset-password` are gone and redirect to `/login`.
+- **Before launch.** "Allow new users to sign up" stays **off** in Supabase. An admin adds someone's Gmail address on **Team access**, which creates an account without a password; their first Google sign-in links to it. Anyone else gets "this Google account isn't on the early-access list". `/auth/confirm` also signs out any account without early access.
+- **Keep GitHub on.** The Supabase GitHub provider stays on: it powers Connect GitHub (D13), not sign-in.
+- **Password sign-in is for local test accounts only.** The login page shows a password form only under `next dev`, for `dev-tester` and `qa-tester`. **At launch:** turn off the Email provider in Supabase (otherwise anyone could still sign up with a password through the API), turn "Allow new users to sign up" on, publish the Google consent screen, and delete the test accounts.
+- **Onboarding** starts with the name from the Google account.
+- **Verified student badge (optional).** On **Profile → Verify college email** (`/profile/verify`) a student enters a college address and gets a 6-digit code by email.
+  - The code is made, emailed and checked inside Postgres, so no student can see or forge one. Only a bcrypt hash is stored. Codes expire after 10 minutes and lock after 5 wrong tries. Each student can request 3 codes an hour, and 90 emails a day can go out in total (Resend's free plan allows 100).
+  - Personal mailboxes (Gmail, Outlook, Yahoo, …) are refused. One college address can back only one account.
+  - The badge appears only when the address's **domain is approved** by an admin (**Team access → College email domains**). A domain seen for the first time waits for review; once it's approved, everyone confirmed with it gets the badge. Removing an approval removes those badges.
+  - Others see only "Verified student" (on profiles and Scout cards), never the address or domain. Admins see domains and counts, never addresses. Unverified students keep every feature.
+- **Email sender: Resend** (free plan), from `verify@findmyteam.tech`. The API key lives in Supabase Vault as `resend_api_key`, and the database sends through the `http` extension. Until the key and the domain's DNS are set up, the page says sending isn't switched on yet.
+- Tables: `college_verifications`, `college_email_domains`, `college_email_sends` (no student access), plus `profiles.college_verified_at`. Functions: `start_college_verification`, `confirm_college_verification`, `my_college_verification`, `remove_college_verification`, `college_verified_ids`, `admin_list_college_domains`, `admin_set_college_domain`. `admin_grant_early_access` now takes only an email. Checks: `supabase/tests/module-11-google-college-badge.sql`.
+- Supabase's migration history has an empty entry named `google_and_college_badge` from a mistaken first apply. The real change is `google_and_college_badge_v2`, which matches `20261107000016_google_and_college_badge.sql`.
+
 ---
 
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
-- **Email confirmation is off (D15).** Turn it back on, with a real email sender, before launch.
+- **Launch switches for sign-in (D25).** Turn off the Email provider, turn on "Allow new users to sign up", publish the Google consent screen, add the Vercel preview URL to Supabase redirect URLs if previews need Google sign-in.
 - **Unused Vercel variable.** `GITHUB_SNAPSHOT_SECRET` exists in the Vercel project from an abandoned design (D13). Nothing reads it; delete it in Vercel's settings.
 - **Test account in the shared database.** The `dev-tester` account (a fake "Dev Tester" profile) exists in the same database production uses. Remove it before people-discovery (Module 4) goes live, or it will appear in real students' decks.
 - **Sample data (D18).** Run `supabase/seed/remove-demo.sql` before real students arrive.

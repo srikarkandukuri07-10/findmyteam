@@ -133,3 +133,9 @@ export const LockIcon = (p: IconProps) => (
     <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" />
   </Base>
 );
+export const BadgeCheckIcon = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M12 2.8l2.2 1.6 2.7-.1.9 2.6 2.2 1.6-.8 2.6.8 2.6-2.2 1.6-.9 2.6-2.7-.1L12 21.2l-2.2-1.6-2.7.1-.9-2.6L4 15.5l.8-2.6L4 10.3l2.2-1.6.9-2.6 2.7.1z" />
+    <path d="m8.8 12.2 2.2 2.2 4.2-4.4" />
+  </Base>
+);

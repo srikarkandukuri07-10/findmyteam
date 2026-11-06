@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { VerifiedStudentBadge } from "@/components/verified-badge";
 import { githubProfileUrl } from "@/lib/github/snapshot";
 import type { ProfileSkill, ProfileView } from "@/lib/profile/data";
 import { SKILL_LEVEL_LABELS } from "@/lib/validation/profile";
@@ -62,6 +63,7 @@ export function ProfileCard({ profile, action }: { profile: ProfileView; action?
           <div className="mt-4 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{profile.displayName}</h1>
+              {profile.collegeVerified && <VerifiedStudentBadge />}
               {profile.isDemo && <Chip>Sample profile</Chip>}
             </div>
             <p className="mt-1 text-muted">

@@ -10,7 +10,7 @@ Requirement IDs refer to `PRD.md`, as amended by `DECISIONS.md`.
 | --- | --- | --- | --- | --- |
 | 0 | Foundations | App skeleton, Supabase wiring, CI, docs | none | Done (GitHub repo pending) |
 | W | Waitlist (pre-launch) | Public landing page and waitlist; app locked until launch (D19) | WAIT-1 to 3 | Built; live site is waitlist-only |
-| 1 | Auth and onboarding | Sign-up, verification, B.Tech declaration, consent, sign-in, reset | AUTH-1, 2, 4, 6, 7 | Built; email-link steps await dashboard settings; Turnstile deferred |
+| 1 | Auth and onboarding | Google sign-in (D25), B.Tech declaration, consent, optional Verified student badge by college email | AUTH-1, 4, 7 | Rebuilt for Google (D25); badge emails need Resend set up; Turnstile deferred |
 | 2 | Hackathons catalogue | Hackathon records anyone can add; mark interest | HACK-1, 2, 3 | Built; list starts empty by design (no seed data) |
 | 3 | Profiles | Profile, skills, roles, photo, GitHub repos, past hackathons, projects | PROF-1 to 6, 8 | 3a built (profile, skills, roles, links, completeness); GitHub connection built (needs dashboard setup, see D13); 3b next (photo, past hackathons, manual projects) |
 | 4 | People discovery | One card at a time, Connect / Skip, filters, ranking v1, daily cap | DISC-1 to 4, 6, 7 | Built early (D18): swipe deck and ranking v1; filters pending |

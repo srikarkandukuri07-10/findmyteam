@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { VerifiedStudentBadge } from "@/components/verified-badge";
 import type { DiscoverCandidate } from "@/lib/discover/data";
 import { avatarSrc } from "@/lib/avatar";
 
@@ -47,6 +48,7 @@ export function ScoutCardFront({ c }: { c: DiscoverCandidate }) {
           </span>
         )}
         <div className="absolute inset-x-5 bottom-3 text-surface">
+          {c.collegeVerified && <VerifiedStudentBadge tone="glass" className="mb-1.5" />}
           <h2 className="truncate text-[1.75rem] font-bold leading-tight tracking-tight drop-shadow">{c.name}</h2>
           <p className="mt-0.5 truncate text-sm font-medium text-surface/85">
             {degree} · {c.branch} · Year {c.year}

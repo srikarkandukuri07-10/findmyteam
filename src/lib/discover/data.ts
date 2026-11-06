@@ -1,6 +1,7 @@
 import "server-only";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/dal";
+import { verifiedStudentIds } from "@/lib/profile/verified";
 import { SKILL_LEVELS } from "@/lib/validation/profile";
 
 const skillSchema = z.object({
@@ -33,6 +34,7 @@ export type DiscoverCandidate = {
   roles: z.infer<typeof roleSchema>[];
   github: z.infer<typeof githubSchema>;
   githubVerified: boolean;
+  collegeVerified: boolean;
   isDemo: boolean;
   reason: string;
   avatarPath: string | null;
@@ -43,6 +45,7 @@ export async function getDiscoverCandidates(limit = 20): Promise<DiscoverCandida
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("discover_people", { p_limit: limit });
   if (error) throw error;
+  const verified = await verifiedStudentIds(supabase, data.map((row) => row.id));
 
   return data.map((row) => ({
     id: row.id,
@@ -57,6 +60,7 @@ export async function getDiscoverCandidates(limit = 20): Promise<DiscoverCandida
     roles: z.array(roleSchema).catch([]).parse(row.roles),
     github: githubSchema.catch(null).parse(row.github),
     githubVerified: row.github_verified,
+    collegeVerified: verified.has(row.id),
     isDemo: row.is_demo,
     reason: row.reason,
     avatarPath: row.avatar_path,

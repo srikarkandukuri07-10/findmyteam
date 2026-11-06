@@ -30,10 +30,14 @@ async function OnboardingLoader() {
   if (profile.onboarded_at) redirect("/home");
 
   const { supabase } = await requireUser();
-  const [colleges, branches] = await Promise.all([
+  const [colleges, branches, claims] = await Promise.all([
     supabase.from("colleges").select("id, name").order("name"),
     supabase.from("branches").select("id, name").order("sort_order"),
+    supabase.auth.getClaims(),
   ]);
+  // D25: start with the name on the student's Google account; they can change it.
+  const meta = claims.data?.claims.user_metadata as { full_name?: unknown; name?: unknown } | undefined;
+  const googleName = typeof meta?.full_name === "string" ? meta.full_name : typeof meta?.name === "string" ? meta.name : "";
   if (colleges.error) throw colleges.error;
   if (branches.error) throw branches.error;
 
@@ -42,6 +46,7 @@ async function OnboardingLoader() {
       colleges={colleges.data}
       branches={branches.data}
       currentYear={new Date().getFullYear()}
+      suggestedName={googleName.trim().slice(0, 60)}
     />
   );
 }

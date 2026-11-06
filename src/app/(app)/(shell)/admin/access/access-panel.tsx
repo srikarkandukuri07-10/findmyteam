@@ -9,7 +9,7 @@ type Member = { id: string; name: string; onboarded: boolean; role: string };
 const field =
   "w-full rounded-2xl border border-border bg-background/40 px-4 py-3 text-[15px] focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/20";
 
-/** Give or take away early access to the live site before launch (D24). */
+/** Give or take away early access to the live site before launch (D24, D25). */
 export function AccessPanel({ members }: { members: Member[] }) {
   const [state, action, pending] = useActionState<GrantState, FormData>(grantEarlyAccess, { kind: "idle" });
   const [list, setList] = useState(members);
@@ -20,20 +20,13 @@ export function AccessPanel({ members }: { members: Member[] }) {
       <section className="reveal rounded-[2rem] bg-surface p-6 shadow-card sm:p-8">
         <h2 className="text-lg font-semibold">Give someone early access</h2>
         <p className="mt-1 text-sm text-muted">
-          They can then sign in at <b>findmyteam.tech/login</b> and use the whole app. If the email has no account yet,
-          one is created with the temporary password you set here; send it to them privately, and they can change it
-          from the profile menu.
+          Add the Gmail address they use with Google. They can then press <b>Continue with Google</b> at{" "}
+          <b>findmyteam.tech/login</b> and use the whole app. Anyone not on this list is sent back to the waitlist.
         </p>
-        <form action={action} className="mt-5 grid gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+        <form action={action} className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto] sm:items-end">
           <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold">Their email</span>
-            <input name="email" type="email" required autoComplete="off" className={field} placeholder="friend@example.com" />
-          </label>
-          <label className="block">
-            <span className="mb-1.5 block text-sm font-semibold">
-              Temporary password <span className="font-normal text-muted">(new accounts)</span>
-            </span>
-            <input name="password" type="text" minLength={10} maxLength={72} autoComplete="off" className={field} placeholder="At least 10 characters" />
+            <span className="mb-1.5 block text-sm font-semibold">Their Google (Gmail) address</span>
+            <input name="email" type="email" required autoComplete="off" className={field} placeholder="friend@gmail.com" />
           </label>
           <button
             type="submit"

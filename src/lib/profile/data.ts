@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/auth/dal";
 import { parseGithubSnapshot } from "@/lib/github/snapshot";
 import { SKILL_LEVELS } from "@/lib/validation/profile";
 import { profileCompleteness } from "./completeness";
+import { verifiedStudentIds } from "./verified";
 
 const profileSkillSchema = z.object({
   id: z.number(),
@@ -24,6 +25,7 @@ export async function getProfileView(id: string) {
   if (error) throw error;
   const row = data[0];
   if (!row) notFound();
+  const verified = await verifiedStudentIds(supabase, [row.id]);
 
   return {
     id: row.id,
@@ -43,6 +45,7 @@ export async function getProfileView(id: string) {
     isMe: row.is_me,
     avatarPath: row.avatar_path,
     isDemo: row.is_demo,
+    collegeVerified: verified.has(row.id),
   };
 }
 

@@ -1,10 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  fieldErrors,
-  onboardingSchema,
-  resetPasswordSchema,
-  signUpSchema,
-} from "./auth";
+import { fieldErrors, logInSchema, onboardingSchema } from "./auth";
 
 const NOW = new Date("2026-11-03T00:00:00Z");
 
@@ -21,28 +16,15 @@ const validOnboarding = {
   acceptTerms: "on",
 };
 
-describe("signUpSchema (AUTH-1)", () => {
+describe("logInSchema (local test accounts, D25)", () => {
   it("normalises email case and whitespace", () => {
-    const r = signUpSchema.parse({ email: " Asha@Example.COM ", password: "longenough" });
+    const r = logInSchema.parse({ email: " Asha@Example.COM ", password: "x" });
     expect(r.email).toBe("asha@example.com");
   });
 
-  it("rejects short passwords", () => {
-    const r = signUpSchema.safeParse({ email: "a@b.co", password: "short" });
+  it("requires a password", () => {
+    const r = logInSchema.safeParse({ email: "a@b.co", password: "" });
     expect(r.success).toBe(false);
-  });
-
-  it("rejects passwords over bcrypt's 72-byte limit", () => {
-    const r = signUpSchema.safeParse({ email: "a@b.co", password: "x".repeat(73) });
-    expect(r.success).toBe(false);
-  });
-});
-
-describe("resetPasswordSchema (AUTH-6)", () => {
-  it("requires matching passwords", () => {
-    const r = resetPasswordSchema.safeParse({ password: "longenough", confirmPassword: "different" });
-    expect(r.success).toBe(false);
-    if (!r.success) expect(fieldErrors(r.error).confirmPassword).toMatch(/match/);
   });
 });
 

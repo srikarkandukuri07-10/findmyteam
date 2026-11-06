@@ -61,6 +61,81 @@ export type Database = {
         }
         Relationships: []
       }
+      college_email_domains: {
+        Row: {
+          approved: boolean
+          decided_at: string | null
+          decided_by: string | null
+          domain: string
+          first_seen_at: string
+        }
+        Insert: {
+          approved?: boolean
+          decided_at?: string | null
+          decided_by?: string | null
+          domain: string
+          first_seen_at?: string
+        }
+        Update: {
+          approved?: boolean
+          decided_at?: string | null
+          decided_by?: string | null
+          domain?: string
+          first_seen_at?: string
+        }
+        Relationships: []
+      }
+      college_email_sends: {
+        Row: { day: string; sent: number }
+        Insert: { day: string; sent?: number }
+        Update: { day?: string; sent?: number }
+        Relationships: []
+      }
+      college_verifications: {
+        Row: {
+          attempts: number
+          code_expires_at: string | null
+          code_hash: string | null
+          domain: string | null
+          email: string | null
+          pending_domain: string | null
+          pending_email: string | null
+          sends: number
+          sends_window_start: string
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          attempts?: number
+          code_expires_at?: string | null
+          code_hash?: string | null
+          domain?: string | null
+          email?: string | null
+          pending_domain?: string | null
+          pending_email?: string | null
+          sends?: number
+          sends_window_start?: string
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          attempts?: number
+          code_expires_at?: string | null
+          code_hash?: string | null
+          domain?: string | null
+          email?: string | null
+          pending_domain?: string | null
+          pending_email?: string | null
+          sends?: number
+          sends_window_start?: string
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       colleges: {
         Row: {
           city: string
@@ -380,6 +455,7 @@ export type Database = {
           branch_id: number | null
           college_id: number | null
           college_other: string | null
+          college_verified_at: string | null
           consent_version: string | null
           consented_at: string | null
           created_at: string
@@ -405,6 +481,7 @@ export type Database = {
           branch_id?: number | null
           college_id?: number | null
           college_other?: string | null
+          college_verified_at?: string | null
           consent_version?: string | null
           consented_at?: string | null
           created_at?: string
@@ -430,6 +507,7 @@ export type Database = {
           branch_id?: number | null
           college_id?: number | null
           college_other?: string | null
+          college_verified_at?: string | null
           consent_version?: string | null
           consented_at?: string | null
           created_at?: string
@@ -582,7 +660,36 @@ export type Database = {
           granted_at: string
         }[]
       }
-      admin_grant_early_access: { Args: { p_email: string; p_password: string | null }; Returns: string }
+      admin_grant_early_access: { Args: { p_email: string }; Returns: string }
+      admin_list_college_domains: {
+        Args: never
+        Returns: {
+          approved: boolean
+          decided_at: string | null
+          domain: string
+          first_seen_at: string
+          students: number
+        }[]
+      }
+      admin_set_college_domain: { Args: { p_approved: boolean; p_domain: string }; Returns: undefined }
+      college_verified_ids: { Args: { p_ids: string[] }; Returns: string[] }
+      confirm_college_verification: { Args: { p_code: string }; Returns: string }
+      is_personal_email_domain: { Args: { p_domain: string }; Returns: boolean }
+      my_college_verification: {
+        Args: never
+        Returns: {
+          attempts_left: number | null
+          badge: boolean
+          code_expires_at: string | null
+          domain_approved: boolean
+          email: string | null
+          pending_email: string | null
+          verified_at: string | null
+        }[]
+      }
+      remove_college_verification: { Args: never; Returns: undefined }
+      send_college_code: { Args: { p_code: string; p_email: string }; Returns: boolean }
+      start_college_verification: { Args: { p_email: string }; Returns: string }
       admin_revoke_early_access: { Args: { p_user: string }; Returns: undefined }
       open_conversation: { Args: { p_other: string }; Returns: string }
       send_message: {

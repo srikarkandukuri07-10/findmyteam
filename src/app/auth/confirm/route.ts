@@ -1,30 +1,37 @@
-import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { safeNextPath } from "@/lib/site-url";
+import { hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
 
 /**
- * Landing point for links in auth emails (sign-up verification, password reset).
- * `token_hash` links work on any device; `code` links (Supabase's default template)
- * only work in the browser that started the flow.
+ * Where Google sign-in lands (AUTH-1, D25). Supabase sends either a one-time `code` to exchange for a
+ * session, or an `error`: for example when sign-ups are closed in Supabase and this Google account
+ * has no FindMyTeam account yet. Before launch only early-access accounts stay signed in (D24).
  */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
-  const next = safeNextPath(searchParams.get("next"), "/onboarding");
-  const tokenHash = searchParams.get("token_hash");
-  const type = searchParams.get("type") as EmailOtpType | null;
-  const code = searchParams.get("code");
+  const next = safeNextPath(searchParams.get("next"), "/home");
+  const toLogin = (error: string) => NextResponse.redirect(new URL(`/login?error=${error}`, origin));
 
-  const supabase = await createClient();
-  let ok = false;
-
-  if (tokenHash && type) {
-    const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
-    ok = !error;
-  } else if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    ok = !error;
+  const providerError = searchParams.get("error");
+  if (providerError) {
+    const description = searchParams.get("error_description") ?? "";
+    if (providerError === "access_denied" && !/signup/i.test(description)) return toLogin("cancelled");
+    return toLogin(/signup/i.test(description) ? "not_invited" : "failed");
   }
 
-  return NextResponse.redirect(new URL(ok ? next : "/auth/error", origin));
+  const code = searchParams.get("code");
+  if (!code) return toLogin("failed");
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error || !data.user) return toLogin("failed");
+
+  if (isWaitlistMode() && !hasEarlyAccess(data.user)) {
+    await supabase.auth.signOut();
+    return toLogin("not_invited");
+  }
+
+  // The (app) layout sends students who haven't finished onboarding to /onboarding.
+  return NextResponse.redirect(new URL(next, origin));
 }
