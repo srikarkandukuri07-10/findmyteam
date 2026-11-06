@@ -3,11 +3,12 @@ import { z } from "zod";
 import { requireUser } from "@/lib/auth/dal";
 
 const positionSchema = z.object({ role: z.string(), spots: z.number() });
-const listMemberSchema = z.object({ id: z.string(), name: z.string() });
+const listMemberSchema = z.object({ id: z.string(), name: z.string(), avatar_path: z.string().nullable().catch(null) });
 const memberSchema = z.object({
   id: z.string(),
   name: z.string(),
   is_owner: z.boolean(),
+  avatar_path: z.string().nullable().catch(null),
   college: z.string().nullable(),
   year: z.number(),
   roles: z.array(z.string()),

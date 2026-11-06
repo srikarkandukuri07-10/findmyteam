@@ -365,6 +365,7 @@ export type Database = {
           id: string
           onboarded_at: string | null
           role: Database["public"]["Enums"]["user_role"]
+          avatar_path: string | null
           status: Database["public"]["Enums"]["account_status"]
           updated_at: string
           year_of_study: number | null
@@ -389,6 +390,7 @@ export type Database = {
           id: string
           onboarded_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          avatar_path?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           year_of_study?: number | null
@@ -413,6 +415,7 @@ export type Database = {
           id?: string
           onboarded_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          avatar_path?: string | null
           status?: Database["public"]["Enums"]["account_status"]
           updated_at?: string
           year_of_study?: number | null
@@ -512,6 +515,8 @@ export type Database = {
           graduation_year: number
           id: string
           is_me: boolean
+          avatar_path: string | null
+          is_demo: boolean
           linkedin_url: string
           roles: Json
           skills: Json
@@ -543,6 +548,12 @@ export type Database = {
       }
       waitlist_options: { Args: never; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      set_avatar: { Args: { p_path: string | null }; Returns: undefined }
+      connection_state: {
+        Args: { p_other: string }
+        Returns: { state: string; request_id: string | null }[]
+      }
+      search_everything: { Args: { p_query: string }; Returns: Json }
       waitlist_stats: { Args: never; Returns: Json }
       waitlist_standing: { Args: { p_code: string }; Returns: Json }
       swipe_person: {
@@ -581,6 +592,7 @@ export type Database = {
           other_college: string
           other_id: string
           other_is_demo: boolean
+          other_avatar_path: string | null
           other_name: string
           other_roles: Json
           other_year: number

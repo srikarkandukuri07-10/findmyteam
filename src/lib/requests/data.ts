@@ -16,6 +16,7 @@ export type RequestItem = {
   year: number;
   roles: z.infer<typeof roleSchema>[];
   isDemo: boolean;
+  avatarPath: string | null;
   status: RequestStatus;
   createdAt: string;
 };
@@ -34,6 +35,7 @@ export async function listRequests(direction: RequestDirection): Promise<Request
     year: r.other_year,
     roles: z.array(roleSchema).catch([]).parse(r.other_roles),
     isDemo: r.other_is_demo,
+    avatarPath: r.other_avatar_path,
     status: r.status,
     createdAt: r.created_at,
   }));

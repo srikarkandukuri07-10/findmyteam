@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { CardSkeleton } from "@/components/skeleton";
 import { BACK_TRANSITION, PageTransition } from "@/components/page-transition";
 import { GithubConnectCard, GithubNotice } from "@/components/github-connect-card";
+import { PhotoUploader } from "@/components/photo-uploader";
 import { Card, PageHeader } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
 import { getProfileForEdit } from "@/lib/profile/data";
@@ -35,6 +36,13 @@ async function EditLoader({ searchParams }: { searchParams: PageProps<"/profile/
   return (
     <div className="space-y-4">
       <GithubNotice code={sp.github} />
+      <Card>
+        <PhotoUploader
+          userId={data.profile.id}
+          name={data.profile.display_name ?? "You"}
+          avatarPath={data.profile.avatar_path}
+        />
+      </Card>
       {/* Its own forms, so it sits above (not inside) the profile form. */}
       <Card>
         <GithubConnectCard

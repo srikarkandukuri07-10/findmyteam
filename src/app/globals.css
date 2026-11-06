@@ -286,6 +286,17 @@ html {
   }
 }
 
+/* A profile photo landing on the cover. */
+.pop-in {
+  animation: pop-in 620ms cubic-bezier(0.2, 1.4, 0.4, 1) 120ms backwards;
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6) translateY(12px);
+  }
+}
+
 /* The hand in "Hey Srikar! 👋". */
 .wave {
   animation: wave 2.4s ease-in-out 0.6s 2;
@@ -349,6 +360,7 @@ html {
   .twinkle,
   .type-line,
   .wave,
+  .pop-in,
   .float-card {
     animation: none;
   }

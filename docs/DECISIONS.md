@@ -220,6 +220,16 @@ Before launch the public site is a **waitlist landing page and nothing else**. T
 
 ---
 
+## D21 · Universal search, profile photos and illustrated avatars (2026-11-06)
+
+- **Search (SRCH-1).** The top bar searches as you type (140 ms debounce): people by name, skill or college, and teams by name; up to 6 people and 3 teams, best matches first (name starts with the text, then a word starts with it, then contains it, then skill). Only onboarded, active **students** appear (never admins or investors, never me); results never include emails or birth years. Typed `%` and `_` match literally. 120 searches a minute per student, so the directory can't be scraped. Keyboard: arrows, Enter, Esc, Ctrl/⌘ K. Function `search_everything`.
+- **Profile page.** LinkedIn-style header (cover, photo, name) with a **Connect** button that follows the real state from `connection_state`: Connect → Request sent (Cancel) → Connected, or Accept / Not now when they asked first. Connecting from a profile is the same request as a right swipe (same 25-a-day cap).
+- **Photos (PROF-1).** Students upload a photo on Edit profile; the browser crops the middle square and stores a 512 x 512 WebP in the public `avatars` bucket under `<their id>/<random name>.webp`. Students can write and read only their own folder; `set_avatar` checks the path; the previous file is deleted on change. Public bucket with unguessable names (like LinkedIn); revisit if photos of under-18 students need to be private.
+- **Illustrated avatars.** Anyone without a photo (all 50 sample students included) gets an avatar drawn from their id at `/avatar/<id>`: DiceBear "Notionists" by Zoish, **CC0**, generated on our server, no outside service. Sample students never use photos of real people.
+- Photos also show in Requests, team cards and team pages. Checks: `supabase/tests/module-8-search-photos.sql`.
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
@@ -231,6 +241,7 @@ Before launch the public site is a **waitlist landing page and nothing else**. T
 - **Shared database.** Local development and production use one Supabase project. Create a separate production project before launch.
 - **Waitlist data (D19).** It sits in the shared project. Before launch, pause or delete one of the two active free projects (the account limit), create the production project, and move the `waitlist` table there.
 - **Supabase sign-ups (D19).** Keep "Allow new users to sign up" off until launch.
+- **QA test account (D20).** `qa-tester@fmt.test` (password in `.env.local`) is used for automated browser checks. Remove it with the sample data before launch.
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.
 - **Team invites at launch.** PRD section 6 includes invites in the launch flow, but TEAM-8 is marked P1. This plan includes invites in Module 7.
 - **One team per hackathon (TEAM-10).** Enforce in the database in Module 7.

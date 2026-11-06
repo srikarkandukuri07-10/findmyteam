@@ -15,11 +15,7 @@ export default function MyProfilePage(props: PageProps<"/profile">) {
   return (
     <PageTransition>
     <main className="mx-auto w-full max-w-3xl flex-1 space-y-4 px-4 py-8">
-      <PageHeader
-        title="My profile"
-        subtitle="This is what other students see."
-        action={<ButtonLink href="/profile/edit">Edit profile</ButtonLink>}
-      />
+      <PageHeader title="My profile" subtitle="This is what other students see." />
       <Suspense fallback={<CardSkeleton lines={5} />}>
         <MyProfile searchParams={props.searchParams} />
       </Suspense>
@@ -38,7 +34,7 @@ async function MyProfile({ searchParams }: { searchParams: PageProps<"/profile">
     <div className="space-y-4">
       <GithubNotice code={sp.github} />
       <CompletenessCard completeness={completeness} />
-      <ProfileCard profile={profile} />
+      <ProfileCard profile={profile} action={<ButtonLink href="/profile/edit">Edit profile</ButtonLink>} />
     </div>
   );
 }

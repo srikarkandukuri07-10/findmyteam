@@ -116,6 +116,7 @@ Priority: **P0** = needed for launch, **P1** = soon after, **P2** = later. Each 
 | DISC-6 | Already-connected, blocked, reported and pending users never appear | P0 |
 | DISC-7 | Daily connect cap (default 25) with a visible counter | P0 |
 | DISC-8 | Undo last skip within the current session | P2 |
+| SRCH-1 | Universal search in the top bar with suggestions on every letter: people by name, skill or college, and teams; opening a result shows the profile with Connect (added 2026-11-06, D21) | P0 |
 
 ### 5.4 Requests
 

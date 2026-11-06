@@ -8,7 +8,7 @@ import { Card, Chip } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
 import { formatDateRange } from "@/lib/hackathons/dates";
 import { RECRUIT_LABELS, getTeam } from "@/lib/teams/data";
-import { initials } from "@/lib/validation/profile";
+import { StudentAvatar } from "@/components/student-avatar";
 
 export const metadata: Metadata = { title: "Team" };
 
@@ -92,12 +92,7 @@ async function TeamDetails({ params }: { params: PageProps<"/teams/[id]">["param
                 href={`/students/${m.id}`}
                 className="lift flex items-center gap-3 rounded-2xl bg-surface-muted p-3"
               >
-                <span
-                  aria-hidden
-                  className="grid size-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accent-soft to-accent font-semibold text-accent-foreground"
-                >
-                  {initials(m.name)}
-                </span>
+                <StudentAvatar id={m.id} name={m.name} avatarPath={m.avatar_path} size="sm" className="size-11" />
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-2 font-medium">
                     <span className="truncate">{m.name}</span>

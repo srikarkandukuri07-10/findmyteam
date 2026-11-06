@@ -6,7 +6,7 @@ import { useState, useTransition } from "react";
 import { cancelMyRequest, respondToRequest } from "@/app/(app)/(shell)/requests/actions";
 import type { RequestDirection, RequestItem } from "@/lib/requests/data";
 import { timeAgo } from "@/lib/time";
-import { initials } from "@/lib/validation/profile";
+import { StudentAvatar } from "./student-avatar";
 import { Chip } from "./ui";
 
 const SPRING = { type: "spring", stiffness: 300, damping: 28 } as const;
@@ -78,12 +78,7 @@ export function RequestList({ items, direction }: { items: RequestItem[]; direct
               exit={{ opacity: 0, x: -90, transition: { duration: 0.3 } }}
               className="flex flex-wrap items-center gap-4 rounded-3xl bg-surface p-5 shadow-card"
             >
-              <span
-                aria-hidden
-                className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accent-soft to-accent font-semibold text-accent-foreground"
-              >
-                {initials(item.name)}
-              </span>
+              <StudentAvatar id={item.otherId} name={item.name} avatarPath={item.avatarPath} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <Link

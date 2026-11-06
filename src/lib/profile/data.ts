@@ -41,7 +41,20 @@ export async function getProfileView(id: string) {
     skills: z.array(profileSkillSchema).parse(row.skills),
     roles: z.array(profileRoleSchema).parse(row.roles),
     isMe: row.is_me,
+    avatarPath: row.avatar_path,
+    isDemo: row.is_demo,
   };
+}
+
+export type ConnectionState = { state: "none" | "sent" | "received" | "connected"; requestId: string | null };
+
+/** Where the signed-in student and `otherId` stand: no request, sent, received or connected. */
+export async function getConnectionState(otherId: string): Promise<ConnectionState> {
+  const { supabase } = await requireUser();
+  const { data, error } = await supabase.rpc("connection_state", { p_other: otherId });
+  if (error || !data[0]) return { state: "none", requestId: null };
+  const state = z.enum(["none", "sent", "received", "connected"]).catch("none").parse(data[0].state);
+  return { state, requestId: data[0].request_id };
 }
 
 export type ProfileView = Awaited<ReturnType<typeof getProfileView>>;
@@ -52,7 +65,7 @@ export async function getProfileForEdit() {
   const [profile, mySkills, myRoles, skills, roles, branches] = await Promise.all([
     supabase
       .from("profiles")
-      .select("display_name, bio, linkedin_url, github_username, github_id, branch_id, year_of_study, graduation_year")
+      .select("id, display_name, bio, linkedin_url, github_username, github_id, branch_id, year_of_study, graduation_year, avatar_path")
       .eq("id", userId)
       .single(),
     supabase.from("profile_skills").select("skill_id, level"),

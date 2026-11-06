@@ -17,7 +17,7 @@ import {
   UserIcon,
 } from "@/components/icons";
 import { Logo } from "@/components/logo";
-import { initials } from "@/lib/validation/profile";
+import { StudentAvatar } from "@/components/student-avatar";
 import type { ShellInfo } from "@/lib/shell/data";
 import { ProCard } from "./pro-card";
 import { SidebarNav } from "./sidebar-nav";
@@ -40,17 +40,9 @@ function useOutsideClose(open: boolean, close: () => void) {
   return ref;
 }
 
-export function Avatar({ name, size = "md" }: { name: string; size?: "sm" | "md" }) {
-  return (
-    <span
-      aria-hidden
-      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-accent-soft to-accent font-bold text-accent-foreground ring-2 ring-surface ${
-        size === "sm" ? "size-9 text-xs" : "size-11 text-sm"
-      }`}
-    >
-      {initials(name)}
-    </span>
-  );
+function Avatar({ info }: { info: ShellInfo | null }) {
+  if (!info) return <span className="shimmer size-11 shrink-0 rounded-full" />;
+  return <StudentAvatar id={info.id} name={info.name} avatarPath={info.avatarPath} size="md" className="size-11" />;
 }
 
 function ProfileMenu({ info }: { info: ShellInfo | null }) {
@@ -83,7 +75,7 @@ function ProfileMenu({ info }: { info: ShellInfo | null }) {
         aria-haspopup="menu"
         className="flex items-center gap-2 rounded-full p-1 pr-2 transition hover:bg-surface/70"
       >
-        <Avatar name={info?.name ?? "?"} />
+        <Avatar info={info} />
         <span className="hidden text-left sm:block">
           <span className="block max-w-32 truncate text-sm font-semibold">{info?.name ?? " "}</span>
           <span className="block text-xs text-muted">{info?.role === "admin" ? "Admin" : "Student"}</span>
