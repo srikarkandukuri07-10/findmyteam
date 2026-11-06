@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/dal";
 import type { SwipeAction, SwipeResult } from "@/lib/discover/swipe-logic";
@@ -22,8 +21,8 @@ export async function swipePerson(targetId: string, action: SwipeAction): Promis
   });
   if (error) return { result: "error" };
 
+  // No revalidatePath here: in a Server Action it also refreshes the page that called it, which reloaded
+  // Scout with a new batch mid-swipe. The Requests page reads fresh data on every visit anyway.
   const result = (["sent", "skipped", "already", "limit"] as const).find((r) => r === data) ?? "error";
-  // Only the requests page changes; the deck itself must not refresh in the middle of a swipe.
-  if (result === "sent") revalidatePath("/requests");
   return { result };
 }

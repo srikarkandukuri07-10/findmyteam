@@ -112,7 +112,7 @@ Priority: **P0** = needed for launch, **P1** = soon after, **P2** = later. Each 
 | DISC-2 | Card shows photo, name, college, skills, top hackathon result, top project, GitHub highlights, badges and a "why you match" line | P0 |
 | DISC-3 | Connect sends a request immediately; Skip sends nothing and notifies nobody | P0 |
 | DISC-4 | Filters: skills, role, college, year, city, hackathon interest, availability | P0 |
-| DISC-5 | Skipped profiles do not reappear for 30 days, then may return once at low priority | P1 |
+| DISC-5 | Skipped profiles do not reappear for 7 days (changed from 30, D22), then may return | P1 |
 | DISC-6 | Already-connected, blocked, reported and pending users never appear | P0 |
 | DISC-7 | Daily connect cap (default 25) with a visible counter | P0 |
 | DISC-8 | Undo last skip within the current session | P2 |

@@ -63,11 +63,17 @@ begin
   if n <> 0 then raise exception 'FAIL 11: a skipped student reappeared at once.'; end if;
 
   reset role;
-  update public.swipes set created_at = now() - interval '31 days' where actor_id = a and target_id = d;
+  update public.swipes set created_at = now() - interval '6 days' where actor_id = a and target_id = d;
   set local role authenticated;
   perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
   select count(*) into n from public.discover_people(50) where id = d;
-  if n <> 1 then raise exception 'FAIL 12: a student skipped over 30 days ago did not come back.'; end if;
+  if n <> 0 then raise exception 'FAIL 12a: a student skipped 6 days ago came back too early.'; end if;
+  reset role;
+  update public.swipes set created_at = now() - interval '8 days' where actor_id = a and target_id = d;
+  set local role authenticated;
+  perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
+  select count(*) into n from public.discover_people(50) where id = d;
+  if n <> 1 then raise exception 'FAIL 12: a student skipped over 7 days ago did not come back (D22).'; end if;
 
   failed := false;
   begin

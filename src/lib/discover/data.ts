@@ -35,6 +35,7 @@ export type DiscoverCandidate = {
   githubVerified: boolean;
   isDemo: boolean;
   reason: string;
+  avatarPath: string | null;
 };
 
 /** The next students to show, best matches first. Skipped, requested and blocked students are left out. */
@@ -58,6 +59,7 @@ export async function getDiscoverCandidates(limit = 20): Promise<DiscoverCandida
     githubVerified: row.github_verified,
     isDemo: row.is_demo,
     reason: row.reason,
+    avatarPath: row.avatar_path,
   }));
 }
 

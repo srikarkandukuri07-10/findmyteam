@@ -66,7 +66,7 @@ async function Banner() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/discover"
+              href="/discover?go=1"
               className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-accent px-6 py-3.5 font-bold text-accent-foreground shadow-lift transition hover:-translate-y-0.5 hover:bg-accent-hover active:scale-95"
             >
               <span className="relative z-10">Start scouting</span>

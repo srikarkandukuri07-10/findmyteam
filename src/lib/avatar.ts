@@ -5,12 +5,16 @@
  */
 const BUCKET = "avatars";
 
-export function avatarSrc(id: string, avatarPath: string | null | undefined): string {
+export function avatarSrc(
+  id: string,
+  avatarPath: string | null | undefined,
+  opts: { transparent?: boolean } = {},
+): string {
   if (avatarPath) {
     const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
     return `${base}/storage/v1/object/public/${BUCKET}/${avatarPath}`;
   }
-  return `/avatar/${id}`;
+  return opts.transparent ? `/avatar/${id}?bg=none` : `/avatar/${id}`;
 }
 
 /** Photos are stored square, at this size, as WebP. */

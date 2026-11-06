@@ -230,6 +230,16 @@ Before launch the public site is a **waitlist landing page and nothing else**. T
 
 ---
 
+## D22 · Scout, the pop-up swipe deck (2026-11-06)
+
+- **Name.** The swipe feature is **Scout** (founder's choice), at `/discover`, in the sidebar and on the home banner ("Start scouting" opens it straight away with `?go=1`).
+- **Flow.** The Scout page shows how many students are ready and the requests left today; **Start Scouting** opens a full-screen deck that zooms in over a dark purple backdrop. Cards lead with the photo (or illustrated avatar on a gradient), name, branch and college, then why they fit, roles and skills. Right (drag, ✓ or →) sends a team-up request; left (drag, ✕ or ←) skips for now. A tap, ⓘ or ↑ flips the card in 3D to the full bio, every skill and GitHub numbers. Esc closes.
+- **Motion.** Cards tilt and lift as they're dragged, CONNECT / SKIP stamps grow with the distance, the screen glows purple on the right or grey on the left, the card flies off with sparks, the next card rises from the stack, and notices slide in from the left. At the limit the card shakes. Everything falls back to simple fades for reduced motion.
+- **Skipped students come back** after **7 days** (was 30, DISC-5), and in the same session the end screen offers "Look at the N you skipped again". Only students appear in Scout, never admins or investors.
+- **Fix.** A swipe no longer refreshes the page (that reloaded a new batch mid-deck).
+
+---
+
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.

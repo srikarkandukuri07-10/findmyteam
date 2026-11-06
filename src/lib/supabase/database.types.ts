@@ -577,6 +577,7 @@ export type Database = {
           id: string
           is_demo: boolean
           reason: string
+          avatar_path: string | null
           roles: Json
           skills: Json
           year_of_study: number
