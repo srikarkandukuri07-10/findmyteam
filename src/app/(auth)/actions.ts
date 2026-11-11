@@ -1,10 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { z } from "zod";
+import type { ResendResult, VerifyState } from "@/components/auth/code-step";
+import { devPasswordSignInAllowed } from "@/lib/auth/dev";
+import { clearPendingEmail, emailField, readPendingEmail, setPendingEmail } from "@/lib/auth/pending-email";
 import { createClient } from "@/lib/supabase/server";
 import { safeNextPath, siteUrl } from "@/lib/site-url";
-import { devPasswordSignInAllowed } from "@/lib/auth/dev";
-import { z } from "zod";
 import { fieldErrors, logInSchema } from "@/lib/validation/auth";
 import { EARLY_ACCESS_ONLY_MESSAGE, hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
 
@@ -16,28 +18,20 @@ export type FormState = {
   values?: Record<string, string>;
 };
 
+export type StartState = { error?: string; email?: string };
+
 function str(formData: FormData, key: string) {
   const v = formData.get(key);
   return typeof v === "string" ? v : "";
 }
 
-export type CodeState = {
-  step: "email" | "code";
-  email?: string;
-  /** Shown above the form; `ok` decides the colour. */
-  message?: { ok: boolean; text: string };
-};
+const codeField = z.string().trim().regex(/^\d{6}$/, { error: "Enter the 6-digit code from the email." });
 
-const emailField = z.string().trim().toLowerCase().max(254).pipe(z.email({ error: "Enter a valid email address." }));
-const codeField = z.string().trim().regex(/^\d{6,10}$/, { error: "Enter the code from the email." });
-
-function codeErrorText(code: string | undefined) {
+function sendErrorText(code: string | undefined) {
   switch (code) {
     case "over_email_send_rate_limit":
     case "over_request_rate_limit":
-      return "Too many codes asked for. Wait a minute and try again.";
-    case "otp_expired":
-      return "That code has expired or isn't right. Ask for a new one.";
+      return "A code was sent a moment ago. Check your inbox, or resend in a minute.";
     case "signup_disabled":
     case "otp_disabled":
       return isWaitlistMode() ? EARLY_ACCESS_ONLY_MESSAGE : "New sign-ups aren't open right now. Try again soon.";
@@ -46,6 +40,8 @@ function codeErrorText(code: string | undefined) {
   }
 }
 
+const WRONG_CODE = "That code isn't right or has expired. Check the latest email, or resend.";
+
 /** Marks the account as email-verified (D27) and refreshes the token so the mark is in it. */
 async function markEmailVerified(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data } = await supabase.rpc("confirm_email_code");
@@ -53,77 +49,63 @@ async function markEmailVerified(supabase: Awaited<ReturnType<typeof createClien
   return Boolean(data);
 }
 
-/**
- * AUTH-1, AUTH-2 (D27): sign up or log in with just an email. A 6-digit code is emailed; no password.
- * New accounts are created only when sign-ups are open (not during the pre-launch lock).
- */
-export async function sendEmailCode(_prev: CodeState, formData: FormData): Promise<CodeState> {
-  const email = emailField.safeParse(str(formData, "email"));
-  if (!email.success) return { step: "email", message: { ok: false, text: email.error.issues[0]?.message ?? "Enter a valid email address." } };
+// ---------------------------------------------------------------------------------------------
+// Email: /login -> code by email -> /login/code -> signed in. New emails get an account (AUTH-1, D27).
+// ---------------------------------------------------------------------------------------------
+
+export async function startEmailSignIn(_prev: StartState, formData: FormData): Promise<StartState> {
+  const raw = str(formData, "email");
+  const email = emailField.safeParse(raw);
+  if (!email.success) return { email: raw, error: email.error.issues[0]?.message ?? "Enter a valid email address." };
+
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithOtp({
     email: email.data,
     options: { shouldCreateUser: !isWaitlistMode() },
   });
-  if (error) return { step: "email", email: email.data, message: { ok: false, text: codeErrorText(error.code) } };
-  return { step: "code", email: email.data, message: { ok: true, text: `We sent a code to ${email.data}. It expires in 10 minutes.` } };
+  if (error) return { email: raw, error: sendErrorText(error.code) };
+
+  await setPendingEmail(email.data);
+  const next = safeNextPath(str(formData, "next"), "");
+  redirect(next ? `/login/code?next=${encodeURIComponent(next)}` : "/login/code");
 }
 
-export async function verifyEmailCode(_prev: CodeState, formData: FormData): Promise<CodeState> {
-  const email = emailField.safeParse(str(formData, "email"));
+export async function resendLoginCode(): Promise<ResendResult> {
+  const email = await readPendingEmail();
+  if (!email) return { ok: false, message: "Start again with your email." };
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: !isWaitlistMode() } });
+  return error ? { ok: false, message: sendErrorText(error.code) } : { ok: true };
+}
+
+export async function verifyLoginCode(prev: VerifyState, formData: FormData): Promise<VerifyState> {
+  const tries = (prev.tries ?? 0) + 1;
+  const email = await readPendingEmail();
+  if (!email) redirect("/login");
   const code = codeField.safeParse(str(formData, "code"));
-  if (!email.success) return { step: "email", message: { ok: false, text: "Enter your email again." } };
-  if (!code.success) return { step: "code", email: email.data, message: { ok: false, text: code.error.issues[0]?.message ?? "Enter the code." } };
+  if (!code.success) return { tries, error: code.error.issues[0]?.message };
 
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.verifyOtp({ email: email.data, token: code.data, type: "email" });
-  if (error || !data.user) {
-    return { step: "code", email: email.data, message: { ok: false, text: "That code isn't right or has expired. Check the email, or ask for a new code." } };
-  }
+  const { data, error } = await supabase.auth.verifyOtp({ email, token: code.data, type: "email" });
+  if (error || !data.user) return { tries, error: WRONG_CODE };
+
   if (isWaitlistMode() && !hasEarlyAccess(data.user)) {
     await supabase.auth.signOut();
-    return { step: "email", message: { ok: false, text: EARLY_ACCESS_ONLY_MESSAGE } };
+    return { tries, error: EARLY_ACCESS_ONLY_MESSAGE };
   }
-  // Never let someone in unless the mark is really set; otherwise they'd just loop back here.
+  // Never let someone in unless the verified mark is really set; otherwise they'd loop back here.
   if (!(await markEmailVerified(supabase))) {
     await supabase.auth.signOut();
-    return { step: "email", message: { ok: false, text: "We couldn't confirm your email. Please try again." } };
+    return { tries, error: "We couldn't confirm your email. Resend the code and try again." };
   }
+  await clearPendingEmail();
   redirect(safeNextPath(str(formData, "next"), "/home"));
 }
 
-/** D27, after Google: email a code to the signed-in account's own address. */
-export async function sendMyCode(): Promise<CodeState> {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  const email = data.user?.email;
-  if (!email) redirect("/login");
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
-  if (error) return { step: "email", email, message: { ok: false, text: codeErrorText(error.code) } };
-  return { step: "code", email, message: { ok: true, text: `We sent a code to ${email}. It expires in 10 minutes.` } };
-}
+// ---------------------------------------------------------------------------------------------
+// Google: Google -> /auth/confirm -> first time only: /verify-email (code to that Gmail) -> in.
+// ---------------------------------------------------------------------------------------------
 
-export async function verifyMyCode(_prev: CodeState, formData: FormData): Promise<CodeState> {
-  const supabase = await createClient();
-  const { data: me } = await supabase.auth.getUser();
-  const email = me.user?.email;
-  if (!email) redirect("/login");
-  const code = codeField.safeParse(str(formData, "code"));
-  if (!code.success) return { step: "code", email, message: { ok: false, text: code.error.issues[0]?.message ?? "Enter the code." } };
-  const { error } = await supabase.auth.verifyOtp({ email, token: code.data, type: "email" });
-  if (error) {
-    return { step: "code", email, message: { ok: false, text: "That code isn't right or has expired. Check the email, or ask for a new code." } };
-  }
-  if (!(await markEmailVerified(supabase))) {
-    return { step: "code", email, message: { ok: false, text: "We couldn't confirm your email. Ask for a new code and try again." } };
-  }
-  redirect(safeNextPath(str(formData, "next"), "/home"));
-}
-
-/**
- * AUTH-1 (D25): Google is one way to sign in or sign up (the other is an email code, D27). Supabase sends the student to Google
- * and back to /auth/confirm, which finishes the sign-in and applies the pre-launch lock.
- */
 export async function signInWithGoogle(formData: FormData) {
   const next = safeNextPath(str(formData, "next"), "/home");
   const supabase = await createClient();
@@ -138,9 +120,37 @@ export async function signInWithGoogle(formData: FormData) {
   redirect(data.url);
 }
 
-/** Local development only (D25): sign in to the seeded test accounts, which have no Google account. */
+/** After Google, the first time only: email a code to the signed-in account's own address. */
+export async function sendMyCode(): Promise<ResendResult> {
+  const supabase = await createClient();
+  const { data } = await supabase.auth.getUser();
+  const email = data.user?.email;
+  if (!email) redirect("/login");
+  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
+  return error ? { ok: false, message: sendErrorText(error.code) } : { ok: true };
+}
+
+export async function verifyMyCode(prev: VerifyState, formData: FormData): Promise<VerifyState> {
+  const tries = (prev.tries ?? 0) + 1;
+  const supabase = await createClient();
+  const { data: me } = await supabase.auth.getUser();
+  const email = me.user?.email;
+  if (!email) redirect("/login");
+  const code = codeField.safeParse(str(formData, "code"));
+  if (!code.success) return { tries, error: code.error.issues[0]?.message };
+  const { error } = await supabase.auth.verifyOtp({ email, token: code.data, type: "email" });
+  if (error) return { tries, error: WRONG_CODE };
+  if (!(await markEmailVerified(supabase))) {
+    return { tries, error: "We couldn't confirm your email. Resend the code and try again." };
+  }
+  redirect(safeNextPath(str(formData, "next"), "/home"));
+}
+
+// ---------------------------------------------------------------------------------------------
+
+/** Local development only (D25): sign in to the seeded test accounts, which have no inbox. */
 export async function devLogIn(_prev: FormState, formData: FormData): Promise<FormState> {
-  if (!devPasswordSignInAllowed()) return { message: { ok: false, text: "Sign in with Google." } };
+  if (!devPasswordSignInAllowed()) return { message: { ok: false, text: "Use Google or your email." } };
   const values = { email: str(formData, "email") };
   const parsed = logInSchema.safeParse({ email: values.email, password: str(formData, "password") });
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };

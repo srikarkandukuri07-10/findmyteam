@@ -7,10 +7,10 @@ import type { Database } from "./database.types";
 import { withSessionLifetime } from "./session";
 
 /** Paths anyone can open. Everything else needs a signed-in (and therefore email-verified) user. */
-const PUBLIC_PATHS = ["/", "/login", "/terms", "/privacy"];
+const PUBLIC_PATHS = ["/", "/login", "/login/code", "/terms", "/privacy"];
 const PUBLIC_PREFIXES = ["/auth/"];
 /** Signed-in users are sent past these to the app. */
-const SIGNED_OUT_ONLY = ["/login"];
+const SIGNED_OUT_ONLY = ["/login", "/login/code"];
 
 function isPublic(pathname: string) {
   return PUBLIC_PATHS.includes(pathname) || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));

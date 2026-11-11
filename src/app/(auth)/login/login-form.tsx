@@ -4,16 +4,40 @@ import { useSearchParams } from "next/navigation";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Field, FormMessage, Input, SubmitButton } from "@/components/form";
-import { EmailCodeForm } from "@/components/email-code-form";
-import { devLogIn, sendEmailCode, signInWithGoogle, verifyEmailCode, type FormState } from "../actions";
+import { devLogIn, signInWithGoogle, startEmailSignIn, type FormState, type StartState } from "../actions";
 
 /** Wording for the ?error= values that /auth/confirm sends back here. */
 const ERRORS: Record<string, string> = {
-  not_invited:
-    "FindMyTeam hasn't launched yet, and this Google account isn't on the early-access list. Join the waitlist on the home page.",
-  cancelled: "Google sign-in was cancelled.",
-  failed: "Couldn't sign you in with Google. Try again.",
+  not_invited: "This account isn't on the early-access list yet.",
+  cancelled: "Google sign-in was cancelled. Try again, or use your email.",
+  failed: "Couldn't sign you in with Google. Try again, or use your email.",
 };
+
+/** The start screen (D27): Google, or an email that gets a 6-digit code. Same flow for new and returning students. */
+export function LoginOptions() {
+  const params = useSearchParams();
+  const next = params.get("next") ?? "";
+  const error = params.get("error");
+
+  return (
+    <div className="space-y-5">
+      {error && <FormMessage message={{ ok: false, text: ERRORS[error] ?? ERRORS.failed }} />}
+
+      <form action={signInWithGoogle}>
+        <input type="hidden" name="next" value={next} />
+        <GoogleButton />
+      </form>
+
+      <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wider text-muted">
+        <span className="h-px flex-1 bg-border" />
+        or
+        <span className="h-px flex-1 bg-border" />
+      </div>
+
+      <EmailStart next={next} />
+    </div>
+  );
+}
 
 function GoogleButton() {
   const { pending } = useFormStatus();
@@ -21,7 +45,7 @@ function GoogleButton() {
     <button
       type="submit"
       disabled={pending}
-      className="flex w-full items-center justify-center gap-3 rounded-full border border-border bg-surface px-4 py-3 text-sm font-semibold shadow-sm transition hover:bg-surface-muted disabled:opacity-60"
+      className="flex w-full items-center justify-center gap-3 rounded-full border border-border bg-surface px-4 py-3.5 text-sm font-semibold shadow-sm transition hover:bg-surface-muted active:scale-[0.98] disabled:opacity-60"
     >
       <GoogleLogo />
       {pending ? "Opening Google…" : "Continue with Google"}
@@ -29,25 +53,47 @@ function GoogleButton() {
   );
 }
 
-/** D27: sign in or sign up with an email code. */
-export function EmailSignIn() {
-  const next = useSearchParams().get("next") ?? "";
-  return <EmailCodeForm send={sendEmailCode} verify={verifyEmailCode} next={next} sendLabel="Continue with email" />;
-}
-
-export function GoogleSignIn() {
-  const params = useSearchParams();
-  const error = params.get("error");
+function EmailStart({ next }: { next: string }) {
+  const [state, action, pending] = useActionState<StartState, FormData>(startEmailSignIn, {});
   return (
-    <form action={signInWithGoogle} className="space-y-4">
-      <input type="hidden" name="next" value={params.get("next") ?? ""} />
-      {error && <FormMessage message={{ ok: false, text: ERRORS[error] ?? ERRORS.failed }} />}
-      <GoogleButton />
+    <form action={action} className="space-y-3" noValidate>
+      <input type="hidden" name="next" value={next} />
+      <label htmlFor="email" className="block text-sm font-medium">
+        Email
+      </label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        autoCapitalize="none"
+        spellCheck={false}
+        required
+        placeholder="you@college.edu"
+        defaultValue={state.email ?? ""}
+        aria-invalid={state.error ? true : undefined}
+        aria-describedby={state.error ? "email-error" : undefined}
+        className="block w-full rounded-2xl border border-border bg-surface-muted px-4 py-3.5 text-[15px] placeholder:text-muted/70 focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/20 aria-[invalid=true]:border-danger"
+      />
+      {state.error && (
+        <p id="email-error" role="alert" className="text-sm font-medium text-danger">
+          {state.error}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={pending}
+        className="flex w-full items-center justify-center rounded-full bg-accent px-4 py-3.5 text-sm font-bold text-accent-foreground transition hover:bg-accent-hover active:scale-[0.98] disabled:opacity-60"
+      >
+        {pending ? "Sending code…" : "Continue with email"}
+      </button>
+      <p className="text-center text-xs text-muted">We&apos;ll email you a 6-digit code. No password needed.</p>
     </form>
   );
 }
 
-/** Shown only by `next dev` (D25), for the local test accounts. */
+/** Shown only by `next dev` (D25), for the local test accounts that have no inbox. */
 export function DevLogInForm() {
   const [state, action] = useActionState<FormState, FormData>(devLogIn, {});
   const next = useSearchParams().get("next") ?? "";
@@ -57,11 +103,11 @@ export function DevLogInForm() {
       <form action={action} className="mt-4 space-y-4" noValidate>
         <input type="hidden" name="next" value={next} />
         <FormMessage message={state.message} />
-        <Field label="Email" name="email" error={state.errors?.email}>
-          <Input name="email" type="email" autoComplete="email" defaultValue={state.values?.email} error={state.errors?.email} />
+        <Field label="Email" name="dev-email" error={state.errors?.email}>
+          <Input name="email" id="dev-email" type="email" autoComplete="off" defaultValue={state.values?.email} error={state.errors?.email} />
         </Field>
-        <Field label="Password" name="password" error={state.errors?.password}>
-          <Input name="password" type="password" autoComplete="current-password" error={state.errors?.password} />
+        <Field label="Password" name="dev-password" error={state.errors?.password}>
+          <Input name="password" id="dev-password" type="password" autoComplete="off" error={state.errors?.password} />
         </Field>
         <SubmitButton pendingText="Signing in…">Sign in</SubmitButton>
       </form>

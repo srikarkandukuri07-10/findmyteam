@@ -2,23 +2,37 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { AuthShell } from "@/components/auth-shell";
-import { EmailCodeForm } from "@/components/email-code-form";
+import { AuthFrame } from "@/components/auth/auth-frame";
+import { CodeStep } from "@/components/auth/code-step";
 import { CardSkeleton } from "@/components/skeleton";
 import { createClient } from "@/lib/supabase/server";
 import { safeNextPath } from "@/lib/site-url";
-import { sendMyCode, verifyMyCode } from "../actions";
+import { logOut, sendMyCode, verifyMyCode } from "../actions";
 
-export const metadata: Metadata = { title: "Verify your email" };
+export const metadata: Metadata = { title: "Confirm your email" };
 
-/** D27: after Google, the student confirms their email with a one-time code before going further. */
+/**
+ * D27: the first time someone signs in with Google, they confirm that Gmail with a code before going
+ * further. The code is sent as soon as this screen opens. Never shown again once confirmed.
+ */
 export default function VerifyEmailPage(props: PageProps<"/verify-email">) {
   return (
-    <AuthShell title="Verify your email" subtitle="One quick step. We'll email you a code to confirm it's really you.">
+    <AuthFrame
+      title="Confirm your email"
+      subtitle="One-time check for new accounts. Enter the 6-digit code we're sending you."
+      footer={
+        <form action={logOut}>
+          Wrong account?{" "}
+          <button type="submit" className="font-semibold text-accent-ink">
+            Sign out
+          </button>
+        </form>
+      }
+    >
       <Suspense fallback={<CardSkeleton lines={3} />}>
         <Verify searchParams={props.searchParams} />
       </Suspense>
-    </AuthShell>
+    </AuthFrame>
   );
 }
 
@@ -33,5 +47,5 @@ async function Verify({ searchParams }: { searchParams: PageProps<"/verify-email
   if (data.user.app_metadata?.email_code_verified === true) {
     redirect(`/auth/refresh?next=${encodeURIComponent(next)}`);
   }
-  return <EmailCodeForm send={sendMyCode} verify={verifyMyCode} next={next} fixedEmail={data.user.email ?? ""} sendLabel="Email me a code" />;
+  return <CodeStep email={data.user.email ?? ""} next={next} verify={verifyMyCode} resend={sendMyCode} autoSend />;
 }

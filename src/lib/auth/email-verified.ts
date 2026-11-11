@@ -9,4 +9,4 @@ export function hasVerifiedEmail(claims: unknown): boolean {
 }
 
 /** Pages a signed-in student can open before verifying their email. */
-export const VERIFY_EMAIL_OPEN_PATHS = ["/verify-email", "/login", "/", "/privacy", "/terms"];
+export const VERIFY_EMAIL_OPEN_PATHS = ["/verify-email", "/login", "/login/code", "/", "/privacy", "/terms"];
