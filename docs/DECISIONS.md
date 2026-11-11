@@ -333,17 +333,20 @@ Supersedes D28 and the hackathon directory (Module 2 UI) for now.
 
 ---
 
+## D30 · Fresh start before launch (2026-11-12)
+
+At the founder's request every account and all app data were deleted (`supabase/seed/wipe-all-users.sql`): all 59 accounts (50 sample students, the test logins and the founder's own), every team, chat, request, swipe and profile, and the old hackathon entries. Kept: the reference lists (skills, colleges, branches, roles) and the 10 waitlist sign-ups. Scout now loads up to 50 students at a time (the most `discover_people` returns) and fetches more when the deck runs out, so everyone eligible is shown.
+
+---
+
 ## Still open
 
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
 - **Launch switches for sign-in (D25).** Turn off the Email provider, turn on "Allow new users to sign up", publish the Google consent screen, add the Vercel preview URL to Supabase redirect URLs if previews need Google sign-in.
 - **Unused Vercel variable.** `GITHUB_SNAPSHOT_SECRET` exists in the Vercel project from an abandoned design (D13). Nothing reads it; delete it in Vercel's settings.
-- **Test account in the shared database.** The `dev-tester` account (a fake "Dev Tester" profile) exists in the same database production uses. Remove it before people-discovery (Module 4) goes live, or it will appear in real students' decks.
-- **Sample data (D18).** Run `supabase/seed/remove-demo.sql` before real students arrive.
 - **Shared database.** Local development and production use one Supabase project. Create a separate production project before launch.
 - **Waitlist data (D19).** It sits in the shared project. Before launch, pause or delete one of the two active free projects (the account limit), create the production project, and move the `waitlist` table there.
 - **Supabase sign-ups (D19).** Keep "Allow new users to sign up" off until launch.
-- **QA test account (D20).** `qa-tester@fmt.test` (password in `.env.local`) is used for automated browser checks. Remove it with the sample data before launch.
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.
 - **Team invites at launch.** PRD section 6 includes invites in the launch flow, but TEAM-8 is marked P1. This plan includes invites in Module 7.
 - **One team per hackathon (TEAM-10).** Replaced by D29's limit of 3 active teams led per student; hackathons are typed text, so there is nothing to enforce it against.

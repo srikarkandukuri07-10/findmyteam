@@ -7,7 +7,7 @@ import { createPortal } from "react-dom";
 import { ArrowRightIcon, CheckIcon, CloseIcon } from "@/components/icons";
 import type { DiscoverCandidate } from "@/lib/discover/data";
 import { avatarSrc } from "@/lib/avatar";
-import { connectsLeftText } from "@/lib/discover/swipe-logic";
+import { connectsLeftText, SCOUT_BATCH } from "@/lib/discover/swipe-logic";
 import { ScoutDeck } from "./scout-deck";
 
 const noSubscribe = () => () => {};
@@ -129,7 +129,7 @@ export function ScoutLauncher({
             <span className="inline-flex items-center gap-2 rounded-full bg-surface/15 px-4 py-1.5 text-sm font-semibold backdrop-blur">
               <span className="pulse-dot size-2 rounded-full bg-accent" />
               {candidates.length > 0
-                ? `${candidates.length}${candidates.length === 20 ? "+" : ""} students ready for you`
+                ? `${candidates.length}${candidates.length >= SCOUT_BATCH ? "+" : ""} ${candidates.length === 1 ? "student" : "students"} ready for you`
                 : "No new students right now"}
             </span>
             <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl">

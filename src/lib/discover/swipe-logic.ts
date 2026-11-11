@@ -44,3 +44,6 @@ export function swipeToast(result: SwipeResult, name: string): { tone: ToastTone
 export function connectsLeftText(left: number) {
   return `${left} ${left === 1 ? "request" : "requests"} left today`;
 }
+
+/** How many students Scout loads at once (the most discover_people returns). Every eligible student is shown. */
+export const SCOUT_BATCH = 50;

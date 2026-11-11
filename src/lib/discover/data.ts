@@ -41,7 +41,7 @@ export type DiscoverCandidate = {
 };
 
 /** The next students to show, best matches first. Skipped, requested and blocked students are left out. */
-export async function getDiscoverCandidates(limit = 20): Promise<DiscoverCandidate[]> {
+export async function getDiscoverCandidates(limit = 50): Promise<DiscoverCandidate[]> {
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("discover_people", { p_limit: limit });
   if (error) throw error;

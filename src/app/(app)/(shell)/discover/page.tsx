@@ -5,6 +5,7 @@ import { ScoutLauncher } from "@/components/scout/scout-launcher";
 import { Skeleton } from "@/components/skeleton";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
 import { getConnectsLeft, getDiscoverCandidates } from "@/lib/discover/data";
+import { SCOUT_BATCH } from "@/lib/discover/swipe-logic";
 
 export const metadata: Metadata = { title: "Scout" };
 
@@ -23,7 +24,7 @@ export default function ScoutPage(props: PageProps<"/discover">) {
 async function Scout({ searchParams }: { searchParams: PageProps<"/discover">["searchParams"] }) {
   await requireOnboardedProfile();
   const sp = await searchParams;
-  const [candidates, connectsLeft] = await Promise.all([getDiscoverCandidates(20), getConnectsLeft()]);
+  const [candidates, connectsLeft] = await Promise.all([getDiscoverCandidates(SCOUT_BATCH), getConnectsLeft()]);
 
   // A new batch gets a new key, so the deck starts fresh instead of keeping the old queue.
   const batchKey = candidates.map((c) => c.id).join("-") || "empty";
