@@ -84,7 +84,11 @@ export async function verifyEmailCode(_prev: CodeState, formData: FormData): Pro
     await supabase.auth.signOut();
     return { step: "email", message: { ok: false, text: EARLY_ACCESS_ONLY_MESSAGE } };
   }
-  await markEmailVerified(supabase);
+  // Never let someone in unless the mark is really set; otherwise they'd just loop back here.
+  if (!(await markEmailVerified(supabase))) {
+    await supabase.auth.signOut();
+    return { step: "email", message: { ok: false, text: "We couldn't confirm your email. Please try again." } };
+  }
   redirect(safeNextPath(str(formData, "next"), "/home"));
 }
 
@@ -110,7 +114,9 @@ export async function verifyMyCode(_prev: CodeState, formData: FormData): Promis
   if (error) {
     return { step: "code", email, message: { ok: false, text: "That code isn't right or has expired. Check the email, or ask for a new code." } };
   }
-  await markEmailVerified(supabase);
+  if (!(await markEmailVerified(supabase))) {
+    return { step: "code", email, message: { ok: false, text: "We couldn't confirm your email. Ask for a new code and try again." } };
+  }
   redirect(safeNextPath(str(formData, "next"), "/home"));
 }
 

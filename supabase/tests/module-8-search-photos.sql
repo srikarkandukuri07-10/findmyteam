@@ -27,8 +27,12 @@ begin
 
   -- ---- Search ---------------------------------------------------------------
   res := public.search_everything('zyxw');
-  if jsonb_array_length(res -> 'people') <> 1 or res -> 'people' -> 0 ->> 'id' <> b::text then
-    raise exception 'FAIL 1: search should find B only (not me, not the admin): %', res;
+  -- D27: admins are real students too, so they are found; the searcher never finds themselves.
+  if jsonb_array_length(res -> 'people') <> 2
+     or not (res -> 'people') @> jsonb_build_array(jsonb_build_object('id', b::text))
+     or not exists (select 1 from jsonb_array_elements(res -> 'people') e where e ->> 'id' = adm::text)
+     or exists (select 1 from jsonb_array_elements(res -> 'people') e where e ->> 'id' = a::text) then
+    raise exception 'FAIL 1: search should find B and the admin, not me: %', res;
   end if;
   if res::text ilike '%@%' then raise exception 'FAIL 2: search results contain an email.'; end if;
   if res -> 'people' -> 0 ? 'birth_year' then raise exception 'FAIL 3: search results contain a birth year.'; end if;
