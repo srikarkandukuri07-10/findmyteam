@@ -7,6 +7,7 @@ import { Reveal } from "@/components/landing/reveal";
 import { WaitlistForm } from "@/components/landing/waitlist-form";
 import { APP_NAME } from "@/lib/brand";
 import { getWaitlistOptions, getWaitlistStats } from "@/lib/waitlist/data";
+import { isWaitlistMode } from "@/lib/waitlist/mode";
 
 const ROLES = [
   "UI/UX designer",
@@ -53,7 +54,11 @@ const AVENGERS = [
 ];
 
 export default async function LandingPage() {
-  const [options, stats] = await Promise.all([getWaitlistOptions(), getWaitlistStats()]);
+  // D26: once the lock is off (launch), the page invites students to sign up instead of joining the waitlist.
+  const open = !isWaitlistMode();
+  const [options, stats] = open
+    ? [null, { total: 0 }]
+    : await Promise.all([getWaitlistOptions(), getWaitlistStats()]);
 
   return (
     <div className="relative flex flex-1 flex-col overflow-x-clip">
@@ -72,12 +77,26 @@ export default async function LandingPage() {
               Find<span className="text-accent-ink">My</span>Team
             </span>
           </Link>
-          <a
-            href="#join"
-            className="rounded-full bg-accent px-4 py-2 text-sm font-bold text-accent-foreground transition hover:bg-accent-hover active:scale-95 sm:px-5"
-          >
-            Join the waitlist
-          </a>
+          {open ? (
+            <div className="flex items-center gap-1.5">
+              <Link href="/login" className="rounded-full px-4 py-2 text-sm font-semibold transition hover:bg-surface-muted">
+                Log in
+              </Link>
+              <Link
+                href="/login"
+                className="rounded-full bg-accent px-4 py-2 text-sm font-bold text-accent-foreground transition hover:bg-accent-hover active:scale-95 sm:px-5"
+              >
+                Sign up
+              </Link>
+            </div>
+          ) : (
+            <a
+              href="#join"
+              className="rounded-full bg-accent px-4 py-2 text-sm font-bold text-accent-foreground transition hover:bg-accent-hover active:scale-95 sm:px-5"
+            >
+              Join the waitlist
+            </a>
+          )}
         </nav>
       </header>
 
@@ -88,7 +107,7 @@ export default async function LandingPage() {
             <div className="reveal">
               <p className="inline-flex items-center gap-2.5 rounded-full bg-surface px-4 py-1.5 text-sm font-semibold shadow-card">
                 <span className="pulse-dot size-2.5 rounded-full bg-accent-ink" />
-                Launching soon · for B.Tech &amp; B.E. students
+                {open ? "Now open" : "Launching soon"} · for B.Tech &amp; B.E. students
               </p>
             </div>
             <div className="reveal" style={{ "--i": 1 } as CSSProperties}>
@@ -106,10 +125,10 @@ export default async function LandingPage() {
             <div className="reveal" style={{ "--i": 3 } as CSSProperties}>
               <div className="flex flex-wrap items-center gap-4">
                 <a
-                  href="#join"
+                  href={open ? "/login" : "#join"}
                   className="relative overflow-hidden rounded-full bg-accent px-8 py-4 text-base font-bold text-accent-foreground shadow-lift transition hover:-translate-y-0.5 hover:bg-accent-hover active:scale-95"
                 >
-                  <span className="relative z-10">Join the waitlist</span>
+                  <span className="relative z-10">{open ? "Sign up free" : "Join the waitlist"}</span>
                   <span aria-hidden className="button-shine absolute inset-0" />
                 </a>
                 <a href="#how" className="rounded-full px-5 py-4 text-base font-semibold text-foreground transition hover:bg-surface/70">
@@ -117,7 +136,7 @@ export default async function LandingPage() {
                 </a>
               </div>
             </div>
-            {stats.total >= 50 && (
+            {!open && stats.total >= 50 && (
               <div className="reveal" style={{ "--i": 4 } as CSSProperties}>
                 <p className="text-sm font-medium text-muted">
                   <b className="text-foreground">{stats.total.toLocaleString("en-IN")}</b> students are already waiting.
@@ -214,17 +233,24 @@ export default async function LandingPage() {
             <Reveal className="space-y-6">
               <Image src="/brand/fmt-logo.png" alt={`${APP_NAME} logo`} width={640} height={640} className="w-40 rounded-3xl shadow-card sm:w-48" />
               <div className="space-y-3">
-                <h2 className="text-4xl font-bold tracking-tight">Get in before your college opens.</h2>
+                <h2 className="text-4xl font-bold tracking-tight">
+                  {open ? "Your next teammate is already here." : "Get in before your college opens."}
+                </h2>
                 <p className="text-muted">
-                  We&apos;re opening college by college. Join now and you&apos;ll be first in when yours goes live.
+                  {open
+                    ? "Sign up with Google, set up your profile in three quick steps, and start Scouting."
+                    : "We're opening college by college. Join now and you'll be first in when yours goes live."}
                 </p>
               </div>
               <ul className="space-y-3 text-sm font-medium">
-                {[
-                  "Early access the day your college opens",
-                  "A Founding member badge on your profile",
-                  "Move up 10 places for every friend who joins",
-                ].map((perk) => (
+                {(open
+                  ? ["Students from colleges across India", "Verified student badge with your college email", "Free: Scout, requests, teams and chat"]
+                  : [
+                      "Early access the day your college opens",
+                      "A Founding member badge on your profile",
+                      "Move up 10 places for every friend who joins",
+                    ]
+                ).map((perk) => (
                   <li key={perk} className="flex items-center gap-3">
                     <span aria-hidden className="grid size-6 shrink-0 place-items-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
                       ✓
@@ -235,7 +261,7 @@ export default async function LandingPage() {
               </ul>
             </Reveal>
             <Reveal from="below" delay={0.1}>
-              <WaitlistForm options={options} stats={stats} />
+              {open || !options ? <SignUpPanel /> : <WaitlistForm options={options} stats={stats} />}
             </Reveal>
           </div>
         </section>
@@ -266,6 +292,28 @@ export default async function LandingPage() {
           </span>
         </div>
       </footer>
+    </div>
+  );
+}
+
+/** D26: what the join section shows once sign-ups are open. */
+function SignUpPanel() {
+  return (
+    <div className="flex h-full flex-col justify-center gap-5 rounded-[2rem] bg-accent-soft p-8 text-center">
+      <p className="text-2xl font-bold tracking-tight">Find your hackathon team today.</p>
+      <p className="text-muted">One Google sign-in. No passwords.</p>
+      <Link
+        href="/login"
+        className="mx-auto rounded-full bg-accent px-8 py-4 text-base font-bold text-accent-foreground shadow-lift transition hover:-translate-y-0.5 hover:bg-accent-hover active:scale-95"
+      >
+        Sign up with Google
+      </Link>
+      <p className="text-sm text-muted">
+        Already have an account?{" "}
+        <Link href="/login" className="font-semibold text-accent-ink">
+          Log in
+        </Link>
+      </p>
     </div>
   );
 }

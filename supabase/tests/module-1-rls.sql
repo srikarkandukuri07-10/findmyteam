@@ -1,4 +1,4 @@
--- Module 1 RLS and onboarding checks. Run against a dev database (Supabase SQL editor or MCP).
+-- Module 1 RLS and onboarding checks (updated for the three-card onboarding, D26). Run against a dev database (Supabase SQL editor or MCP).
 -- Everything runs in one DO block that ends by raising 'ALL_TESTS_PASSED', which rolls back
 -- every change: seeing that error means success; any other error names the failed check.
 do $$
@@ -50,33 +50,35 @@ begin
   select count(*) into n from public.colleges;
   if n < 20 then raise exception 'FAIL 7: A cannot read the college list (% rows).', n; end if;
 
-  -- Missing college is rejected by the database itself.
+  -- Card 1 (D26): a college from the list is required.
   failed := false;
   begin
-    perform public.complete_onboarding('Asha Rao', 'btech', null, null, 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
-  exception when check_violation then failed := true;
+    perform public.save_onboarding_details('Asha Rao', '9876500001', null, 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
+  exception when invalid_parameter_value then failed := sqlerrm = 'invalid_college';
   end;
   if not failed then raise exception 'FAIL 8: onboarding accepted a profile with no college.'; end if;
 
-  perform public.complete_onboarding('Asha Rao', 'btech', 1::smallint, null, 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
-  select count(*) into n from public.profiles where id = a and onboarded_at is not null and consented_at is not null;
-  if n <> 1 then raise exception 'FAIL 9: valid onboarding did not complete.'; end if;
+  perform public.save_onboarding_details('Asha Rao', '9876500001', 1, 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
+  select count(*) into n from public.profiles where id = a and details_saved_at is not null and onboarded_at is null and consented_at is not null;
+  if n <> 1 then raise exception 'FAIL 9: card 1 did not save (or finished onboarding early).'; end if;
 
+  -- Card 2 finishes onboarding; after that card 1 can't overwrite the details.
+  perform public.complete_onboarding_profile(repeat('I build web apps and love hackathons. ', 2), '[{"id":1,"level":"advanced"},{"id":2,"level":"beginner"},{"id":3,"level":"intermediate"}]'::jsonb, '{}'::smallint[], '{}'::text[]);
   failed := false;
   begin
-    perform public.complete_onboarding('Other Name', 'be', 1::smallint, null, 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
+    perform public.save_onboarding_details('Other Name', '9876500001', 1, 'be', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
   exception when raise_exception then failed := sqlerrm = 'already_onboarded';
   end;
   if not failed then raise exception 'FAIL 10: onboarding could be repeated to overwrite details.'; end if;
 
-  -- ---- As user B (email not verified) -----------------------------------
+  -- ---- As user B --------------------------------------------------------
   perform set_config('request.jwt.claims', json_build_object('sub', b, 'role', 'authenticated')::text, true);
   failed := false;
   begin
-    perform public.complete_onboarding('Ben', 'btech', 1::smallint, null, 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
-  exception when insufficient_privilege then failed := sqlerrm = 'email_not_verified';
+    perform public.complete_onboarding_profile(repeat('x', 50), '[]'::jsonb, '{}'::smallint[], '{}'::text[]);
+  exception when raise_exception then failed := sqlerrm = 'details_required';
   end;
-  if not failed then raise exception 'FAIL 11: an unverified user could complete onboarding.'; end if;
+  if not failed then raise exception 'FAIL 11: card 2 was accepted before card 1.'; end if;
 
   -- ---- As anonymous visitor ---------------------------------------------
   reset role;
@@ -95,10 +97,10 @@ begin
 
   failed := false;
   begin
-    perform public.complete_onboarding('X', 'btech', 1::smallint, null, 1::smallint, 1::smallint, 2029::smallint, 2007::smallint, 'v');
+    perform public.save_onboarding_details('X', '9876500002', 1, 'btech', 1::smallint, 1::smallint, 2029::smallint, 2007::smallint, 'v');
   exception when insufficient_privilege then failed := true;
   end;
-  if not failed then raise exception 'FAIL 14: anonymous visitors can call complete_onboarding.'; end if;
+  if not failed then raise exception 'FAIL 14: anonymous visitors can call save_onboarding_details.'; end if;
 
   reset role;
   raise exception 'ALL_TESTS_PASSED';

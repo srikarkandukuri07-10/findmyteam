@@ -25,7 +25,10 @@ export async function getProfileView(id: string) {
   if (error) throw error;
   const row = data[0];
   if (!row) notFound();
-  const verified = await verifiedStudentIds(supabase, [row.id]);
+  const [verified, past] = await Promise.all([
+    verifiedStudentIds(supabase, [row.id]),
+    supabase.rpc("list_past_hackathons", { p_user: row.id }),
+  ]);
 
   return {
     id: row.id,
@@ -46,6 +49,7 @@ export async function getProfileView(id: string) {
     avatarPath: row.avatar_path,
     isDemo: row.is_demo,
     collegeVerified: verified.has(row.id),
+    pastHackathons: past.data ?? [],
   };
 }
 
@@ -108,12 +112,13 @@ export async function getMyGithubConnection() {
 /** Completeness of my own profile (RLS limits every query below to my rows). */
 export async function getMyCompleteness() {
   const { supabase, userId } = await requireUser();
-  const [profile, skills, roles] = await Promise.all([
-    supabase.from("profiles").select("bio, github_id, linkedin_url").eq("id", userId).single(),
+  const [profile, skills, roles, past] = await Promise.all([
+    supabase.from("profiles").select("bio, github_id, linkedin_url, college_verified_at, interests").eq("id", userId).single(),
     supabase.from("profile_skills").select("*", { count: "exact", head: true }),
     supabase.from("profile_roles").select("*", { count: "exact", head: true }),
+    supabase.from("past_hackathons").select("*", { count: "exact", head: true }),
   ]);
-  for (const r of [profile, skills, roles]) if (r.error) throw r.error;
+  for (const r of [profile, skills, roles, past]) if (r.error) throw r.error;
 
   const githubConnected = profile.data!.github_id != null;
   return {
@@ -123,6 +128,9 @@ export async function getMyCompleteness() {
       linkedinUrl: profile.data!.linkedin_url,
       skillCount: skills.count ?? 0,
       roleCount: roles.count ?? 0,
+      collegeVerified: profile.data!.college_verified_at != null,
+      pastHackathons: past.count ?? 0,
+      interestCount: profile.data!.interests.length,
     }),
     githubConnected,
   };

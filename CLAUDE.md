@@ -27,6 +27,6 @@ Next.js 16 renamed `middleware.ts` to `src/proxy.ts`. Check `node_modules/next/d
 - RLS is on for every table, with explicit policies. Writes that touch several rows go in one Postgres function.
 - Use `src/lib/supabase/server.ts` on the server and `client.ts` in the browser. Never use the service-role key in browser code.
 - Validate all input with Zod. No `any` at boundaries.
-- Never return or log another user's email. No phone numbers are collected.
+- Never return or log another user's email or phone number. Phones live only in `profile_private`, readable by their owner (D26).
 - No paid services without the founder's approval.
 - Cite PRD IDs in commits and tests. Record new decisions in `docs/DECISIONS.md`.

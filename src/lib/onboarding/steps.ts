@@ -1,12 +1,13 @@
-import { PROFILE_BUILT_THRESHOLD } from "@/lib/profile/completeness";
+export type OnboardingStep = { key: "details" | "great-at" | "proof"; label: string; optional: boolean; href: string };
 
-export type OnboardingStep = { key: "account" | "github" | "profile"; label: string; optional: boolean; href: string };
-
-/** The guided flow shown right after sign-up. Only the first step is required. */
+/**
+ * The guided flow right after sign-up (D26). Cards 1 and 2 are required; finishing Card 2 finishes
+ * onboarding. Card 3 is optional proof of work that ranks the student higher in Scout.
+ */
 export const ONBOARDING_STEPS: readonly OnboardingStep[] = [
-  { key: "account", label: "Create your account", optional: false, href: "/onboarding" },
-  { key: "github", label: "Connect GitHub", optional: true, href: "/onboarding/connect" },
-  { key: "profile", label: "Build your profile", optional: true, href: "/onboarding/profile" },
+  { key: "details", label: "You & your college", optional: false, href: "/onboarding" },
+  { key: "great-at", label: "What you're great at", optional: false, href: "/onboarding/profile" },
+  { key: "proof", label: "Proof of work", optional: true, href: "/onboarding/connect" },
 ];
 
 export type StepState = "done" | "current" | "upcoming";
@@ -16,12 +17,9 @@ export function stepStates(current: number): StepState[] {
   return ONBOARDING_STEPS.map((_, i) => (i < current ? "done" : i === current ? "current" : "upcoming"));
 }
 
-/**
- * Where "Continue setup" on the home page should lead, or null when there is nothing left.
- * GitHub comes before the profile, matching the guided flow.
- */
-export function nextSetupStep(progress: { githubConnected: boolean; profilePercent: number }) {
-  if (!progress.githubConnected) return ONBOARDING_STEPS[1];
-  if (progress.profilePercent < PROFILE_BUILT_THRESHOLD) return ONBOARDING_STEPS[2];
+/** Where a student who hasn't finished onboarding belongs. */
+export function onboardingStepFor(state: { detailsSaved: boolean; onboarded: boolean }) {
+  if (!state.detailsSaved) return ONBOARDING_STEPS[0];
+  if (!state.onboarded) return ONBOARDING_STEPS[1];
   return null;
 }

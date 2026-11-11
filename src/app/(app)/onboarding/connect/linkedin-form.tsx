@@ -1,41 +1,41 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import type { FormState } from "@/app/(auth)/actions";
-import { Field, FormMessage, Input, SubmitButton } from "@/components/form";
-import { saveLinkedinAndContinue } from "./actions";
+import { FormMessage } from "@/components/form";
+import { saveLinkedin } from "./actions";
 
+/** D26 Card 3: the LinkedIn link, saved in place. */
 export function LinkedinForm({ defaultValue }: { defaultValue: string }) {
-  const [state, action] = useActionState<FormState, FormData>(saveLinkedinAndContinue, {});
+  const [state, action, pending] = useActionState<FormState, FormData>(saveLinkedin, {});
 
   return (
-    <form action={action} className="space-y-5" noValidate>
-      <FormMessage message={state.message} />
-      <Field
-        label="LinkedIn profile (optional)"
-        name="linkedinUrl"
-        error={state.errors?.linkedinUrl}
-        hint="Paste your full profile link."
-      >
-        <Input
+    <form action={action} className="space-y-3" noValidate>
+      <div className="flex gap-2">
+        <input
           name="linkedinUrl"
           type="url"
           inputMode="url"
+          aria-label="LinkedIn profile link"
           placeholder="https://www.linkedin.com/in/your-name"
           maxLength={200}
           defaultValue={state.values?.linkedinUrl ?? defaultValue}
-          error={state.errors?.linkedinUrl}
+          aria-invalid={state.errors?.linkedinUrl ? true : undefined}
+          className="block w-full rounded-xl border border-border bg-surface-muted px-3.5 py-2.5 text-sm placeholder:text-muted/70 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/25 aria-[invalid=true]:border-danger"
         />
-      </Field>
-      <div className="space-y-3">
-        <SubmitButton pendingText="Saving…">Continue</SubmitButton>
-        <p className="text-center text-sm">
-          <Link href="/onboarding/profile" className="font-medium text-muted hover:text-foreground">
-            Skip for now
-          </Link>
-        </p>
+        <button
+          type="submit"
+          disabled={pending}
+          className="shrink-0 rounded-full bg-accent px-5 text-sm font-semibold text-accent-foreground hover:bg-accent-hover disabled:opacity-60"
+        >
+          {pending ? "Saving…" : "Save"}
+        </button>
       </div>
+      {state.errors?.linkedinUrl ? (
+        <p className="text-xs text-danger">{state.errors.linkedinUrl}</p>
+      ) : (
+        <FormMessage message={state.message} />
+      )}
     </form>
   );
 }

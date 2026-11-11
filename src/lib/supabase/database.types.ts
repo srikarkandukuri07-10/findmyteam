@@ -138,23 +138,89 @@ export type Database = {
       }
       colleges: {
         Row: {
-          city: string
+          added_by: string | null
+          aishe_code: string | null
+          city: string | null
+          created_at: string
+          district: string | null
           email_domain: string | null
+          featured: boolean
           id: number
+          kind: string
           name: string
+          source: string
+          state: string | null
+          status: string
+          university: string | null
         }
         Insert: {
-          city?: string
+          added_by?: string | null
+          aishe_code?: string | null
+          city?: string | null
+          district?: string | null
           email_domain?: string | null
+          featured?: boolean
           id?: never
+          kind?: string
           name: string
+          source?: string
+          state?: string | null
+          status?: string
+          university?: string | null
         }
         Update: {
-          city?: string
+          added_by?: string | null
+          aishe_code?: string | null
+          city?: string | null
+          district?: string | null
           email_domain?: string | null
+          featured?: boolean
           id?: never
+          kind?: string
           name?: string
+          source?: string
+          state?: string | null
+          status?: string
+          university?: string | null
         }
+        Relationships: []
+      }
+      past_hackathons: {
+        Row: {
+          created_at: string
+          demo_url: string | null
+          id: string
+          idea: string | null
+          live_url: string | null
+          name: string
+          result: Database["public"]["Enums"]["hackathon_result"]
+          user_id: string
+          year: number
+        }
+        Insert: {
+          demo_url?: string | null
+          id?: string
+          idea?: string | null
+          live_url?: string | null
+          name: string
+          result: Database["public"]["Enums"]["hackathon_result"]
+          user_id: string
+          year: number
+        }
+        Update: {
+          demo_url?: string | null
+          idea?: string | null
+          live_url?: string | null
+          name?: string
+          result?: Database["public"]["Enums"]["hackathon_result"]
+          year?: number
+        }
+        Relationships: []
+      }
+      profile_private: {
+        Row: { phone: string; updated_at: string; user_id: string }
+        Insert: { phone: string; updated_at?: string; user_id: string }
+        Update: { phone?: string; updated_at?: string; user_id?: string }
         Relationships: []
       }
       connection_requests: {
@@ -456,6 +522,8 @@ export type Database = {
           college_id: number | null
           college_other: string | null
           college_verified_at: string | null
+          details_saved_at: string | null
+          interests: string[]
           consent_version: string | null
           consented_at: string | null
           created_at: string
@@ -482,6 +550,8 @@ export type Database = {
           college_id?: number | null
           college_other?: string | null
           college_verified_at?: string | null
+          details_saved_at?: string | null
+          interests?: string[]
           consent_version?: string | null
           consented_at?: string | null
           created_at?: string
@@ -508,6 +578,8 @@ export type Database = {
           college_id?: number | null
           college_other?: string | null
           college_verified_at?: string | null
+          details_saved_at?: string | null
+          interests?: string[]
           consent_version?: string | null
           consented_at?: string | null
           created_at?: string
@@ -589,19 +661,80 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      complete_onboarding: {
+      add_college: { Args: { p_district: string; p_name: string; p_state: string }; Returns: number }
+      add_past_hackathon: {
+        Args: {
+          p_demo_url: string | null
+          p_idea: string | null
+          p_live_url: string | null
+          p_name: string
+          p_result: Database["public"]["Enums"]["hackathon_result"]
+          p_year: number
+        }
+        Returns: string
+      }
+      admin_list_pending_colleges: {
+        Args: never
+        Returns: { created_at: string; district: string | null; id: number; name: string; state: string | null; students: number }[]
+      }
+      admin_set_college_status: { Args: { p_approved: boolean; p_id: number }; Returns: undefined }
+      complete_onboarding_profile: {
+        Args: { p_bio: string; p_interests: string[]; p_role_ids: number[]; p_skills: Json }
+        Returns: undefined
+      }
+      delete_past_hackathon: { Args: { p_id: string }; Returns: undefined }
+      list_past_hackathons: {
+        Args: { p_user: string }
+        Returns: {
+          demo_url: string | null
+          id: string
+          idea: string | null
+          live_url: string | null
+          name: string
+          result: Database["public"]["Enums"]["hackathon_result"]
+          year: number
+        }[]
+      }
+      my_onboarding: {
+        Args: never
+        Returns: {
+          birth_year: number | null
+          branch_id: number | null
+          college_id: number | null
+          college_name: string | null
+          college_place: string | null
+          college_verified: boolean
+          degree: Database["public"]["Enums"]["degree"] | null
+          details_saved: boolean
+          display_name: string | null
+          email: string
+          github_connected: boolean
+          graduation_year: number | null
+          interests: string[]
+          linkedin_url: string | null
+          onboarded: boolean
+          past_hackathons: number
+          phone: string | null
+          year_of_study: number | null
+        }[]
+      }
+      save_onboarding_details: {
         Args: {
           p_birth_year: number
           p_branch_id: number
           p_college_id: number
-          p_college_other: string
           p_consent_version: string
           p_degree: Database["public"]["Enums"]["degree"]
           p_display_name: string
           p_graduation_year: number
+          p_phone: string
           p_year_of_study: number
         }
         Returns: undefined
+      }
+      search_colleges: {
+        Args: { p_query: string }
+        Returns: { id: number; kind: string; name: string; pending: boolean; place: string | null }[]
       }
       get_profile: {
         Args: { p_id: string }
@@ -886,6 +1019,7 @@ export type Database = {
       }
     }
     Enums: {
+      hackathon_result: "participated" | "finalist" | "winner"
       account_status: "active" | "suspended" | "banned"
       degree: "btech" | "be"
       hackathon_mode: "online" | "in_person" | "hybrid"
@@ -958,6 +1092,7 @@ export type Enums<
 export const Constants = {
   public: {
     Enums: {
+      hackathon_result: ["participated", "finalist", "winner"],
       account_status: ["active", "suspended", "banned"],
       degree: ["btech", "be"],
       hackathon_mode: ["online", "in_person", "hybrid"],

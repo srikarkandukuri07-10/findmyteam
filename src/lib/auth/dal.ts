@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
 
+
 /**
  * Data access layer for the signed-in user. Every Server Component and Server Action
  * that needs the user goes through here, so authorization is checked close to the data.
@@ -24,7 +25,7 @@ export async function getMyProfile() {
   const { supabase, userId } = await requireUser();
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("id, display_name, degree, onboarded_at, status, college_other, colleges(name), branches(name)")
+    .select("id, display_name, degree, onboarded_at, details_saved_at, status, college_other, colleges!profiles_college_id_fkey(name), branches(name)")
     .eq("id", userId)
     .single();
   if (error) throw error;
@@ -34,6 +35,7 @@ export async function getMyProfile() {
 /** For pages inside the app: signed in and onboarded. Suspended/banned handling arrives in Module 9. */
 export async function requireOnboardedProfile() {
   const profile = await getMyProfile();
-  if (!profile.onboarded_at) redirect("/onboarding");
+  // D26: an unfinished onboarding resumes at the first required card not yet done.
+  if (!profile.onboarded_at) redirect(profile.details_saved_at ? "/onboarding/profile" : "/onboarding");
   return profile;
 }

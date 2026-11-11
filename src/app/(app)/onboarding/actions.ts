@@ -1,15 +1,18 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/dal";
-import { CONSENT_VERSION, fieldErrors, onboardingSchema } from "@/lib/validation/auth";
+import { CONSENT_VERSION } from "@/lib/validation/auth";
+import { fieldErrors } from "@/lib/validation/common";
+import { detailsSchema } from "@/lib/validation/onboarding";
 import type { FormState } from "@/app/(auth)/actions";
 
 const FIELDS = [
   "displayName",
-  "degree",
+  "phone",
   "collegeId",
-  "collegeOther",
+  "degree",
   "branchId",
   "yearOfStudy",
   "graduationYear",
@@ -18,8 +21,14 @@ const FIELDS = [
   "acceptTerms",
 ] as const;
 
-/** AUTH-7: B.Tech / B.E. declaration and consent, saved in one database call. */
-export async function completeOnboarding(_prev: FormState, formData: FormData): Promise<FormState> {
+const DB_ERRORS: Record<string, [string, string]> = {
+  invalid_phone: ["phone", "Enter a valid 10-digit Indian mobile number."],
+  phone_in_use: ["phone", "This number is already used by another FindMyTeam account."],
+  invalid_college: ["collegeId", "Pick your college from the list."],
+};
+
+/** D26 Card 1: you and your college. Saved in one database call; onboarding continues on Card 2. */
+export async function saveDetails(_prev: FormState, formData: FormData): Promise<FormState> {
   const raw: Record<string, string | undefined> = {};
   for (const key of FIELDS) {
     const v = formData.get(key);
@@ -27,18 +36,16 @@ export async function completeOnboarding(_prev: FormState, formData: FormData): 
   }
   const values = Object.fromEntries(Object.entries(raw).filter(([, v]) => v !== undefined)) as Record<string, string>;
 
-  const parsed = onboardingSchema().safeParse(raw);
+  const parsed = detailsSchema().safeParse(raw);
   if (!parsed.success) return { errors: fieldErrors(parsed.error), values };
   const input = parsed.data;
 
-  const listed = input.collegeId !== "other";
   const { supabase } = await requireUser();
-  const { error } = await supabase.rpc("complete_onboarding", {
+  const { error } = await supabase.rpc("save_onboarding_details", {
     p_display_name: input.displayName,
+    p_phone: input.phone,
+    p_college_id: input.collegeId,
     p_degree: input.degree,
-    // The function takes SQL nulls for "not given"; generated types don't mark args nullable.
-    p_college_id: (listed ? input.collegeId : null) as number,
-    p_college_other: (listed ? null : input.collegeOther) as string,
     p_branch_id: input.branchId,
     p_year_of_study: input.yearOfStudy,
     p_graduation_year: input.graduationYear,
@@ -47,9 +54,11 @@ export async function completeOnboarding(_prev: FormState, formData: FormData): 
   });
 
   if (error && !error.message.includes("already_onboarded")) {
+    const known = DB_ERRORS[error.message];
+    if (known) return { values, errors: { [known[0]]: known[1] } };
     return { values, message: { ok: false, text: "Couldn't save your details. Check them and try again." } };
   }
 
-  // Step 2 (GitHub and LinkedIn) is optional; it has its own skip button.
-  redirect("/onboarding/connect");
+  revalidatePath("/onboarding", "layout");
+  redirect("/onboarding/profile");
 }

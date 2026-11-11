@@ -17,13 +17,13 @@ export default function PrivacyPage() {
         how many sign-ups can come from one network in an hour, to stop spam.
       </p>
       <p>
-        Nobody else can see your details. We don&apos;t sell them, we don&apos;t collect phone numbers, and you can ask
-        us to delete them at any time.
+        Nobody else can see your details. We don&apos;t sell them, and you can ask us to delete them at any time.
       </p>
       <h2 className="pt-2 text-base font-semibold">After launch</h2>
       <p>
-        We collect your email, name, college, branch, year of study, graduation year and birth year to run your account
-        and to help you find hackathon teammates.
+        We collect your email, name, mobile number, college, branch, year of study, graduation year and birth year to
+        run your account and to help you find hackathon teammates. You can also add your skills, interests, bio,
+        LinkedIn, GitHub and past hackathons.
       </p>
       <p>
         You sign in with Google. Google tells us your email address, name and whether the email is verified; we
@@ -34,7 +34,11 @@ export default function PrivacyPage() {
         a one-time code through our email provider, Resend. Other students only see a &quot;Verified student&quot;
         badge, never the address.
       </p>
-      <p>Your emails are never shown to other users. We do not collect phone numbers.</p>
+      <p>
+        Your mobile number is private: no other student can see it, and we don&apos;t share it. If you want a teammate
+        to have it, share it yourself in a chat.
+      </p>
+      <p>Your emails are never shown to other users.</p>
       <p>You will be able to export or delete your data from your account settings.</p>
     </LegalPage>
   );

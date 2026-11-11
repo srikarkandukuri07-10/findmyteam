@@ -1,25 +1,26 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { CardSkeleton } from "@/components/skeleton";
 import { AuthShell } from "@/components/auth-shell";
 import { OnboardingStepper } from "@/components/onboarding-stepper";
-import { requireOnboardedProfile } from "@/lib/auth/dal";
+import { getMyOnboarding } from "@/lib/onboarding/data";
 import { getProfileForEdit } from "@/lib/profile/data";
 import { OnboardingProfileForm } from "./onboarding-profile-form";
 
-export const metadata: Metadata = { title: "Build your profile" };
+export const metadata: Metadata = { title: "What you're great at" };
 
-/** Step 3 of the guided setup. Optional, and everything can be changed later. */
+/** D26 Card 2 of 3. Required: three skills and a bio. */
 export default function OnboardingProfilePage() {
   return (
     <AuthShell
       wide
       showLogo={false}
-      above={<OnboardingStepper current={2} />}
-      title="Build your profile"
-      subtitle="Step 3 of 3. Tell other students what you bring. You can change all of this later."
+      above={<OnboardingStepper current={1} />}
+      title="What you're great at"
+      subtitle="Step 2 of 3. This is what teammates see first, so make it count."
     >
-      <Suspense fallback={<CardSkeleton lines={5} />}>
+      <Suspense fallback={<CardSkeleton lines={6} />}>
         <ProfileStep />
       </Suspense>
     </AuthShell>
@@ -27,7 +28,8 @@ export default function OnboardingProfilePage() {
 }
 
 async function ProfileStep() {
-  await requireOnboardedProfile();
+  const me = await getMyOnboarding();
+  if (!me.details_saved) redirect("/onboarding");
   const data = await getProfileForEdit();
   return (
     <OnboardingProfileForm
@@ -36,6 +38,7 @@ async function ProfileStep() {
       roles={data.roles}
       selectedSkills={data.selectedSkills}
       selectedRoleIds={data.selectedRoleIds}
+      selectedInterests={me.interests}
     />
   );
 }

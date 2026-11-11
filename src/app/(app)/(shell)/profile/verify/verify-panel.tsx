@@ -19,12 +19,16 @@ export function VerifyPanel({
   badge,
   waitingForDomain,
   pendingEmail,
+  compact = false,
 }: {
   confirmed: string | null;
   badge: boolean;
   waitingForDomain: boolean;
   pendingEmail: string | null;
+  /** Lighter boxes, for use inside onboarding Card 1 (D26). */
+  compact?: boolean;
 }) {
+  const box = compact ? "rounded-2xl bg-surface p-4 sm:p-5" : "reveal rounded-[2rem] bg-surface p-6 shadow-card sm:p-8";
   const [sendState, send, sending] = useActionState<VerifyState, FormData>(sendCollegeCode, { kind: "idle" });
   const [codeState, confirm, checking] = useActionState<VerifyState, FormData>(confirmCollegeCode, { kind: "idle" });
   const [changing, setChanging] = useState(false);
@@ -35,9 +39,9 @@ export function VerifyPanel({
   const showEmailForm = !done && (!confirmed || changing);
 
   return (
-    <div className="space-y-6">
+    <div className={compact ? "space-y-3" : "space-y-6"}>
       {confirmed && !changing && !done && (
-        <section className="reveal rounded-[2rem] bg-surface p-6 shadow-card sm:p-8">
+        <section className={box}>
           <div className="flex flex-wrap items-center gap-3">
             {badge ? (
               <VerifiedStudentBadge />
@@ -68,7 +72,7 @@ export function VerifyPanel({
       )}
 
       {showEmailForm && (
-        <section className="reveal rounded-[2rem] bg-surface p-6 shadow-card sm:p-8">
+        <section className={box}>
           <h2 className="text-lg font-semibold">1. Your college email</h2>
           <p className="mt-1 text-sm text-muted">
             The address your college gave you, like <b>name@yourcollege.ac.in</b>. It stays private: other students only
@@ -85,7 +89,7 @@ export function VerifyPanel({
       )}
 
       {codeSent && !done && (
-        <section className="reveal rounded-[2rem] bg-surface p-6 shadow-card sm:p-8">
+        <section className={box}>
           <h2 className="text-lg font-semibold">2. Enter the code</h2>
           <p className="mt-1 text-sm text-muted">
             Check {pendingEmail && sendState.kind === "idle" ? <b>{pendingEmail}</b> : "your college inbox"} (and its spam

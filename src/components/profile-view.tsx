@@ -101,6 +101,38 @@ export function ProfileCard({ profile, action }: { profile: ProfileView; action?
           <p className="text-sm text-muted">No skills added yet. Add the skills you bring so teammates can see them.</p>
         )}
 
+        {profile.pastHackathons.length > 0 && (
+          <div className="space-y-3">
+            <h2 className="text-xs font-medium uppercase tracking-wide text-muted">Past hackathons</h2>
+            <ul className="space-y-2">
+              {profile.pastHackathons.map((h) => (
+                <li key={h.id} className="rounded-2xl bg-surface-muted p-4">
+                  <p className="flex flex-wrap items-center gap-2 font-semibold">
+                    {h.name} <span className="text-sm font-normal text-muted">{h.year}</span>
+                    <Chip tone={h.result === "winner" ? "accent" : "neutral"}>
+                      {h.result === "winner" ? "🏆 Winner" : h.result === "finalist" ? "Finalist" : "Participated"}
+                    </Chip>
+                  </p>
+                  {h.idea && <p className="mt-1 text-sm text-muted">{h.idea}</p>}
+                  {(h.live_url || h.demo_url) && (
+                    <p className="mt-1 flex flex-wrap gap-3 text-sm">
+                      {h.live_url && (
+                        <a href={h.live_url} target="_blank" rel="noreferrer nofollow" className="font-medium text-accent-ink">
+                          Live app ↗
+                        </a>
+                      )}
+                      {h.demo_url && (
+                        <a href={h.demo_url} target="_blank" rel="noreferrer nofollow" className="font-medium text-accent-ink">
+                          MVP / demo ↗
+                        </a>
+                      )}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
         {profile.github && <GithubSection github={profile.github} verified={profile.githubVerified} />}
 
         {/* A username with no GitHub data behind it is shown as a plain, unverified link. */}

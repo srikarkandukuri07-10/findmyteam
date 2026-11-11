@@ -280,12 +280,28 @@ Replaces email and password sign-in (D2, D15, the password parts of D24) and PRD
 - Tables: `college_verifications`, `college_email_domains`, `college_email_sends` (no student access), plus `profiles.college_verified_at`. Functions: `start_college_verification`, `confirm_college_verification`, `my_college_verification`, `remove_college_verification`, `college_verified_ids`, `admin_list_college_domains`, `admin_set_college_domain`. `admin_grant_early_access` now takes only an email. Checks: `supabase/tests/module-11-google-college-badge.sql`.
 - Supabase's migration history has an empty entry named `google_and_college_badge` from a mistaken first apply. The real change is `google_and_college_badge_v2`, which matches `20261107000016_google_and_college_badge.sql`.
 
+## D26 · Three-card onboarding, all-India colleges, private phone numbers (2026-11-11)
+
+Replaces the single onboarding form (D17's step 1) and the "no phone numbers" rule in D2.
+
+- **Flow.** After Google sign-in, a student goes through three cards, never straight into the app:
+  1. **You & your college** (required): name (filled from Google), email (from Google, read-only), **mobile number**, college or university, degree, branch, year, graduation year, birth year, the B.Tech/B.E. declaration and consent. The optional **college-email code** for the Verified student badge (D25) sits on this card.
+  2. **What you're great at** (required): at least 3 skills with levels, roles (up to 3), interests (optional, up to 8 from a fixed list) and a **bio of at least 40 characters**. Finishing this card finishes onboarding (`onboarded_at`).
+  3. **Proof of work** (optional): Connect GitHub, LinkedIn, and **past hackathons** (name, year, Participated / Finalist / Winner; finalists and winners can add the idea, a live link and an MVP or demo link). A "Scout boost" meter shows how complete the profile is. Then a finish screen shows their profile card, with Start Scouting.
+  - Leaving halfway resumes at the first unfinished required card.
+- **Phone numbers.** Required, Indian mobiles only, stored as `+91XXXXXXXXXX` in `profile_private`, which only the owner can read. No function returns another student's number. One number per account. Not verified by SMS (that costs money; see the Clerk note in D25). Students share numbers in chat if they want to.
+- **Colleges across India.** The `colleges` table holds colleges, universities and standalone institutions (ids widened to integer). Students type and pick from suggestions (`search_colleges`, trigram search). The full list is the **AISHE directory** (Ministry of Education), imported from its own "Download as Excel" files; until it is imported, only the 25 Hyderabad colleges are listed. A student can **add a missing college**; they can use it at once, and an admin approves or rejects it on Team access. The waitlist form still lists only the 25 featured colleges.
+- **Scout boost.** `discover_people` now also rewards the Verified student badge (+0.8), LinkedIn (+0.6), past hackathons (+0.35 each, up to 2) and a best result (winner +0.7, finalist +0.4), interests (+0.2), on top of D16's GitHub, bio, skills, roles and photo. The random term still keeps everyone appearing. The profile-strength checklist uses the same items.
+- **Landing page.** With the lock off, the page shows **Log in** and **Sign up** (both Google) instead of the waitlist. On the live site this happens at launch, when `WAITLIST_MODE` is turned off.
+- Functions: `save_onboarding_details`, `complete_onboarding_profile` (replace `complete_onboarding`), `search_colleges`, `add_college`, `admin_list_pending_colleges`, `admin_set_college_status`, `add_past_hackathon`, `delete_past_hackathon`, `list_past_hackathons`, `my_onboarding`, `require_account`. The college-email functions now work before onboarding is finished. Checks: `supabase/tests/module-12-onboarding.sql`, plus `module-1-rls.sql` updated.
+
 ---
 
 ## Still open
 
 - **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
+- **AISHE import (D26).** Load the official all-India college, university and standalone lists from AISHE's "Download as Excel" files.
 - **Launch switches for sign-in (D25).** Turn off the Email provider, turn on "Allow new users to sign up", publish the Google consent screen, add the Vercel preview URL to Supabase redirect URLs if previews need Google sign-in.
 - **Unused Vercel variable.** `GITHUB_SNAPSHOT_SECRET` exists in the Vercel project from an abandoned design (D13). Nothing reads it; delete it in Vercel's settings.
 - **Test account in the shared database.** The `dev-tester` account (a fake "Dev Tester" profile) exists in the same database production uses. Remove it before people-discovery (Module 4) goes live, or it will appear in real students' decks.
