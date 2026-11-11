@@ -286,7 +286,7 @@ Replaces the single onboarding form (D17's step 1) and the "no phone numbers" ru
 
 - **Flow.** After Google sign-in, a student goes through three cards, never straight into the app:
   1. **You & your college** (required): name (filled from Google), email (from Google, read-only), **mobile number**, college or university, degree, branch, year, graduation year, birth year, the B.Tech/B.E. declaration and consent. The optional **college-email code** for the Verified student badge (D25) sits on this card.
-  2. **What you're great at** (required): at least 3 skills with levels, roles (up to 3), interests (optional, up to 8 from a fixed list) and a **bio of at least 40 characters**. Finishing this card finishes onboarding (`onboarded_at`).
+  2. **What you're great at** (required): at least 3 skills with levels, roles (up to 3), interests (optional, up to 8 from a fixed list) and a **bio** (required, any length; the 40-character minimum was dropped on 2026-11-12). Finishing this card finishes onboarding (`onboarded_at`).
   3. **Proof of work** (optional): Connect GitHub, LinkedIn, and **past hackathons** (name, year, Participated / Finalist / Winner; finalists and winners can add the idea, a live link and an MVP or demo link). A "Scout boost" meter shows how complete the profile is. Then a finish screen shows their profile card, with Start Scouting.
   - Leaving halfway resumes at the first unfinished required card.
 - **Phone numbers.** Required, Indian mobiles only, stored as `+91XXXXXXXXXX` in `profile_private`, which only the owner can read. No function returns another student's number. One number per account. Not verified by SMS (that costs money; see the Clerk note in D25). Students share numbers in chat if they want to.
@@ -308,6 +308,12 @@ Extends D25 (Google only) and brings back AUTH-2 (verified email), without passw
 - **Search and Scout include admins** (they are real students); investors are still left out.
 - **Before launch** the email box only signs in existing (early-access) accounts; it creates accounts only once the lock is off.
 - **Needs in Supabase before going live:** custom SMTP through Resend, the email templates showing the code (`{{ .Token }}`), "Confirm email" on, sign-ups allowed, and a higher email rate limit. Checks: `supabase/tests/module-13-email-code.sql`.
+
+---
+
+## D28 · Adding a hackathon (2026-11-12)
+
+The add-hackathon form no longer asks for the organizer. The **city** and the **official link** are now required (http or https), so students can check a hackathon is real. Enforced by the form's validation; the database column for organizer stays but is no longer filled.
 
 ---
 

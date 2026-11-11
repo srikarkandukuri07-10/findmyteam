@@ -4,7 +4,6 @@ import { cleanSearchQuery, hackathonSchema } from "./hackathons";
 
 const valid = {
   name: "  Campus Hack 2027 ",
-  organizer: "CBIT",
   mode: "hybrid",
   city: "Hyderabad",
   startsOn: "2027-01-16",
@@ -17,11 +16,13 @@ describe("hackathonSchema (HACK-2)", () => {
     expect(hackathonSchema.parse(valid).name).toBe("Campus Hack 2027");
   });
 
-  it("treats blank optional fields as missing", () => {
-    const r = hackathonSchema.parse({ ...valid, organizer: "  ", city: "", url: "" });
-    expect(r.organizer).toBeUndefined();
-    expect(r.city).toBeUndefined();
-    expect(r.url).toBeUndefined();
+  it("requires the city and the official link", () => {
+    const r = hackathonSchema.safeParse({ ...valid, city: " ", url: "" });
+    expect(r.success).toBe(false);
+    if (!r.success) {
+      expect(fieldErrors(r.error).city).toBeDefined();
+      expect(fieldErrors(r.error).url).toBeDefined();
+    }
   });
 
   it.each(["javascript:alert(1)", "ftp://example.com", "example.com", "data:text/html,hi"])(
@@ -48,7 +49,7 @@ describe("hackathonSchema (HACK-2)", () => {
 
   it("handles a real browser's empty submit, where every field is an empty string", () => {
     // Regression: an empty date used to throw "Invalid time value" instead of returning an error.
-    const empty = { name: "", organizer: "", mode: "", city: "", startsOn: "", endsOn: "", url: "" };
+    const empty = { name: "", mode: "", city: "", startsOn: "", endsOn: "", url: "" };
     const r = hackathonSchema.safeParse(empty);
     expect(r.success).toBe(false);
     if (!r.success) {
@@ -57,7 +58,7 @@ describe("hackathonSchema (HACK-2)", () => {
       expect(errors.endsOn).toBe("Enter the end date.");
       expect(errors.name).toBeDefined();
       expect(errors.mode).toBeDefined();
-      expect(errors.url).toBeUndefined();
+      expect(errors.url).toBeDefined();
     }
   });
 

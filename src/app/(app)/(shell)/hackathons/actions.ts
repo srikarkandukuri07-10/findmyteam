@@ -8,7 +8,7 @@ import { fieldErrors } from "@/lib/validation/common";
 import { hackathonSchema } from "@/lib/validation/hackathons";
 import type { FormState } from "@/app/(auth)/actions";
 
-const FIELDS = ["name", "organizer", "mode", "city", "startsOn", "endsOn", "url"] as const;
+const FIELDS = ["name", "mode", "city", "startsOn", "endsOn", "url"] as const;
 
 /** HACK-2: any signed-in, onboarded user can add a hackathon (5 per day). */
 export async function createHackathon(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -25,12 +25,12 @@ export async function createHackathon(_prev: FormState, formData: FormData): Pro
   const { supabase } = await requireUser();
   const { data: id, error } = await supabase.rpc("create_hackathon", {
     p_name: input.name,
-    p_organizer: (input.organizer ?? null) as string,
+    p_organizer: null as unknown as string, // no longer asked for
     p_mode: input.mode,
-    p_city: (input.city ?? null) as string,
+    p_city: input.city,
     p_starts_on: input.startsOn,
     p_ends_on: input.endsOn,
-    p_url: (input.url ?? null) as string,
+    p_url: input.url,
   });
 
   if (error) {

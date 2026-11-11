@@ -73,10 +73,10 @@ begin
   -- ---- Card 2 requirements -------------------------------------------------------------------
   failed := false;
   begin
-    perform public.complete_onboarding_profile('too short', skills3, '{}'::smallint[], '{}'::text[]);
-  exception when invalid_parameter_value then failed := sqlerrm = 'bio_too_short';
+    perform public.complete_onboarding_profile('   ', skills3, '{}'::smallint[], '{}'::text[]);
+  exception when invalid_parameter_value then failed := sqlerrm = 'bio_required';
   end;
-  if not failed then raise exception 'FAIL 15: a short bio was accepted.'; end if;
+  if not failed then raise exception 'FAIL 15: an empty bio was accepted.'; end if;
   failed := false;
   begin
     perform public.complete_onboarding_profile(bio, '[{"id":1,"level":"advanced"}]'::jsonb, '{}'::smallint[], '{}'::text[]);

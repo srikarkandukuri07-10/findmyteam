@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { daysBetween, isValidIsoDate } from "@/lib/hackathons/dates";
-import { blankToUndefined } from "./common";
 
 /** Longest hackathon we accept (some run for a month). Guards against typos like the wrong year. */
 export const MAX_HACKATHON_DAYS = 62;
@@ -14,18 +13,6 @@ function isoDate(label: string) {
     .refine((v) => v >= "2015-01-01" && v <= "2035-12-31", { error: `Check the year of the ${label} date.` });
 }
 
-function optionalText(min: number, max: number, label: string) {
-  return z.preprocess(
-    blankToUndefined,
-    z
-      .string()
-      .trim()
-      .min(min, { error: `${label} must be at least ${min} characters.` })
-      .max(max, { error: `${label} must be at most ${max} characters.` })
-      .optional(),
-  );
-}
-
 export const hackathonSchema = z
   .object({
     name: z
@@ -33,17 +20,19 @@ export const hackathonSchema = z
       .trim()
       .min(3, { error: "The name must be at least 3 characters." })
       .max(120, { error: "The name must be at most 120 characters." }),
-    organizer: optionalText(2, 120, "Organizer"),
     mode: z.enum(["online", "in_person", "hybrid"], { error: "Select how it is held." }),
-    city: optionalText(2, 80, "City"),
+    city: z
+      .string({ error: "Enter the city." })
+      .trim()
+      .min(2, { error: "Enter the city." })
+      .max(80, { error: "City must be at most 80 characters." }),
     startsOn: isoDate("start"),
     endsOn: isoDate("end"),
     url: z.preprocess(
-      blankToUndefined,
+      (v) => (typeof v === "string" ? v.trim() : v),
       z
-        .url({ protocol: /^https?$/, error: "Enter a full link starting with http:// or https://" })
-        .max(300, { error: "The link is too long." })
-        .optional(),
+        .url({ protocol: /^https?$/, error: "Enter the official link, starting with http:// or https://" })
+        .max(300, { error: "The link is too long." }),
     ),
   })
   .superRefine((v, ctx) => {

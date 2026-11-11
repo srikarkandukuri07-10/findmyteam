@@ -23,7 +23,6 @@ export const INTERESTS = [
 ] as const;
 export const INTEREST_SLUGS = INTERESTS.map((i) => i.slug) as [string, ...string[]];
 export const MAX_INTERESTS = 8;
-export const BIO_MIN = 40;
 
 /** An Indian mobile number in any common format; returned as +91XXXXXXXXXX. */
 export const phoneField = z
@@ -77,7 +76,7 @@ export const greatAtSchema = z.object({
   bio: z
     .string()
     .trim()
-    .min(BIO_MIN, { error: `Write at least ${BIO_MIN} characters about yourself.` })
+    .min(1, { error: "Write a short bio about yourself." })
     .max(BIO_MAX, { error: `Keep your bio under ${BIO_MAX} characters.` }),
   skills: z
     .array(skillEntry)

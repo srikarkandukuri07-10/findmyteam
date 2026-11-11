@@ -4,7 +4,7 @@ import { useActionState, useState } from "react";
 import type { FormState } from "@/app/(auth)/actions";
 import { Field, FormMessage, SubmitButton } from "@/components/form";
 import { RolePicker, SkillPicker } from "@/app/(app)/(shell)/profile/edit/profile-pickers";
-import { BIO_MIN, INTERESTS, MAX_INTERESTS } from "@/lib/validation/onboarding";
+import { INTERESTS, MAX_INTERESTS } from "@/lib/validation/onboarding";
 import { BIO_MAX, type SkillLevel } from "@/lib/validation/profile";
 import { saveGreatAt } from "./actions";
 
@@ -23,7 +23,6 @@ export function OnboardingProfileForm({ bio, skills, roles, selectedSkills, sele
   const e = state.errors ?? {};
   const [bioText, setBioText] = useState(state.values?.bio ?? bio);
   const [interests, setInterests] = useState<string[]>(selectedInterests);
-  const left = Math.max(0, BIO_MIN - bioText.trim().length);
 
   return (
     <form action={action} className="space-y-7" noValidate>
@@ -71,11 +70,7 @@ export function OnboardingProfileForm({ bio, skills, roles, selectedSkills, sele
         label="Bio"
         name="bio"
         error={e.bio}
-        hint={
-          left > 0
-            ? `${left} more characters to go. Like a LinkedIn headline and summary: what you build, what you want to build next.`
-            : `Looks good. Up to ${BIO_MAX} characters.`
-        }
+        hint={`Like a LinkedIn summary: what you build, and what you want to build next. Up to ${BIO_MAX} characters.`}
       >
         <textarea
           id="bio"

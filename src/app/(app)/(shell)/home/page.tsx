@@ -109,7 +109,7 @@ async function Banner() {
             </Link>
           )}
         </div>
-        <BannerArt className="mx-auto w-full max-w-[420px] md:max-w-none" />
+        <BannerArt className="mx-auto hidden w-full max-w-[420px] md:block md:max-w-none" />
       </div>
     </section>
   );
@@ -119,15 +119,15 @@ async function TeamsLooking() {
   const teams = (await listTeams()).filter((t) => t.status === "open" || t.status === "partially_filled").slice(0, 4);
 
   return (
-    <section className="reveal rounded-[2rem] bg-surface p-6 shadow-card sm:p-8" style={{ "--i": 1 } as React.CSSProperties}>
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight">
-          <span className="grid size-11 place-items-center rounded-2xl bg-accent-soft text-accent-ink">
+    <section className="reveal rounded-[2rem] bg-surface p-4 shadow-card sm:p-8" style={{ "--i": 1 } as React.CSSProperties}>
+      <div className="mb-4 flex items-center justify-between gap-3 sm:mb-6">
+        <h2 className="flex min-w-0 items-center gap-3 text-lg font-bold tracking-tight sm:text-2xl">
+          <span className="grid size-9 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent-ink sm:size-11">
             <TeamsIcon className="size-6" />
           </span>
           Teams looking for a teammate
         </h2>
-        <Link href="/teams" className="group hidden items-center gap-1.5 text-sm font-semibold text-accent-ink sm:inline-flex">
+        <Link href="/teams" className="group inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-accent-ink">
           See all <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-1" />
         </Link>
       </div>
@@ -135,19 +135,19 @@ async function TeamsLooking() {
       {teams.length === 0 ? (
         <p className="rounded-2xl bg-surface-muted p-6 text-center text-muted">No teams are recruiting right now. Check back soon.</p>
       ) : (
-        <ul className="stagger grid gap-4 xl:grid-cols-2">
+        <ul className="stagger grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-2">
           {teams.map((t, i) => {
             const spots = t.positions.reduce((n, p) => n + p.spots, 0);
             const capacity = t.memberCount + spots;
             const first = t.positions[0];
             return (
-              <li key={t.id} className="reveal">
+              <li key={t.id} className="reveal min-w-0">
                 <Link
                   href={`/teams/${t.id}`}
-                  className="group flex h-full items-start gap-4 rounded-3xl border border-border bg-background/20 p-5 transition duration-300 hover:-translate-y-1 hover:border-accent hover:bg-surface hover:shadow-lift"
+                  className="group flex h-full min-w-0 items-start gap-3 rounded-3xl border border-border bg-background/20 p-4 transition duration-300 hover:-translate-y-1 hover:border-accent hover:bg-surface hover:shadow-lift sm:gap-4 sm:p-5"
                 >
                   <span
-                    className={`grid size-14 shrink-0 place-items-center rounded-2xl text-lg font-bold text-surface shadow-card ${
+                    className={`grid size-11 shrink-0 place-items-center rounded-2xl text-base font-bold text-surface shadow-card sm:size-14 sm:text-lg ${
                       ["bg-[#3b3163]", "bg-[#1f1d24]", "bg-[#8f7ac6]", "bg-[#66549f]"][i % 4]
                     }`}
                   >
@@ -160,14 +160,14 @@ async function TeamsLooking() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
-                      <span className="truncate text-lg font-semibold">{t.name}</span>
+                      <span className="truncate text-base font-semibold sm:text-lg">{t.name}</span>
                       {t.isDemo && <Chip>Sample</Chip>}
                     </span>
                     <span className="mt-0.5 block text-sm text-muted">
                       {first ? `Looking for ${/^[aeiou]/i.test(first.role) ? "an" : "a"} ${first.role}` : "Recruiting"}
                     </span>
                     <span className="mt-3 flex flex-wrap gap-1.5">
-                      <span className="rounded-full bg-chip px-2.5 py-1 text-xs font-medium">{t.hackathonName}</span>
+                      <span className="max-w-full truncate rounded-full bg-chip px-2.5 py-1 text-xs font-medium">{t.hackathonName}</span>
                       {t.positions.slice(1, 3).map((p) => (
                         <span key={p.role} className="rounded-full bg-sand px-2.5 py-1 text-xs font-medium">
                           {p.role}
@@ -176,7 +176,7 @@ async function TeamsLooking() {
                     </span>
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-6">
-                    <span className="grid size-9 place-items-center rounded-full bg-accent-soft text-accent-ink transition group-hover:bg-accent group-hover:text-accent-foreground">
+                    <span className="hidden size-9 place-items-center rounded-full bg-accent-soft text-accent-ink transition group-hover:bg-accent group-hover:text-accent-foreground sm:grid">
                       <ArrowRightIcon className="size-4 transition-transform group-hover:translate-x-0.5" />
                     </span>
                     <span className="flex items-center gap-1 text-sm font-semibold text-muted">

@@ -43,8 +43,9 @@ describe("detailsSchema (Card 1, AUTH-7)", () => {
 
 describe("greatAtSchema (Card 2)", () => {
   const skills = [1, 2, 3].map((id) => ({ id, level: "advanced" as const }));
-  it("needs a 40+ character bio and 3 skills", () => {
-    expect(greatAtSchema.safeParse({ bio: "x".repeat(39), skills, roleIds: [], interests: [] }).success).toBe(false);
+  it("needs a bio (any length) and 3 skills", () => {
+    expect(greatAtSchema.safeParse({ bio: "  ", skills, roleIds: [], interests: [] }).success).toBe(false);
+    expect(greatAtSchema.safeParse({ bio: "Backend dev", skills, roleIds: [], interests: [] }).success).toBe(true);
     expect(greatAtSchema.safeParse({ bio: "x".repeat(40), skills: skills.slice(0, 2), roleIds: [], interests: [] }).success).toBe(false);
     expect(greatAtSchema.safeParse({ bio: "x".repeat(40), skills, roleIds: [], interests: ["ai-ml"] }).success).toBe(true);
   });

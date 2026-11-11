@@ -57,10 +57,6 @@ export function NewHackathonForm() {
         </div>
       )}
 
-      <Field label="Organizer (optional)" name="organizer" error={e.organizer}>
-        <Input name="organizer" maxLength={120} defaultValue={v.organizer} error={e.organizer} />
-      </Field>
-
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="How is it held?" name="mode" error={e.mode}>
           <Select name="mode" required defaultValue={v.mode ?? ""} error={e.mode}>
@@ -72,8 +68,8 @@ export function NewHackathonForm() {
             <option value="hybrid">Hybrid</option>
           </Select>
         </Field>
-        <Field label="City (optional)" name="city" error={e.city}>
-          <Input name="city" maxLength={80} defaultValue={v.city} error={e.city} />
+        <Field label="City" name="city" error={e.city}>
+          <Input name="city" required maxLength={80} placeholder="e.g. Hyderabad" defaultValue={v.city} error={e.city} />
         </Field>
       </div>
 
@@ -86,10 +82,11 @@ export function NewHackathonForm() {
         </Field>
       </div>
 
-      <Field label="Official link (optional)" name="url" error={e.url}>
+      <Field label="Official link" name="url" error={e.url} hint="The hackathon's own page, so students can check it's real.">
         <Input
           name="url"
           type="url"
+          required
           inputMode="url"
           placeholder="https://"
           maxLength={300}
