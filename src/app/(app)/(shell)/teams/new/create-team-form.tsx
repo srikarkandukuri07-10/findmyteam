@@ -32,6 +32,24 @@ export function CreateTeamForm() {
         />
       </Field>
 
+      <Field
+        label="Hackathon link"
+        name="hackathonUrl"
+        error={e.hackathonUrl}
+        hint="The official event page, so others can check the hackathon. Shown on your team card."
+      >
+        <Input
+          name="hackathonUrl"
+          type="url"
+          inputMode="url"
+          defaultValue={v.hackathonUrl}
+          maxLength={300}
+          placeholder="https://sih.gov.in"
+          error={e.hackathonUrl}
+          autoComplete="off"
+        />
+      </Field>
+
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">Mode</legend>
         <div className="grid grid-cols-2 gap-2">

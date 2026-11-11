@@ -19,6 +19,17 @@ export const createTeamSchema = z.object({
         .min(3, { error: "Enter the hackathon's name." })
         .max(100, { error: "Keep the name under 100 characters." }),
     ),
+  hackathonUrl: z
+    .string({ error: "Paste the hackathon's official link." })
+    .trim()
+    .transform((v) => (v && !/^https?:\/\//i.test(v) ? `https://${v}` : v))
+    .pipe(
+      z
+        .string()
+        .min(1, { error: "Paste the hackathon's official link." })
+        .max(300, { error: "Keep the link under 300 characters." })
+        .regex(/^https?:\/\/[^\s/?#]+\.[^\s]+$/i, { error: "Paste a full link, like https://sih.gov.in" }),
+    ),
   mode: z.enum(["online", "offline"], { error: "Pick online or offline." }),
   teamSize: requiredInt("Pick how many people the team needs.").pipe(
     z

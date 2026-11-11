@@ -4,6 +4,7 @@ import { createTeamSchema, joinNoteSchema } from "./teams";
 
 const valid = {
   hackathonName: "  Smart   India Hackathon 2027 ",
+  hackathonUrl: "https://sih.gov.in",
   mode: "offline",
   teamSize: "4",
   about: "Agritech track: build tools that help farmers price their crops.",
@@ -18,13 +19,28 @@ describe("createTeamSchema (D29)", () => {
   });
 
   it("requires every field", () => {
-    const r = createTeamSchema.safeParse({ hackathonName: " ", mode: "", teamSize: "", about: "", lookingFor: "" });
+    const r = createTeamSchema.safeParse({
+      hackathonName: " ",
+      hackathonUrl: " ",
+      mode: "",
+      teamSize: "",
+      about: "",
+      lookingFor: "",
+    });
     expect(r.success).toBe(false);
     if (!r.success) {
       expect(Object.keys(fieldErrors(r.error)).sort()).toEqual(
-        ["about", "hackathonName", "lookingFor", "mode", "teamSize"].sort(),
+        ["about", "hackathonName", "hackathonUrl", "lookingFor", "mode", "teamSize"].sort(),
       );
     }
+  });
+
+  it("needs a real link to the hackathon, adding https:// when left out", () => {
+    expect(createTeamSchema.parse({ ...valid, hackathonUrl: "unstop.com/hackathons/x" }).hackathonUrl).toBe(
+      "https://unstop.com/hackathons/x",
+    );
+    expect(createTeamSchema.safeParse({ ...valid, hackathonUrl: "not a link" }).success).toBe(false);
+    expect(createTeamSchema.safeParse({ ...valid, hackathonUrl: "javascript:alert(1)" }).success).toBe(false);
   });
 
   it("only allows online or offline", () => {

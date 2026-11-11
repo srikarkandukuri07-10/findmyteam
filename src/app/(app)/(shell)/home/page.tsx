@@ -9,6 +9,7 @@ import { Chip } from "@/components/ui";
 import { PROFILE_BUILT_THRESHOLD } from "@/lib/profile/completeness";
 import { getMyCompleteness } from "@/lib/profile/data";
 import { getShellInfo } from "@/lib/shell/data";
+import { HackathonLink } from "@/components/teams/team-cards";
 import { listTeams } from "@/lib/teams/data";
 
 export const metadata: Metadata = { title: "Home" };
@@ -137,11 +138,11 @@ async function TeamsLooking() {
         <ul className="stagger grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-2">
           {teams.map((t, i) => {
             return (
-              <li key={t.id} className="reveal min-w-0">
-                <Link
-                  href={`/teams/${t.id}`}
-                  className="group flex h-full min-w-0 items-start gap-3 rounded-3xl border border-border bg-background/20 p-4 transition duration-300 hover:-translate-y-1 hover:border-accent hover:bg-surface hover:shadow-lift sm:gap-4 sm:p-5"
-                >
+              <li
+                key={t.id}
+                className="reveal group flex min-w-0 flex-col gap-3 rounded-3xl border border-border bg-background/20 p-4 transition duration-300 hover:-translate-y-1 hover:border-accent hover:bg-surface hover:shadow-lift sm:p-5"
+              >
+                <Link href={`/teams/${t.id}`} className="flex min-w-0 flex-1 items-start gap-3 sm:gap-4">
                   <span
                     className={`grid size-11 shrink-0 place-items-center rounded-2xl text-base font-bold text-surface shadow-card sm:size-14 sm:text-lg ${
                       ["bg-[#3b3163]", "bg-[#1f1d24]", "bg-[#8f7ac6]", "bg-[#66549f]"][i % 4]
@@ -181,6 +182,7 @@ async function TeamsLooking() {
                     </span>
                   </span>
                 </Link>
+                <HackathonLink url={t.hackathonUrl} className="self-start" />
               </li>
             );
           })}

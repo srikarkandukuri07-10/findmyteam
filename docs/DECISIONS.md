@@ -322,12 +322,13 @@ The add-hackathon form no longer asks for the organizer. The **city** and the **
 Supersedes D28 and the hackathon directory (Module 2 UI) for now.
 
 - **Events tab removed.** The Events tab and the add-hackathon feature are gone from the app. The `hackathons` table stays in the database, unused, so nothing is lost if it comes back.
-- **Creating a team.** Five fields: hackathon name (typed text), mode (online or offline), team size including the lead (2 to 10), what the hackathon is about, and who the team is looking for. The creator is the team lead.
+- **Creating a team.** Six fields: hackathon name (typed text), the hackathon's official link (required, http or https; shown as "Event page" on every team card and team page, opening in a new tab), mode (online or offline), team size including the lead (2 to 10), what the hackathon is about, and who the team is looking for. The creator is the team lead.
 - **Up to 3 active teams.** A student can lead at most 3 active teams. The lead marks a team **completed** when its hackathon is over; that frees a slot. Enforced in `create_team()`.
 - **Joining.** Anyone can send a request to join (with an optional note) while the team is recruiting. Only the lead accepts or declines. All team members can see who has asked. A declined student can ask again after 7 days; at most 10 requests waiting per student. Sample teams don't take requests.
 - **Team group chat.** Each team gets a group chat in Messages when it is created. Accepting a request adds the person to the team and its chat in one transaction; leaving or being removed takes them out. The chat shows lines like "X joined the team". Messages has All · Direct · Teams filters and a Team tag.
 - **Status.** The team shows "Team full" when members reach the team size; the lead can stop or restart taking requests; members can leave (the lead can't).
 - **Blocking in team chats.** A block between two members of the same team does not hide team-chat messages; it still applies to direct chats, Scout and search.
+- **Sidebar.** The Notifications item is removed from the side navigation (the bell in the top bar stays).
 - Checks: `supabase/tests/module-14-teams.sql`.
 
 ---

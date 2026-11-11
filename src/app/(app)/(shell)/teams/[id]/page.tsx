@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { CardSkeleton } from "@/components/skeleton";
 import { StudentAvatar } from "@/components/student-avatar";
-import { SeatMeter } from "@/components/teams/team-cards";
+import { HackathonLink, SeatMeter } from "@/components/teams/team-cards";
 import {
   JoinButton,
   LeadActions,
@@ -85,6 +85,7 @@ async function TeamDetails({
             </p>
           )}
         </div>
+        <HackathonLink url={team.hackathonUrl} className="px-4 py-2 text-sm" />
         <SeatMeter count={team.members.length} size={team.teamSize} />
 
         <div className="flex flex-wrap items-center gap-2">

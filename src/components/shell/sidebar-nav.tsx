@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import type { ComponentType, SVGProps } from "react";
 import {
-  BellIcon,
   HelpIcon,
   HomeIcon,
   MessagesIcon,
@@ -31,7 +30,6 @@ const MAIN: Item[] = [
   { href: "/teams", label: "Teams", icon: TeamsIcon },
   { href: "/requests", label: "Requests", icon: RequestsIcon, badge: "requests" },
   { href: "/messages", label: "Messages", icon: MessagesIcon, badge: "messages" },
-  { href: "/notifications", label: "Notifications", icon: BellIcon, soon: true },
 ];
 
 const SECONDARY: Item[] = [

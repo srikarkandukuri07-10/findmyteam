@@ -2,6 +2,11 @@ import "server-only";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth/dal";
 
+/** Only http(s) links are ever rendered as links. */
+function safeUrl(v: string | null): string | null {
+  return v && /^https?:\/\//i.test(v) ? v : null;
+}
+
 export type RecruitStatus = "open" | "partially_filled" | "full" | "closed";
 export type TeamMode = "online" | "offline";
 export type RequestStatus = "pending" | "accepted" | "declined" | "withdrawn";
@@ -44,6 +49,7 @@ export type JoinRequest = z.infer<typeof requestSchema>;
 export type BrowseTeam = {
   id: string;
   hackathonName: string;
+  hackathonUrl: string | null;
   mode: TeamMode;
   teamSize: number;
   about: string;
@@ -59,6 +65,7 @@ export type BrowseTeam = {
 export type MyTeam = {
   id: string;
   hackathonName: string;
+  hackathonUrl: string | null;
   mode: TeamMode;
   teamSize: number;
   about: string;
@@ -75,6 +82,7 @@ export type MyTeam = {
 export type TeamDetail = {
   id: string;
   hackathonName: string;
+  hackathonUrl: string | null;
   mode: TeamMode;
   teamSize: number;
   about: string;
@@ -99,6 +107,7 @@ export async function listTeams(): Promise<BrowseTeam[]> {
   return data.map((t) => ({
     id: t.id,
     hackathonName: t.hackathon_name,
+    hackathonUrl: safeUrl(t.hackathon_url),
     mode: modeSchema.parse(t.mode),
     teamSize: t.team_size,
     about: t.about,
@@ -120,6 +129,7 @@ export async function listMyTeams(): Promise<MyTeam[]> {
   return data.map((t) => ({
     id: t.id,
     hackathonName: t.hackathon_name,
+    hackathonUrl: safeUrl(t.hackathon_url),
     mode: modeSchema.parse(t.mode),
     teamSize: t.team_size,
     about: t.about,
@@ -165,6 +175,7 @@ export async function getTeam(id: string): Promise<TeamDetail | null> {
   return {
     id: t.id,
     hackathonName: t.hackathon_name,
+    hackathonUrl: safeUrl(t.hackathon_url),
     mode: modeSchema.parse(t.mode),
     teamSize: t.team_size,
     about: t.about,

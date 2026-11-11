@@ -371,6 +371,7 @@ export type Database = {
           owner_id: string | null
           recruit_status: Database["public"]["Enums"]["recruit_status"]
           hackathon_name: string
+          hackathon_url: string | null
           mode: string
           team_size: number
           about: string
@@ -972,6 +973,7 @@ export type Database = {
         Returns: {
           id: string
           hackathon_name: string
+          hackathon_url: string | null
           mode: string
           team_size: number
           about: string
@@ -991,6 +993,7 @@ export type Database = {
         Returns: {
           id: string
           hackathon_name: string
+          hackathon_url: string | null
           mode: string
           team_size: number
           about: string
@@ -1014,6 +1017,7 @@ export type Database = {
         Returns: {
           id: string
           hackathon_name: string
+          hackathon_url: string | null
           mode: string
           team_size: number
           about: string
@@ -1032,7 +1036,14 @@ export type Database = {
         }[]
       }
       create_team: {
-        Args: { p_hackathon_name: string; p_mode: string; p_team_size: number; p_about: string; p_looking_for: string }
+        Args: {
+          p_hackathon_name: string
+          p_hackathon_url: string
+          p_mode: string
+          p_team_size: number
+          p_about: string
+          p_looking_for: string
+        }
         Returns: string
       }
       request_to_join: { Args: { p_team: string; p_note: string | null }; Returns: string }

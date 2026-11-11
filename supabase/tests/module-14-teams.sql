@@ -26,7 +26,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', lead, 'role', 'authenticated')::text, true);
 
   -- ---- Creating ---------------------------------------------------------------------------------
-  team := public.create_team('Smart India Hackathon', 'offline', 2, 'An app that helps farmers price crops.', 'A designer');
+  team := public.create_team('Smart India Hackathon', 'https://example.com/hack', 'offline', 2, 'An app that helps farmers price crops.', 'A designer');
   select id into conv from public.conversations where team_id = team;
   if conv is null then raise exception 'FAIL 1: the team chat was not created.'; end if;
   select * into r from public.list_conversations() where id = conv;
@@ -36,22 +36,32 @@ begin
 
   failed := false;
   begin
-    perform public.create_team('Hack', 'hybrid', 4, 'Something to build here.', 'Anyone');
+    perform public.create_team('Hack', 'https://example.com/hack', 'hybrid', 4, 'Something to build here.', 'Anyone');
   exception when invalid_parameter_value then failed := sqlerrm = 'invalid_mode';
   end;
   if not failed then raise exception 'FAIL 3: a team with an unknown mode was created.'; end if;
 
-  perform public.create_team('Hack Two', 'online', 4, 'Second team idea here.', 'Anyone');
-  t2 := public.create_team('Hack Three', 'online', 4, 'Third team idea here.', 'Anyone');
   failed := false;
   begin
-    perform public.create_team('Hack Four', 'online', 4, 'Fourth team idea here.', 'Anyone');
+    perform public.create_team('Hack', 'javascript:alert(1)', 'online', 4, 'Something to build here.', 'Anyone');
+  exception when invalid_parameter_value then failed := sqlerrm = 'invalid_hackathon_url';
+  end;
+  if not failed then raise exception 'FAIL 3b: a team with a non-web link was created.'; end if;
+  if (select hackathon_url from public.get_team(team)) <> 'https://example.com/hack' then
+    raise exception 'FAIL 3c: the hackathon link was not saved.';
+  end if;
+
+  perform public.create_team('Hack Two', 'https://example.com/hack', 'online', 4, 'Second team idea here.', 'Anyone');
+  t2 := public.create_team('Hack Three', 'https://example.com/hack', 'online', 4, 'Third team idea here.', 'Anyone');
+  failed := false;
+  begin
+    perform public.create_team('Hack Four', 'https://example.com/hack', 'online', 4, 'Fourth team idea here.', 'Anyone');
   exception when raise_exception then failed := sqlerrm = 'team_limit';
   end;
   if not failed then raise exception 'FAIL 4: a fourth active team was allowed.'; end if;
 
   perform public.complete_team(t2);
-  perform public.create_team('Hack Four', 'online', 4, 'Fourth team idea here.', 'Anyone');
+  perform public.create_team('Hack Four', 'https://example.com/hack', 'online', 4, 'Fourth team idea here.', 'Anyone');
 
   failed := false;
   begin

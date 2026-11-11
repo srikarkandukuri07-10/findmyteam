@@ -14,6 +14,7 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
 const MESSAGES: Record<string, string> = {
   team_limit: `You already lead ${MAX_ACTIVE_TEAMS} active teams. Mark one as completed to create another.`,
   rate_limited: "You've created a lot of teams today. Try again tomorrow.",
+  invalid_hackathon_url: "Paste a full link to the hackathon, like https://sih.gov.in",
   team_not_found: "This team isn't available.",
   already_member: "You're already in this team.",
   sample_team: "This is a sample team, so it can't take requests.",
@@ -44,6 +45,7 @@ function refresh(teamId?: string) {
 export async function createTeam(_prev: FormState, formData: FormData): Promise<FormState> {
   const raw = {
     hackathonName: formData.get("hackathonName"),
+    hackathonUrl: formData.get("hackathonUrl"),
     mode: formData.get("mode"),
     teamSize: formData.get("teamSize"),
     about: formData.get("about"),
@@ -56,6 +58,7 @@ export async function createTeam(_prev: FormState, formData: FormData): Promise<
   const { supabase } = await requireUser();
   const { data, error } = await supabase.rpc("create_team", {
     p_hackathon_name: parsed.data.hackathonName,
+    p_hackathon_url: parsed.data.hackathonUrl,
     p_mode: parsed.data.mode,
     p_team_size: parsed.data.teamSize,
     p_about: parsed.data.about,
