@@ -8,7 +8,8 @@ import { blockPerson, markRead, reportPerson, sendMessage, setMuted } from "@/ap
 import { StudentAvatar } from "@/components/student-avatar";
 import { CheckIcon, CloseIcon } from "@/components/icons";
 import { BACK_TRANSITION } from "@/components/page-transition";
-import type { ChatMessage } from "@/lib/messages/data";
+import type { ChatMessage, ChatPerson } from "@/lib/messages/data";
+import { TeamBadge } from "./team-badge";
 import { clockTime, dayLabel, isNewDay, linkify } from "@/lib/messages/format";
 import { createClient } from "@/lib/supabase/client";
 
@@ -22,6 +23,8 @@ type Props = {
   initialOtherReadAt: string | null;
   initialMuted: boolean;
   blocked: boolean;
+  /** D29: set for a team's group chat. */
+  team?: { id: string; name: string; isDemo: boolean; members: ChatPerson[] } | null;
 };
 
 const REASONS = [
@@ -98,12 +101,14 @@ export function ChatThread({
   initialOtherReadAt,
   initialMuted,
   blocked,
+  team = null,
 }: Props) {
+  const people = useMemo(() => new Map((team?.members ?? []).map((p) => [p.id, p])), [team]);
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [messages, setMessages] = useState<Bubble[]>(() => initialMessages.map((m) => ({ ...m, state: "sent" })));
   const [otherReadAt, setOtherReadAt] = useState(initialOtherReadAt);
-  const [typing, setTyping] = useState(false);
+  const [typing, setTyping] = useState<string | false>(false);
   const [draft, setDraft] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
   const [muted, setMutedState] = useState(initialMuted);
@@ -156,20 +161,31 @@ export function ChatThread({
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` },
         (payload) => {
-          const m = payload.new as { id: number; sender_id: string; body: string; created_at: string };
+          const m = payload.new as { id: number; sender_id: string; body: string; kind?: string; created_at: string };
+          const kind = m.kind === "system" ? ("system" as const) : ("text" as const);
+          const bubble: Bubble = {
+            id: m.id,
+            senderId: m.sender_id,
+            body: m.body,
+            kind,
+            createdAt: m.created_at,
+            state: "sent",
+          };
           setMessages((cur) => {
             if (cur.some((x) => x.id === m.id)) return cur;
             // My own message coming back: replace the pending bubble instead of adding a second one.
-            if (m.sender_id === me) {
+            if (m.sender_id === me && kind === "text") {
               const i = cur.findIndex((x) => x.state === "pending" && x.body === m.body);
               if (i >= 0) {
                 const next = cur.slice();
-                next[i] = { id: m.id, senderId: m.sender_id, body: m.body, createdAt: m.created_at, state: "sent" };
+                next[i] = bubble;
                 return next;
               }
             }
-            return [...cur, { id: m.id, senderId: m.sender_id, body: m.body, createdAt: m.created_at, state: "sent" }];
+            return [...cur, bubble];
           });
+          // Someone joined or left: reload so names and the member count are current.
+          if (kind === "system") router.refresh();
           if (m.sender_id !== me) {
             setTyping(false);
             readNow();
@@ -187,14 +203,14 @@ export function ChatThread({
         },
         (payload) => {
           const row = payload.new as { user_id: string; last_read_at: string };
-          if (row.user_id !== me) setOtherReadAt(row.last_read_at);
+          if (row.user_id !== me && !team) setOtherReadAt(row.last_read_at);
         },
       )
       .subscribe();
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [supabase, conversationId, me, blocked, readNow, scrollToEnd]);
+  }, [supabase, conversationId, me, blocked, readNow, scrollToEnd, router, team]);
 
   // Typing, on a private channel only the two members may join.
   useEffect(() => {
@@ -207,8 +223,9 @@ export function ChatThread({
       channel = supabase
         .channel(`typing:${conversationId}`, { config: { private: true, broadcast: { self: false } } })
         .on("broadcast", { event: "typing" }, (msg) => {
-          if ((msg.payload as { from?: string })?.from === me) return;
-          setTyping(true);
+          const from = (msg.payload as { from?: string })?.from;
+          if (!from || from === me) return;
+          setTyping(from);
           window.clearTimeout(typingTimer.current);
           typingTimer.current = window.setTimeout(() => setTyping(false), 3500);
           scrollToEnd();
@@ -240,6 +257,7 @@ export function ChatThread({
       id: placeholderId,
       senderId: me,
       body,
+      kind: "text",
       createdAt: now,
       state: "pending",
       tempId,
@@ -267,11 +285,24 @@ export function ChatThread({
   const lastMineSeen = useMemo(() => {
     if (!otherReadAt) return null;
     const read = Date.parse(otherReadAt);
-    const mine = messages.filter((m) => m.senderId === me && m.state === "sent" && Date.parse(m.createdAt) <= read);
+    const mine = messages.filter(
+      (m) => m.senderId === me && m.kind === "text" && m.state === "sent" && Date.parse(m.createdAt) <= read,
+    );
     return mine.at(-1)?.id ?? null;
   }, [messages, otherReadAt, me]);
 
-  const first = other.name.split(" ")[0] ?? other.name;
+  const first = team ? team.name : (other.name.split(" ")[0] ?? other.name);
+  const typingName = typing ? (team ? (people.get(typing)?.name.split(" ")[0] ?? "Someone") : first) : null;
+  const subtitle = typing
+    ? team
+      ? `${typingName} is typing…`
+      : "typing…"
+    : team
+      ? `${team.members.length} ${team.members.length === 1 ? "member" : "members"}${muted ? " · muted" : ""} · team details`
+      : muted
+        ? "Muted · view profile"
+        : "View profile";
+  const isDemo = team ? team.isDemo : other.isDemo;
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[2rem] bg-surface/70 shadow-card">
@@ -285,12 +316,24 @@ export function ChatThread({
         >
           ←
         </Link>
-        <Link href={`/students/${other.id}`} className="flex min-w-0 flex-1 items-center gap-3">
-          <StudentAvatar id={other.id} name={other.name} avatarPath={other.avatarPath} size="sm" />
+        <Link
+          href={team ? `/teams/${team.id}` : `/students/${other.id}`}
+          className="flex min-w-0 flex-1 items-center gap-3"
+        >
+          {team ? (
+            <TeamBadge id={team.id} name={team.name} className="size-10 text-sm" />
+          ) : (
+            <StudentAvatar id={other.id} name={other.name} avatarPath={other.avatarPath} size="sm" />
+          )}
           <span className="min-w-0">
             <span className="flex items-center gap-2">
-              <span className="truncate font-semibold">{other.name}</span>
-              {other.isDemo && (
+              <span className="truncate font-semibold">{team ? team.name : other.name}</span>
+              {team && (
+                <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-bold uppercase text-accent-ink">
+                  Team
+                </span>
+              )}
+              {isDemo && (
                 <span className="rounded-full bg-chip px-2 py-0.5 text-[10px] font-semibold uppercase">Sample</span>
               )}
             </span>
@@ -302,7 +345,7 @@ export function ChatThread({
                 exit={{ opacity: 0, y: -4 }}
                 className={`block text-xs ${typing ? "font-semibold text-accent-ink" : "text-muted"}`}
               >
-                {typing ? "typing…" : muted ? "Muted · view profile" : "View profile"}
+                {subtitle}
               </motion.span>
             </AnimatePresence>
           </span>
@@ -344,17 +387,26 @@ export function ChatThread({
                     {muted ? "Unmute" : "Mute"} conversation
                   </button>
                 )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMenu(false);
-                    setDialog("report");
-                  }}
-                  className="block w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium hover:bg-surface-muted"
-                >
-                  Report {first}
-                </button>
-                {!blocked && (
+                {team ? (
+                  <Link
+                    href={`/teams/${team.id}`}
+                    className="block w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium hover:bg-surface-muted"
+                  >
+                    Team details
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMenu(false);
+                      setDialog("report");
+                    }}
+                    className="block w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium hover:bg-surface-muted"
+                  >
+                    Report {first}
+                  </button>
+                )}
+                {!blocked && !team && (
                   <button
                     type="button"
                     onClick={() => {
@@ -380,15 +432,21 @@ export function ChatThread({
             animate={{ opacity: 1, scale: 1 }}
             className="mx-auto mt-10 max-w-xs text-center"
           >
-            <StudentAvatar
-              id={other.id}
-              name={other.name}
-              avatarPath={other.avatarPath}
-              size="lg"
-              className="mx-auto"
-            />
-            <p className="mt-3 font-semibold">You and {first} are connected</p>
-            <p className="mt-1 text-sm text-muted">Say hi and share what you want to build.</p>
+            {team ? (
+              <TeamBadge id={team.id} name={team.name} className="mx-auto size-20 text-2xl" />
+            ) : (
+              <StudentAvatar
+                id={other.id}
+                name={other.name}
+                avatarPath={other.avatarPath}
+                size="lg"
+                className="mx-auto"
+              />
+            )}
+            <p className="mt-3 font-semibold">{team ? "Your team chat" : `You and ${first} are connected`}</p>
+            <p className="mt-1 text-sm text-muted">
+              {team ? "Everyone the lead accepts joins here." : "Say hi and share what you want to build."}
+            </p>
           </motion.div>
         )}
         {blocked && (
@@ -403,8 +461,10 @@ export function ChatThread({
             const prev = messages[i - 1];
             const next = messages[i + 1];
             const newDay = isNewDay(prev?.createdAt, m.createdAt);
-            const groupedWithPrev = !newDay && prev?.senderId === m.senderId;
-            const lastInGroup = next?.senderId !== m.senderId || isNewDay(m.createdAt, next.createdAt);
+            const groupedWithPrev = !newDay && prev?.kind === "text" && prev?.senderId === m.senderId;
+            const lastInGroup =
+              next?.kind !== "text" || next?.senderId !== m.senderId || isNewDay(m.createdAt, next.createdAt);
+            const sender = team && !mine && !groupedWithPrev ? people.get(m.senderId) : undefined;
             return (
               <Fragment key={m.tempId ?? m.id}>
                 {newDay && (
@@ -414,6 +474,17 @@ export function ChatThread({
                     </span>
                   </li>
                 )}
+                {m.kind === "system" ? (
+                  <motion.li
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex justify-center py-2"
+                  >
+                    <span className="max-w-[90%] rounded-full bg-accent-soft/70 px-3.5 py-1.5 text-center text-xs font-semibold text-accent-ink">
+                      {m.body} · {clockTime(m.createdAt)}
+                    </span>
+                  </motion.li>
+                ) : (
                 <motion.li
                   layout="position"
                   initial={{ opacity: 0, y: 14, scale: 0.94, x: mine ? 18 : -18 }}
@@ -422,6 +493,20 @@ export function ChatThread({
                   className={`flex ${mine ? "justify-end" : "justify-start"} ${groupedWithPrev ? "" : "pt-2"}`}
                 >
                   <div className={`flex max-w-[82%] flex-col ${mine ? "items-end" : "items-start"}`}>
+                    {team && !mine && !groupedWithPrev && (
+                      <span className="mb-1 flex items-center gap-1.5 px-1 text-xs font-semibold text-muted">
+                        {sender && (
+                          <StudentAvatar
+                            id={sender.id}
+                            name={sender.name}
+                            avatarPath={sender.avatarPath}
+                            size="sm"
+                            className="size-5"
+                          />
+                        )}
+                        {sender?.name ?? "Former member"}
+                      </span>
+                    )}
                     <div
                       className={`whitespace-pre-wrap break-words px-4 py-2.5 text-[15px] leading-relaxed shadow-card ${
                         mine
@@ -464,6 +549,7 @@ export function ChatThread({
                     )}
                   </div>
                 </motion.li>
+                )}
               </Fragment>
             );
           })}
@@ -482,7 +568,7 @@ export function ChatThread({
           className="border-t border-border/70 bg-surface p-3 sm:p-4"
         >
           <AnimatePresence>
-            {(notice || other.isDemo) && (
+            {(notice || isDemo) && (
               <motion.p
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -490,7 +576,10 @@ export function ChatThread({
                 className={`mb-2 px-2 text-xs font-medium ${notice ? "text-danger" : "text-muted"}`}
                 role={notice ? "alert" : undefined}
               >
-                {notice ?? `${first} is a sample student, so they won't reply.`}
+                {notice ??
+                  (team
+                    ? "This is a sample team, so nobody will reply."
+                    : `${first} is a sample student, so they won't reply.`)}
               </motion.p>
             )}
           </AnimatePresence>
@@ -510,8 +599,8 @@ export function ChatThread({
               }}
               rows={1}
               maxLength={2000}
-              placeholder={`Message ${first}…`}
-              aria-label={`Message ${first}`}
+              placeholder={team ? "Message the team…" : `Message ${first}…`}
+              aria-label={team ? "Message the team" : `Message ${first}`}
               className="max-h-36 min-h-12 flex-1 resize-none rounded-3xl border border-border bg-background/30 px-4 py-3 text-[15px] [field-sizing:content] focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/20"
             />
             <motion.button

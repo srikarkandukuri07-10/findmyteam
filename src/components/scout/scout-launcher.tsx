@@ -110,9 +110,10 @@ export function ScoutLauncher({
     () => false,
   );
 
+  // Drop ?go=1 when closing: refreshing with it still in the address re-opened the deck at once.
   const close = () => {
     setOpen(false);
-    router.refresh();
+    router.replace("/discover", { scroll: false });
   };
 
   return (

@@ -63,6 +63,7 @@ async function Conversation({ params }: { params: PageProps<"/messages/[id]">["p
           initialOtherReadAt={thread.otherReadAt}
           initialMuted={summary.muted}
           blocked={summary.blocked}
+          team={thread.team}
         />
       </section>
     </>

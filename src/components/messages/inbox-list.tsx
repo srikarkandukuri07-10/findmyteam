@@ -3,16 +3,31 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StudentAvatar } from "@/components/student-avatar";
 import type { ConversationSummary } from "@/lib/messages/data";
 import { inboxTime } from "@/lib/messages/format";
 import { createClient } from "@/lib/supabase/client";
+import { TeamBadge } from "./team-badge";
+
+type Filter = "all" | "direct" | "teams";
+
+function preview(c: ConversationSummary) {
+  if (c.blocked) return "Conversation closed";
+  if (!c.lastBody) return c.isTeam ? "Team chat created" : "Say hi 👋";
+  if (c.lastKind === "system") return c.lastBody;
+  if (c.lastFromMe) return `You: ${c.lastBody}`;
+  if (c.isTeam && c.lastSenderName) return `${c.lastSenderName.split(" ")[0]}: ${c.lastBody}`;
+  return c.lastBody;
+}
 
 /** The list of conversations. A new message anywhere moves its conversation to the top, live. */
 export function InboxList({ conversations, activeId }: { conversations: ConversationSummary[]; activeId?: string }) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+  const [filter, setFilter] = useState<Filter>("all");
+  const hasTeams = conversations.some((c) => c.isTeam);
+  const shown = conversations.filter((c) => filter === "all" || (filter === "teams") === c.isTeam);
 
   useEffect(() => {
     // RLS only delivers messages from my own conversations.
@@ -49,9 +64,39 @@ export function InboxList({ conversations, activeId }: { conversations: Conversa
   }
 
   return (
+    <div>
+      {hasTeams && (
+        <div role="tablist" aria-label="Show" className="flex gap-1.5 px-4 pb-1 pt-1">
+          {(
+            [
+              ["all", "All"],
+              ["direct", "Direct"],
+              ["teams", "Teams"],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={filter === value}
+              onClick={() => setFilter(value)}
+              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                filter === value ? "bg-accent text-accent-foreground" : "bg-surface-muted text-muted hover:text-foreground"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+      {shown.length === 0 && (
+        <p className="p-6 text-center text-sm text-muted">
+          {filter === "teams" ? "No team chats yet. Create or join a team to get one." : "No direct chats yet."}
+        </p>
+      )}
     <ul className="space-y-1 p-2">
       <AnimatePresence initial={false}>
-        {conversations.map((c, i) => {
+        {shown.map((c, i) => {
           const active = c.id === activeId;
           return (
             <motion.li
@@ -70,7 +115,11 @@ export function InboxList({ conversations, activeId }: { conversations: Conversa
                 }`}
               >
                 <span className="relative">
-                  <StudentAvatar id={c.otherId} name={c.otherName} avatarPath={c.otherAvatarPath} size="md" />
+                  {c.isTeam ? (
+                    <TeamBadge id={c.otherId} name={c.otherName} className="size-12 text-sm" />
+                  ) : (
+                    <StudentAvatar id={c.otherId} name={c.otherName} avatarPath={c.otherAvatarPath} size="md" />
+                  )}
                   {c.unread > 0 && !c.muted && (
                     <motion.span
                       initial={{ scale: 0 }}
@@ -81,16 +130,19 @@ export function InboxList({ conversations, activeId }: { conversations: Conversa
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center justify-between gap-2">
-                    <span className={`truncate ${c.unread > 0 ? "font-bold" : "font-semibold"}`}>{c.otherName}</span>
+                    <span className="flex min-w-0 items-center gap-1.5">
+                      <span className={`truncate ${c.unread > 0 ? "font-bold" : "font-semibold"}`}>{c.otherName}</span>
+                      {c.isTeam && (
+                        <span className="shrink-0 rounded-full bg-accent-soft px-1.5 py-0.5 text-[10px] font-bold uppercase text-accent-ink">
+                          Team
+                        </span>
+                      )}
+                    </span>
                     <span className="shrink-0 text-[11px] text-muted">{inboxTime(c.lastAt)}</span>
                   </span>
                   <span className="flex items-center justify-between gap-2">
                     <span className={`truncate text-sm ${c.unread > 0 ? "font-medium text-foreground" : "text-muted"}`}>
-                      {c.blocked
-                        ? "Conversation closed"
-                        : c.lastBody
-                          ? `${c.lastFromMe ? "You: " : ""}${c.lastBody}`
-                          : "Say hi 👋"}
+                      {preview(c)}
                     </span>
                     {c.muted ? (
                       <span className="shrink-0 text-[11px] text-muted" title="Muted">
@@ -111,5 +163,6 @@ export function InboxList({ conversations, activeId }: { conversations: Conversa
         })}
       </AnimatePresence>
     </ul>
+    </div>
   );
 }

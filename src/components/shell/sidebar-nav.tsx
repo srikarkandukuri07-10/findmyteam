@@ -6,7 +6,6 @@ import { motion } from "motion/react";
 import type { ComponentType, SVGProps } from "react";
 import {
   BellIcon,
-  EventsIcon,
   HelpIcon,
   HomeIcon,
   MessagesIcon,
@@ -31,7 +30,6 @@ const MAIN: Item[] = [
   { href: "/discover", label: "Scout", icon: ScoutIcon },
   { href: "/teams", label: "Teams", icon: TeamsIcon },
   { href: "/requests", label: "Requests", icon: RequestsIcon, badge: "requests" },
-  { href: "/hackathons", label: "Events", icon: EventsIcon },
   { href: "/messages", label: "Messages", icon: MessagesIcon, badge: "messages" },
   { href: "/notifications", label: "Notifications", icon: BellIcon, soon: true },
 ];

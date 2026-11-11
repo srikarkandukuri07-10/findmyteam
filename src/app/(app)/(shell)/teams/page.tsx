@@ -1,79 +1,152 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { PageTransition } from "@/components/page-transition";
 import { GridSkeleton } from "@/components/skeleton";
-import { TeamCard } from "@/components/team-card";
-import { Card, PageHeader } from "@/components/ui";
+import { BrowseTeamCard, MyTeamCard } from "@/components/teams/team-cards";
+import { ButtonLink, Card, Chip } from "@/components/ui";
 import { requireOnboardedProfile } from "@/lib/auth/dal";
-import { listTeams } from "@/lib/teams/data";
-import { z } from "zod";
+import { inboxTime } from "@/lib/messages/format";
+import { listMyJoinRequests, listMyTeams, listTeams } from "@/lib/teams/data";
+import { MAX_ACTIVE_TEAMS } from "@/lib/validation/teams";
 
 export const metadata: Metadata = { title: "Teams" };
 
-export default function TeamsPage(props: PageProps<"/teams">) {
+/** D29: my teams (to monitor), requests I've sent, and teams looking for people. */
+export default function TeamsPage() {
   return (
-    <PageTransition>
-      <main className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
-        <PageHeader title="Teams" subtitle="Teams already forming around hackathons. Open one to see who is in it." />
-        <Suspense fallback={<GridSkeleton count={4} />}>
-          <TeamList searchParams={props.searchParams} />
-        </Suspense>
-      </main>
-    </PageTransition>
+    <main className="mx-auto w-full max-w-5xl flex-1 space-y-8 px-4 py-8">
+      <Suspense fallback={<GridSkeleton count={4} />}>
+        <TeamsContent />
+      </Suspense>
+    </main>
   );
 }
 
-async function TeamList({ searchParams }: { searchParams: PageProps<"/teams">["searchParams"] }) {
-  await requireOnboardedProfile();
-  const sp = await searchParams;
-  const parsed = z.uuid().safeParse(sp.hackathon);
-  const hackathonId = parsed.success ? parsed.data : undefined;
+const SENT_LABELS = { pending: "Waiting", accepted: "Accepted", declined: "Declined", withdrawn: "Withdrawn" } as const;
 
-  // One query for every team; the hackathon filter is applied here so the filter chips stay stable.
-  const allTeams = await listTeams();
-  const filterable = [...new Map(allTeams.map((t) => [t.hackathonId, t.hackathonName])).entries()];
-  const teams = hackathonId ? allTeams.filter((t) => t.hackathonId === hackathonId) : allTeams;
+async function TeamsContent() {
+  await requireOnboardedProfile();
+  const [mine, sent, open] = await Promise.all([listMyTeams(), listMyJoinRequests(), listTeams()]);
+  const activeLed = mine.filter((t) => t.isOwner && !t.completed).length;
+  const canCreate = activeLed < MAX_ACTIVE_TEAMS;
+  const active = mine.filter((t) => !t.completed);
+  const done = mine.filter((t) => t.completed);
+  const waiting = mine.reduce((n, t) => n + (t.isOwner ? t.pendingCount : 0), 0);
 
   return (
     <>
-      <nav aria-label="Filter by hackathon" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-        <FilterLink href="/teams" active={!hackathonId} label="All teams" />
-        {filterable.map(([id, name]) => (
-          <FilterLink key={id} href={`/teams?hackathon=${id}`} active={id === hackathonId} label={name} />
-        ))}
-      </nav>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Teams</h1>
+          <p className="mt-1 text-sm text-muted sm:text-base">
+            Create a team for a hackathon, or ask to join one that needs you.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          {canCreate ? (
+            <ButtonLink href="/teams/new">+ Create a team</ButtonLink>
+          ) : (
+            <span className="rounded-full bg-chip px-5 py-2.5 text-sm font-semibold text-muted">Create a team</span>
+          )}
+          <span className="text-xs text-muted">
+            {activeLed} of {MAX_ACTIVE_TEAMS} active teams you lead
+            {!canCreate && " · mark one completed to create another"}
+          </span>
+        </div>
+      </div>
 
-      {teams.length === 0 ? (
-        <Card className="space-y-2 text-center">
-          <h2 className="text-lg font-semibold">No teams here yet</h2>
-          <p className="text-sm text-muted">Teams will show up as students start forming them.</p>
-        </Card>
-      ) : (
-        <ul className="stagger grid gap-4 md:grid-cols-2">
-          {teams.map((t) => (
-            <li key={t.id} className="flex">
-              <div className="w-full">
-                <TeamCard team={t} />
-              </div>
-            </li>
-          ))}
-        </ul>
+      <section className="space-y-4" aria-labelledby="my-teams">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 id="my-teams" className="text-lg font-semibold tracking-tight">
+            Your teams
+          </h2>
+          {waiting > 0 && <Chip tone="accent">{waiting} waiting for your reply</Chip>}
+        </div>
+        {active.length === 0 ? (
+          <Card className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold">You&apos;re not in a team yet</p>
+              <p className="text-sm text-muted">
+                Create one for your next hackathon, or ask to join a team below.
+              </p>
+            </div>
+            {canCreate && <ButtonLink href="/teams/new">Create a team</ButtonLink>}
+          </Card>
+        ) : (
+          <ul className="stagger grid gap-4 md:grid-cols-2">
+            {active.map((t) => (
+              <li key={t.id} className="min-w-0">
+                <MyTeamCard team={t} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {sent.length > 0 && (
+        <section className="space-y-3" aria-labelledby="sent">
+          <h2 id="sent" className="text-lg font-semibold tracking-tight">
+            Requests you&apos;ve sent
+          </h2>
+          <Card className="p-2 sm:p-2">
+            <ul className="divide-y divide-border/70">
+              {sent.map((r) => (
+                <li key={`${r.teamId}-${r.createdAt}`}>
+                  <Link
+                    href={`/teams/${r.teamId}`}
+                    className="flex items-center justify-between gap-3 rounded-2xl px-3 py-3 hover:bg-surface-muted"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate font-medium">{r.hackathonName}</span>
+                      <span className="block truncate text-xs text-muted">
+                        {[r.ownerName && `Led by ${r.ownerName}`, inboxTime(r.createdAt)].filter(Boolean).join(" · ")}
+                      </span>
+                    </span>
+                    <Chip tone={r.status === "accepted" ? "success" : r.status === "pending" ? "accent" : "neutral"}>
+                      {SENT_LABELS[r.status]}
+                    </Chip>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </section>
+      )}
+
+      <section className="space-y-4" aria-labelledby="open-teams">
+        <h2 id="open-teams" className="text-lg font-semibold tracking-tight">
+          Teams looking for teammates
+        </h2>
+        {open.length === 0 ? (
+          <Card className="space-y-1 text-center">
+            <p className="font-semibold">No open teams right now</p>
+            <p className="text-sm text-muted">Be the first: create a team and others can ask to join.</p>
+          </Card>
+        ) : (
+          <ul className="stagger grid gap-4 md:grid-cols-2">
+            {open.map((t) => (
+              <li key={t.id} className="min-w-0">
+                <BrowseTeamCard team={t} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {done.length > 0 && (
+        <section className="space-y-4" aria-labelledby="done-teams">
+          <h2 id="done-teams" className="text-lg font-semibold tracking-tight text-muted">
+            Completed
+          </h2>
+          <ul className="grid gap-4 md:grid-cols-2">
+            {done.map((t) => (
+              <li key={t.id} className="min-w-0">
+                <MyTeamCard team={t} />
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </>
-  );
-}
-
-function FilterLink({ href, active, label }: { href: string; active: boolean; label: string }) {
-  return (
-    <Link
-      href={href}
-      aria-current={active ? "page" : undefined}
-      className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-        active ? "bg-accent text-accent-foreground" : "bg-surface text-muted hover:text-foreground"
-      }`}
-    >
-      {label}
-    </Link>
   );
 }

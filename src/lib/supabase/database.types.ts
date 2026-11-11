@@ -17,9 +17,30 @@ export type Database = {
   public: {
     Tables: {
       conversations: {
-        Row: { id: string; user_a: string; user_b: string; created_at: string; last_message_at: string | null }
-        Insert: { id?: string; user_a: string; user_b: string; created_at?: string; last_message_at?: string | null }
-        Update: { id?: string; user_a?: string; user_b?: string; created_at?: string; last_message_at?: string | null }
+        Row: {
+          id: string
+          user_a: string | null
+          user_b: string | null
+          team_id: string | null
+          created_at: string
+          last_message_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_a?: string | null
+          user_b?: string | null
+          team_id?: string | null
+          created_at?: string
+          last_message_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_a?: string | null
+          user_b?: string | null
+          team_id?: string | null
+          created_at?: string
+          last_message_at?: string | null
+        }
         Relationships: []
       }
       conversation_members: {
@@ -29,9 +50,31 @@ export type Database = {
         Relationships: []
       }
       messages: {
-        Row: { id: number; conversation_id: string; sender_id: string; body: string; created_at: string }
-        Insert: { id?: never; conversation_id: string; sender_id: string; body: string; created_at?: string }
-        Update: { id?: never; conversation_id?: string; sender_id?: string; body?: string; created_at?: string }
+        Row: { id: number; conversation_id: string; sender_id: string; body: string; kind: string; created_at: string }
+        Insert: { id?: never; conversation_id: string; sender_id: string; body: string; kind?: string; created_at?: string }
+        Update: {
+          id?: never
+          conversation_id?: string
+          sender_id?: string
+          body?: string
+          kind?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      team_join_requests: {
+        Row: {
+          id: string
+          team_id: string
+          user_id: string
+          note: string | null
+          status: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+        }
+        Insert: never
+        Update: never
         Relationships: []
       }
       blocks: {
@@ -327,6 +370,13 @@ export type Database = {
           name: string
           owner_id: string | null
           recruit_status: Database["public"]["Enums"]["recruit_status"]
+          hackathon_name: string
+          mode: string
+          team_size: number
+          about: string
+          looking_for: string
+          status: string
+          completed_at: string | null
         }
         Insert: {
           created_at?: string
@@ -846,11 +896,16 @@ export type Database = {
         Args: never
         Returns: {
           id: string
-          other_id: string
+          is_team: boolean
+          team_id: string | null
+          other_id: string | null
           other_name: string
           other_avatar_path: string | null
           other_is_demo: boolean
+          member_count: number
           last_body: string | null
+          last_kind: string | null
+          last_sender_name: string | null
           last_sender_is_me: boolean | null
           last_at: string
           unread: number
@@ -913,38 +968,80 @@ export type Database = {
         }[]
       }
       list_teams: {
-        Args: { p_hackathon?: string }
+        Args: never
         Returns: {
-          description: string
-          hackathon_id: string
-          hackathon_name: string
-          hackathon_starts_on: string
           id: string
-          is_demo: boolean
+          hackathon_name: string
+          mode: string
+          team_size: number
+          about: string
+          looking_for: string
+          recruit_status: Database["public"]["Enums"]["recruit_status"]
+          owner_id: string | null
+          owner_name: string | null
           member_count: number
           members: Json
-          name: string
-          positions: Json
-          recruit_status: Database["public"]["Enums"]["recruit_status"]
+          is_demo: boolean
+          my_request: string | null
+          created_at: string
         }[]
+      }
+      list_my_teams: {
+        Args: never
+        Returns: {
+          id: string
+          hackathon_name: string
+          mode: string
+          team_size: number
+          about: string
+          recruit_status: Database["public"]["Enums"]["recruit_status"]
+          status: string
+          is_owner: boolean
+          member_count: number
+          members: Json
+          pending_count: number
+          conversation_id: string | null
+          unread: number | null
+          created_at: string
+        }[]
+      }
+      list_my_join_requests: {
+        Args: never
+        Returns: { team_id: string; hackathon_name: string; owner_name: string | null; status: string; created_at: string }[]
       }
       get_team: {
         Args: { p_id: string }
         Returns: {
-          description: string
-          hackathon_ends_on: string
-          hackathon_id: string
-          hackathon_name: string
-          hackathon_starts_on: string
           id: string
-          idea: string
-          is_demo: boolean
-          members: Json
-          name: string
-          positions: Json
+          hackathon_name: string
+          mode: string
+          team_size: number
+          about: string
+          looking_for: string
           recruit_status: Database["public"]["Enums"]["recruit_status"]
+          status: string
+          owner_id: string | null
+          is_demo: boolean
+          created_at: string
+          members: Json
+          is_member: boolean
+          is_owner: boolean | null
+          my_request: string | null
+          conversation_id: string | null
+          requests: Json
         }[]
       }
+      create_team: {
+        Args: { p_hackathon_name: string; p_mode: string; p_team_size: number; p_about: string; p_looking_for: string }
+        Returns: string
+      }
+      request_to_join: { Args: { p_team: string; p_note: string | null }; Returns: string }
+      withdraw_join_request: { Args: { p_team: string }; Returns: undefined }
+      decide_join_request: { Args: { p_request: string; p_accept: boolean }; Returns: undefined }
+      remove_team_member: { Args: { p_team: string; p_user: string }; Returns: undefined }
+      leave_team: { Args: { p_team: string }; Returns: undefined }
+      set_team_recruiting: { Args: { p_team: string; p_open: boolean }; Returns: undefined }
+      complete_team: { Args: { p_team: string }; Returns: undefined }
       connect_github: { Args: { p_token: string }; Returns: undefined }
       disconnect_github: { Args: never; Returns: undefined }
       set_linkedin_url: { Args: { p_url: string }; Returns: undefined }

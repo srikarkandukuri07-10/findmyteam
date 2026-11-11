@@ -317,9 +317,23 @@ The add-hackathon form no longer asks for the organizer. The **city** and the **
 
 ---
 
+## D29 · Teams v2 and no Events tab (2026-11-12)
+
+Supersedes D28 and the hackathon directory (Module 2 UI) for now.
+
+- **Events tab removed.** The Events tab and the add-hackathon feature are gone from the app. The `hackathons` table stays in the database, unused, so nothing is lost if it comes back.
+- **Creating a team.** Five fields: hackathon name (typed text), mode (online or offline), team size including the lead (2 to 10), what the hackathon is about, and who the team is looking for. The creator is the team lead.
+- **Up to 3 active teams.** A student can lead at most 3 active teams. The lead marks a team **completed** when its hackathon is over; that frees a slot. Enforced in `create_team()`.
+- **Joining.** Anyone can send a request to join (with an optional note) while the team is recruiting. Only the lead accepts or declines. All team members can see who has asked. A declined student can ask again after 7 days; at most 10 requests waiting per student. Sample teams don't take requests.
+- **Team group chat.** Each team gets a group chat in Messages when it is created. Accepting a request adds the person to the team and its chat in one transaction; leaving or being removed takes them out. The chat shows lines like "X joined the team". Messages has All · Direct · Teams filters and a Team tag.
+- **Status.** The team shows "Team full" when members reach the team size; the lead can stop or restart taking requests; members can leave (the lead can't).
+- **Blocking in team chats.** A block between two members of the same team does not hide team-chat messages; it still applies to direct chats, Scout and search.
+- Checks: `supabase/tests/module-14-teams.sql`.
+
+---
+
 ## Still open
 
-- **Launch hackathons.** The founder should supply the real hackathons (name, dates, link) for the launch cycle; add them through the app.
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
 - **Launch switches for sign-in (D25).** Turn off the Email provider, turn on "Allow new users to sign up", publish the Google consent screen, add the Vercel preview URL to Supabase redirect URLs if previews need Google sign-in.
 - **Unused Vercel variable.** `GITHUB_SNAPSHOT_SECRET` exists in the Vercel project from an abandoned design (D13). Nothing reads it; delete it in Vercel's settings.
@@ -331,4 +345,4 @@ The add-hackathon form no longer asks for the organizer. The **city** and the **
 - **QA test account (D20).** `qa-tester@fmt.test` (password in `.env.local`) is used for automated browser checks. Remove it with the sample data before launch.
 - **Review eligibility.** The PRD requires 7 days of shared team membership before a review, which may block most real hackathon teams. Decide before Module 10.
 - **Team invites at launch.** PRD section 6 includes invites in the launch flow, but TEAM-8 is marked P1. This plan includes invites in Module 7.
-- **One team per hackathon (TEAM-10).** Enforce in the database in Module 7.
+- **One team per hackathon (TEAM-10).** Replaced by D29's limit of 3 active teams led per student; hackathons are typed text, so there is nothing to enforce it against.

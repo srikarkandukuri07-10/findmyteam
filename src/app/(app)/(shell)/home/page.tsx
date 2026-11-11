@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BannerArt } from "@/components/home/banner-art";
-import { ArrowRightIcon, LockIcon, SparkIcon, TeamsIcon } from "@/components/icons";
+import { ArrowRightIcon, TeamsIcon } from "@/components/icons";
 import { PageTransition } from "@/components/page-transition";
 import { Skeleton } from "@/components/skeleton";
 import { Chip } from "@/components/ui";
@@ -23,7 +23,6 @@ export default function HomePage() {
         <Suspense fallback={<Skeleton className="h-80 rounded-[2rem]" />}>
           <TeamsLooking />
         </Suspense>
-        <EventsComingSoon />
       </main>
     </PageTransition>
   );
@@ -116,7 +115,7 @@ async function Banner() {
 }
 
 async function TeamsLooking() {
-  const teams = (await listTeams()).filter((t) => t.status === "open" || t.status === "partially_filled").slice(0, 4);
+  const teams = (await listTeams()).slice(0, 4);
 
   return (
     <section className="reveal rounded-[2rem] bg-surface p-4 shadow-card sm:p-8" style={{ "--i": 1 } as React.CSSProperties}>
@@ -137,9 +136,6 @@ async function TeamsLooking() {
       ) : (
         <ul className="stagger grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-2">
           {teams.map((t, i) => {
-            const spots = t.positions.reduce((n, p) => n + p.spots, 0);
-            const capacity = t.memberCount + spots;
-            const first = t.positions[0];
             return (
               <li key={t.id} className="reveal min-w-0">
                 <Link
@@ -151,7 +147,7 @@ async function TeamsLooking() {
                       ["bg-[#3b3163]", "bg-[#1f1d24]", "bg-[#8f7ac6]", "bg-[#66549f]"][i % 4]
                     }`}
                   >
-                    {t.name
+                    {t.hackathonName
                       .split(/\s+/)
                       .map((w) => w[0])
                       .join("")
@@ -160,19 +156,19 @@ async function TeamsLooking() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center gap-2">
-                      <span className="truncate text-base font-semibold sm:text-lg">{t.name}</span>
+                      <span className="truncate text-base font-semibold sm:text-lg">{t.hackathonName}</span>
                       {t.isDemo && <Chip>Sample</Chip>}
                     </span>
-                    <span className="mt-0.5 block text-sm text-muted">
-                      {first ? `Looking for ${/^[aeiou]/i.test(first.role) ? "an" : "a"} ${first.role}` : "Recruiting"}
-                    </span>
+                    <span className="mt-0.5 line-clamp-2 block text-sm text-muted">Looking for: {t.lookingFor}</span>
                     <span className="mt-3 flex flex-wrap gap-1.5">
-                      <span className="max-w-full truncate rounded-full bg-chip px-2.5 py-1 text-xs font-medium">{t.hackathonName}</span>
-                      {t.positions.slice(1, 3).map((p) => (
-                        <span key={p.role} className="rounded-full bg-sand px-2.5 py-1 text-xs font-medium">
-                          {p.role}
+                      <span className="rounded-full bg-sand px-2.5 py-1 text-xs font-medium">
+                        {t.mode === "online" ? "Online" : "Offline"}
+                      </span>
+                      {t.ownerName && (
+                        <span className="max-w-full truncate rounded-full bg-chip px-2.5 py-1 text-xs font-medium">
+                          Led by {t.ownerName}
                         </span>
-                      ))}
+                      )}
                     </span>
                   </span>
                   <span className="flex shrink-0 flex-col items-end gap-6">
@@ -181,7 +177,7 @@ async function TeamsLooking() {
                     </span>
                     <span className="flex items-center gap-1 text-sm font-semibold text-muted">
                       <TeamsIcon className="size-4" />
-                      {t.memberCount}/{capacity}
+                      {t.memberCount}/{t.teamSize}
                     </span>
                   </span>
                 </Link>
@@ -194,51 +190,3 @@ async function TeamsLooking() {
   );
 }
 
-/** Hackathons will be hosted on FindMyTeam later; until then this section only says so. */
-function EventsComingSoon() {
-  const cards = [
-    { title: "Campus hackathons", line: "Register your team in one place", tone: "from-[#3b3163] to-[#66549f] text-surface" },
-    { title: "Online sprints", line: "Weekend builds with students across India", tone: "from-accent-soft to-[#cfc2ea] text-foreground" },
-    { title: "Hosted on FindMyTeam", line: "Register, add teammates and chat together", tone: "from-[#1f1d24] to-[#4a3f6b] text-surface" },
-  ];
-  return (
-    <section className="reveal rounded-[2rem] bg-surface p-6 shadow-card sm:p-8" style={{ "--i": 2 } as React.CSSProperties}>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="flex items-center gap-3 text-2xl font-bold tracking-tight">
-          <span className="grid size-11 place-items-center rounded-2xl bg-accent-soft text-accent-ink">
-            <SparkIcon className="size-6" />
-          </span>
-          Upcoming events &amp; hackathons
-        </h2>
-        <span className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-1.5 text-sm font-bold text-accent-foreground">
-          <span className="pulse-dot size-2 rounded-full bg-accent-foreground" /> Coming soon
-        </span>
-      </div>
-      <ul className="grid gap-4 md:grid-cols-3">
-        {cards.map((c, i) => (
-          <li
-            key={c.title}
-            className={`float-card relative overflow-hidden rounded-3xl bg-gradient-to-br p-6 ${c.tone}`}
-            style={{ animationDelay: `${i * 0.6}s` }}
-          >
-            <div aria-hidden className="absolute -right-8 -top-8 size-32 rounded-full bg-white/10" />
-            <div aria-hidden className="absolute -bottom-10 right-10 size-24 rounded-full bg-white/10" />
-            <LockIcon className="relative size-7 opacity-80" />
-            <p className="relative mt-6 text-xl font-bold">{c.title}</p>
-            <p className="relative mt-1 text-sm opacity-80">{c.line}</p>
-            <span className="relative mt-5 inline-flex rounded-full bg-white/20 px-3.5 py-1.5 text-xs font-semibold backdrop-blur">
-              Coming soon
-            </span>
-          </li>
-        ))}
-      </ul>
-      <p className="mt-5 text-sm text-muted">
-        Meanwhile, follow the hackathons you care about in{" "}
-        <Link href="/hackathons" className="font-semibold text-accent-ink hover:underline">
-          Events
-        </Link>
-        .
-      </p>
-    </section>
-  );
-}
