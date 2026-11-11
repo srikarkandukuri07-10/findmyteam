@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { Checkbox, Field, FormMessage, Input, Select } from "@/components/form";
-import { CollegeSearch } from "@/components/college-search";
 import type { FormState } from "@/app/(auth)/actions";
-import type { CollegeOption } from "./college-actions";
 import { saveDetails } from "./actions";
 
 type Option = { id: number; name: string };
@@ -14,7 +12,7 @@ export type DetailsDefaults = {
   displayName: string;
   email: string;
   phone: string;
-  college: CollegeOption | null;
+  college: string;
   degree: string;
   branchId: string;
   yearOfStudy: string;
@@ -83,8 +81,16 @@ export function DetailsForm({
 
         <section className="space-y-4 border-t border-border pt-5">
           <h2 className="text-sm font-semibold uppercase tracking-wide text-muted">Your college</h2>
-          <Field label="College or university" name="collegeId" error={undefined}>
-            <CollegeSearch name="collegeId" initial={defaults.college} error={e.collegeId} />
+          <Field label="College or university" name="college" error={e.college} hint="Your full college name, e.g. Chaitanya Bharathi Institute of Technology.">
+            <Input
+              name="college"
+              autoComplete="organization"
+              maxLength={120}
+              placeholder="Type your college or university"
+              required
+              defaultValue={v.college ?? defaults.college}
+              error={e.college}
+            />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Degree" name="degree" error={e.degree}>

@@ -42,7 +42,15 @@ export function detailsSchema(now: Date = new Date()) {
       .min(2, { error: "Enter your name (at least 2 characters)." })
       .max(60, { error: "Keep your name under 60 characters." }),
     phone: phoneField,
-    collegeId: z.preprocess(blankToUndefined, z.coerce.number({ error: "Pick your college from the list." }).int().positive({ error: "Pick your college from the list." })),
+    college: z
+      .string({ error: "Enter your college or university name." })
+      .transform((v) => v.replace(/\s+/g, " ").trim())
+      .pipe(
+        z
+          .string()
+          .min(3, { error: "Enter your college or university name." })
+          .max(120, { error: "Keep the name under 120 characters." }),
+      ),
     degree: z.enum(["btech", "be"], { error: "Select your degree." }),
     branchId: requiredInt("Select your branch.").pipe(z.number().positive({ error: "Select your branch." })),
     yearOfStudy: requiredInt("Select your year of study.").pipe(

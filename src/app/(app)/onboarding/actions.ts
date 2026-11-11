@@ -11,7 +11,7 @@ import type { FormState } from "@/app/(auth)/actions";
 const FIELDS = [
   "displayName",
   "phone",
-  "collegeId",
+  "college",
   "degree",
   "branchId",
   "yearOfStudy",
@@ -24,7 +24,7 @@ const FIELDS = [
 const DB_ERRORS: Record<string, [string, string]> = {
   invalid_phone: ["phone", "Enter a valid 10-digit Indian mobile number."],
   phone_in_use: ["phone", "This number is already used by another FindMyTeam account."],
-  invalid_college: ["collegeId", "Pick your college from the list."],
+  invalid_college: ["college", "Enter your college or university name."],
 };
 
 /** D26 Card 1: you and your college. Saved in one database call; onboarding continues on Card 2. */
@@ -44,7 +44,7 @@ export async function saveDetails(_prev: FormState, formData: FormData): Promise
   const { error } = await supabase.rpc("save_onboarding_details", {
     p_display_name: input.displayName,
     p_phone: input.phone,
-    p_college_id: input.collegeId,
+    p_college: input.college,
     p_degree: input.degree,
     p_branch_id: input.branchId,
     p_year_of_study: input.yearOfStudy,

@@ -5,7 +5,6 @@ declare
   a uuid := '00000000-0000-4000-8000-0000000004a1';
   b uuid := '00000000-0000-4000-8000-0000000004b2';
   adm uuid := '00000000-0000-4000-8000-0000000004c3';
-  c_new integer;
   h uuid;
   n int;
   r record;
@@ -30,12 +29,12 @@ begin
   -- ---- Phone ----------------------------------------------------------------------------
   failed := false;
   begin
-    perform public.save_onboarding_details('Asha Rao', '12345', 1, 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
+    perform public.save_onboarding_details('Asha Rao', '12345', 'Vasavi College of Engineering', 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
   exception when invalid_parameter_value then failed := sqlerrm = 'invalid_phone';
   end;
   if not failed then raise exception 'FAIL 3: a bad phone number was accepted.'; end if;
 
-  perform public.save_onboarding_details('Asha Rao', '98765 43210', 1, 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
+  perform public.save_onboarding_details('Asha Rao', '98765 43210', 'Vasavi College of Engineering', 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
   select count(*) into n from public.profile_private where user_id = a and phone = '+919876543210';
   if n <> 1 then raise exception 'FAIL 4: the phone was not saved in +91 form.'; end if;
 
@@ -50,7 +49,7 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', b, 'role', 'authenticated')::text, true);
   failed := false;
   begin
-    perform public.save_onboarding_details('Ben', '+91 98765 43210', 1, 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
+    perform public.save_onboarding_details('Ben', '+91 98765 43210', 'Vasavi College of Engineering', 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
   exception when raise_exception then failed := sqlerrm = 'phone_in_use';
   end;
   if not failed then raise exception 'FAIL 6: one phone number backed two accounts.'; end if;
@@ -59,35 +58,17 @@ begin
   select * into r from public.my_onboarding();
   if r.phone is not null then raise exception 'FAIL 8: my_onboarding leaked a phone.'; end if;
 
-  -- ---- Add your own college ----------------------------------------------------------------
-  c_new := public.add_college('Zyxw Institute of Technology', 'Telangana', 'Warangal');
-  select count(*) into n from public.search_colleges('zyxw institute') s where s.id = c_new and s.pending;
-  if n <> 1 then raise exception 'FAIL 9: the student cannot find the college they added.'; end if;
-  perform public.save_onboarding_details('Ben', '9123456780', c_new, 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
+  -- ---- The college is typed (D26) -------------------------------------------------------------
   failed := false;
   begin
-    insert into public.colleges (name) values ('Direct Insert College');
-  exception when insufficient_privilege then failed := true;
+    perform public.save_onboarding_details('Ben', '9123456780', 'ab', 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
+  exception when invalid_parameter_value then failed := sqlerrm = 'invalid_college';
   end;
-  if not failed then raise exception 'FAIL 10: a student could insert a college directly.'; end if;
-
+  if not failed then raise exception 'FAIL 9: a two-letter college name was accepted.'; end if;
+  perform public.save_onboarding_details('Ben', '9123456780', '  Zyxw   Institute of Technology ', 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, 'v');
+  select * into r from public.my_onboarding();
+  if r.college_name <> 'Zyxw Institute of Technology' then raise exception 'FAIL 10: the typed college was not saved tidily (%).', r.college_name; end if;
   perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
-  select count(*) into n from public.search_colleges('zyxw institute') s where s.id = c_new;
-  if n <> 0 then raise exception 'FAIL 11: another student sees an unapproved college.'; end if;
-  failed := false;
-  begin
-    perform public.admin_set_college_status(c_new, true);
-  exception when insufficient_privilege then failed := true;
-  end;
-  if not failed then raise exception 'FAIL 12: a student could approve a college.'; end if;
-
-  perform set_config('request.jwt.claims', json_build_object('sub', adm, 'role', 'authenticated')::text, true);
-  select count(*) into n from public.admin_list_pending_colleges() where id = c_new;
-  if n <> 1 then raise exception 'FAIL 13: the admin does not see the pending college.'; end if;
-  perform public.admin_set_college_status(c_new, true);
-  perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
-  select count(*) into n from public.search_colleges('zyxw institute') s where s.id = c_new and not s.pending;
-  if n <> 1 then raise exception 'FAIL 14: an approved college is not searchable.'; end if;
 
   -- ---- Card 2 requirements -------------------------------------------------------------------
   failed := false;

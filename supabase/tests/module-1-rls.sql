@@ -50,15 +50,15 @@ begin
   select count(*) into n from public.colleges;
   if n < 20 then raise exception 'FAIL 7: A cannot read the college list (% rows).', n; end if;
 
-  -- Card 1 (D26): a college from the list is required.
+  -- Card 1 (D26): a college name is required.
   failed := false;
   begin
-    perform public.save_onboarding_details('Asha Rao', '9876500001', null, 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
+    perform public.save_onboarding_details('Asha Rao', '9876500001', ' ', 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
   exception when invalid_parameter_value then failed := sqlerrm = 'invalid_college';
   end;
   if not failed then raise exception 'FAIL 8: onboarding accepted a profile with no college.'; end if;
 
-  perform public.save_onboarding_details('Asha Rao', '9876500001', 1, 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
+  perform public.save_onboarding_details('Asha Rao', '9876500001', 'Vasavi College of Engineering', 'btech', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
   select count(*) into n from public.profiles where id = a and details_saved_at is not null and onboarded_at is null and consented_at is not null;
   if n <> 1 then raise exception 'FAIL 9: card 1 did not save (or finished onboarding early).'; end if;
 
@@ -66,7 +66,7 @@ begin
   perform public.complete_onboarding_profile(repeat('I build web apps and love hackathons. ', 2), '[{"id":1,"level":"advanced"},{"id":2,"level":"beginner"},{"id":3,"level":"intermediate"}]'::jsonb, '{}'::smallint[], '{}'::text[]);
   failed := false;
   begin
-    perform public.save_onboarding_details('Other Name', '9876500001', 1, 'be', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
+    perform public.save_onboarding_details('Other Name', '9876500001', 'Vasavi College of Engineering', 'be', 1::smallint, 2::smallint, 2029::smallint, 2007::smallint, '2026-11-03');
   exception when raise_exception then failed := sqlerrm = 'already_onboarded';
   end;
   if not failed then raise exception 'FAIL 10: onboarding could be repeated to overwrite details.'; end if;
@@ -97,7 +97,7 @@ begin
 
   failed := false;
   begin
-    perform public.save_onboarding_details('X', '9876500002', 1, 'btech', 1::smallint, 1::smallint, 2029::smallint, 2007::smallint, 'v');
+    perform public.save_onboarding_details('X', '9876500002', 'Vasavi College of Engineering', 'btech', 1::smallint, 1::smallint, 2029::smallint, 2007::smallint, 'v');
   exception when insufficient_privilege then failed := true;
   end;
   if not failed then raise exception 'FAIL 14: anonymous visitors can call save_onboarding_details.'; end if;

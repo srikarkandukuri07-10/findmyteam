@@ -54,9 +54,7 @@ async function DetailsLoader() {
         displayName: me.display_name ?? me.googleName,
         email: me.email,
         phone: me.phone ?? "",
-        college: me.college_id && me.college_name
-          ? { id: me.college_id, name: me.college_name, place: me.college_place, kind: "college", pending: false }
-          : null,
+        college: me.college_name ?? "",
         degree: me.degree ?? "",
         branchId: me.branch_id ? String(me.branch_id) : "",
         yearOfStudy: me.year_of_study ? String(me.year_of_study) : "",

@@ -722,7 +722,7 @@ export type Database = {
         Args: {
           p_birth_year: number
           p_branch_id: number
-          p_college_id: number
+          p_college: string
           p_consent_version: string
           p_degree: Database["public"]["Enums"]["degree"]
           p_display_name: string

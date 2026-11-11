@@ -7,7 +7,6 @@ import { PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth/dal";
 import { getShellInfo } from "@/lib/shell/data";
 import { AccessPanel } from "./access-panel";
-import { CollegesPanel } from "./colleges-panel";
 import { DomainsPanel } from "./domains-panel";
 
 export const metadata: Metadata = { title: "Team access" };
@@ -29,14 +28,12 @@ async function Access() {
   const info = await getShellInfo();
   if (info.role !== "admin") notFound();
   const { supabase } = await requireUser();
-  const [members, domains, colleges] = await Promise.all([
+  const [members, domains] = await Promise.all([
     supabase.rpc("admin_list_early_access"),
     supabase.rpc("admin_list_college_domains"),
-    supabase.rpc("admin_list_pending_colleges"),
   ]);
   if (members.error) throw members.error;
   if (domains.error) throw domains.error;
-  if (colleges.error) throw colleges.error;
   return (
     <div className="space-y-6">
       <AccessPanel
@@ -50,14 +47,7 @@ async function Access() {
       <DomainsPanel
         domains={domains.data.map((d) => ({ domain: d.domain, approved: d.approved, students: d.students }))}
       />
-      <CollegesPanel
-        pending={colleges.data.map((c) => ({
-          id: c.id,
-          name: c.name,
-          place: [c.district, c.state].filter(Boolean).join(", "),
-          students: c.students,
-        }))}
-      />
+
     </div>
   );
 }

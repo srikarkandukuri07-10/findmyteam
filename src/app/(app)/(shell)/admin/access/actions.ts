@@ -57,13 +57,3 @@ export async function setCollegeDomain(domain: string, approved: boolean): Promi
   revalidatePath("/admin/access");
   return { ok: !error };
 }
-
-/** D26: approve or reject a college a student added. */
-export async function setCollegeStatus(id: number, approved: boolean): Promise<{ ok: boolean }> {
-  const parsed = z.object({ id: z.number().int().positive(), approved: z.boolean() }).safeParse({ id, approved });
-  if (!parsed.success) return { ok: false };
-  const { supabase } = await requireUser();
-  const { error } = await supabase.rpc("admin_set_college_status", { p_id: parsed.data.id, p_approved: parsed.data.approved });
-  revalidatePath("/admin/access");
-  return { ok: !error };
-}

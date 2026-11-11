@@ -5,7 +5,7 @@ const NOW = new Date("2026-11-11T00:00:00Z");
 const card1 = {
   displayName: "  Asha Rao ",
   phone: "98765 43210",
-  collegeId: "12",
+  college: "  Vasavi   College of Engineering ",
   degree: "btech",
   branchId: "1",
   yearOfStudy: "2",
@@ -29,10 +29,11 @@ describe("phoneField (D26)", () => {
 describe("detailsSchema (Card 1, AUTH-7)", () => {
   it("accepts a complete card and coerces numbers", () => {
     const r = detailsSchema(NOW).parse(card1);
-    expect(r).toMatchObject({ displayName: "Asha Rao", phone: "+919876543210", collegeId: 12, birthYear: 2007 });
+    expect(r).toMatchObject({ displayName: "Asha Rao", phone: "+919876543210", college: "Vasavi College of Engineering", birthYear: 2007 });
   });
-  it("requires a college picked from the list", () => {
-    expect(detailsSchema(NOW).safeParse({ ...card1, collegeId: "" }).success).toBe(false);
+  it("requires a college name", () => {
+    expect(detailsSchema(NOW).safeParse({ ...card1, college: " " }).success).toBe(false);
+    expect(detailsSchema(NOW).safeParse({ ...card1, college: "ab" }).success).toBe(false);
   });
   it("requires the B.Tech declaration and consent", () => {
     expect(detailsSchema(NOW).safeParse({ ...card1, confirmDegree: undefined }).success).toBe(false);
