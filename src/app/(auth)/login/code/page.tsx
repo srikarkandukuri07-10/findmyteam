@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Check your email" };
 /** D27: the code step of email sign-in. The email comes from a short-lived cookie set on /login. */
 export default function LoginCodePage(props: PageProps<"/login/code">) {
   return (
-    <AuthFrame title="Check your email" subtitle="Enter the 6-digit code we just sent you.">
+    <AuthFrame title="Check your email" subtitle="Enter the 8-digit code we just sent you.">
       <Suspense fallback={<CardSkeleton lines={3} />}>
         <Code searchParams={props.searchParams} />
       </Suspense>

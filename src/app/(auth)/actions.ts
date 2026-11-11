@@ -25,7 +25,8 @@ function str(formData: FormData, key: string) {
   return typeof v === "string" ? v : "";
 }
 
-const codeField = z.string().trim().regex(/^\d{6}$/, { error: "Enter the 6-digit code from the email." });
+// Supabase sends 6–10 digit codes depending on the OTP length setting (currently 8).
+const codeField = z.string().trim().regex(/^\d{6,10}$/, { error: "Enter the full code from the email." });
 
 function sendErrorText(code: string | undefined) {
   switch (code) {

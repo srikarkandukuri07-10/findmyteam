@@ -11,7 +11,7 @@ const RESEND_SECONDS = 60;
 const empty = () => Array.from({ length: CODE_LENGTH }, () => "");
 
 /**
- * D27: enter the 6-digit code from the email. Submits on the sixth digit. "Resend" unlocks after a
+ * D27: enter the code from the email. Submits on the last digit. "Resend" unlocks after a
  * minute (Supabase allows one code a minute per email). With `autoSend`, the first code is sent when
  * the screen opens (used after Google, where no code has been sent yet).
  */
@@ -73,7 +73,7 @@ export function CodeStep({
   return (
     <div className="space-y-5">
       <p className="rounded-2xl bg-surface-muted px-4 py-3 text-sm">
-        {autoSend && sending && !note ? "Sending a code to " : "We sent a 6-digit code to "}
+        {autoSend && sending && !note ? "Sending a code to " : `We sent a ${CODE_LENGTH}-digit code to `}
         <b className="break-all">{email}</b>
         {changeEmailHref && (
           <>

@@ -19,7 +19,7 @@ export default function VerifyEmailPage(props: PageProps<"/verify-email">) {
   return (
     <AuthFrame
       title="Confirm your email"
-      subtitle="One-time check for new accounts. Enter the 6-digit code we're sending you."
+      subtitle="One-time check for new accounts. Enter the 8-digit code we're sending you."
       footer={
         <form action={logOut}>
           Wrong account?{" "}

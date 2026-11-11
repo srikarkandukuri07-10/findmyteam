@@ -2,12 +2,13 @@
 
 import { useEffect, useRef } from "react";
 
-export const CODE_LENGTH = 6;
+/** Sign-in codes from Supabase are 8 digits (Authentication → Email → OTP length). */
+export const CODE_LENGTH = 8;
 
 /**
- * Six boxes for a one-time code. Typing moves to the next box, Backspace to the previous one, and
+ * Boxes for a one-time code. Typing moves to the next box, Backspace to the previous one, and
  * pasting (or the phone's "from Messages/Mail" suggestion) fills them all. `onComplete` runs when the
- * sixth digit lands. The joined value is posted as `name`.
+ * last digit lands. The joined value is posted as `name`.
  */
 export function CodeInput({
   name,
@@ -49,7 +50,7 @@ export function CodeInput({
   }
 
   return (
-    <div className="flex justify-between gap-2" role="group" aria-label="6-digit code">
+    <div className="flex justify-between gap-1.5" role="group" aria-label={`${CODE_LENGTH}-digit code`}>
       <input type="hidden" name={name} value={digits.join("")} />
       {digits.map((d, i) => (
         <input
@@ -93,7 +94,7 @@ export function CodeInput({
             e.preventDefault();
             setFrom(0, e.clipboardData.getData("text"));
           }}
-          className={`h-14 w-full min-w-0 rounded-2xl border bg-surface-muted text-center text-2xl font-bold tabular-nums transition focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/20 disabled:opacity-60 ${
+          className={`h-12 w-full min-w-0 rounded-xl border bg-surface-muted text-center text-xl font-bold tabular-nums transition focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-accent/20 disabled:opacity-60 ${
             invalid ? "border-danger" : "border-border"
           }`}
         />

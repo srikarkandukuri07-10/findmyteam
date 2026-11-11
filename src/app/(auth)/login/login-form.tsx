@@ -88,7 +88,7 @@ function EmailStart({ next }: { next: string }) {
       >
         {pending ? "Sending code…" : "Continue with email"}
       </button>
-      <p className="text-center text-xs text-muted">We&apos;ll email you a 6-digit code. No password needed.</p>
+      <p className="text-center text-xs text-muted">We&apos;ll email you a code. No password needed.</p>
     </form>
   );
 }
