@@ -4,6 +4,7 @@ import { publicEnv } from "@/lib/env";
 import { EARLY_ACCESS_SIGN_IN_PATHS, WAITLIST_OPEN_PATHS, hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
 import { VERIFY_EMAIL_OPEN_PATHS, hasVerifiedEmail } from "@/lib/auth/email-verified";
 import type { Database } from "./database.types";
+import { withSessionLifetime } from "./session";
 
 /** Paths anyone can open. Everything else needs a signed-in (and therefore email-verified) user. */
 const PUBLIC_PATHS = ["/", "/login", "/terms", "/privacy"];
@@ -38,7 +39,7 @@ export async function updateSession(request: NextRequest) {
           }
           response = NextResponse.next({ request });
           for (const { name, value, options } of cookiesToSet) {
-            response.cookies.set(name, value, options);
+            response.cookies.set(name, value, withSessionLifetime(options));
           }
           for (const [key, value] of Object.entries(headers ?? {})) {
             response.headers.set(key, value);

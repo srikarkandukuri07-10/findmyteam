@@ -2,6 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { publicEnv } from "@/lib/env";
+import { withSessionLifetime } from "./session";
 import type { Database } from "./database.types";
 
 /**
@@ -23,7 +24,7 @@ export async function createClient() {
         setAll(cookiesToSet) {
           try {
             for (const { name, value, options } of cookiesToSet) {
-              cookieStore.set(name, value, options);
+              cookieStore.set(name, value, withSessionLifetime(options));
             }
           } catch {
             // Server Components cannot set cookies; proxy.ts refreshes the session instead.
