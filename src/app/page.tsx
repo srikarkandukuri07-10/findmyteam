@@ -238,7 +238,7 @@ export default async function LandingPage() {
                 </h2>
                 <p className="text-muted">
                   {open
-                    ? "Sign up with Google, set up your profile in three quick steps, and start Scouting."
+                    ? "Sign up with your email or Google, set up your profile in three quick steps, and start Scouting."
                     : "We're opening college by college. Join now and you'll be first in when yours goes live."}
                 </p>
               </div>
@@ -301,12 +301,12 @@ function SignUpPanel() {
   return (
     <div className="flex h-full flex-col justify-center gap-5 rounded-[2rem] bg-accent-soft p-8 text-center">
       <p className="text-2xl font-bold tracking-tight">Find your hackathon team today.</p>
-      <p className="text-muted">One Google sign-in. No passwords.</p>
+      <p className="text-muted">A code to your email, or one tap with Google. No passwords.</p>
       <Link
         href="/login"
         className="mx-auto rounded-full bg-accent px-8 py-4 text-base font-bold text-accent-foreground shadow-lift transition hover:-translate-y-0.5 hover:bg-accent-hover active:scale-95"
       >
-        Sign up with Google
+        Sign up free
       </Link>
       <p className="text-sm text-muted">
         Already have an account?{" "}
