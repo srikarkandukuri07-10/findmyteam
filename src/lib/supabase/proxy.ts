@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { publicEnv } from "@/lib/env";
 import { EARLY_ACCESS_SIGN_IN_PATHS, WAITLIST_OPEN_PATHS, hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
+import { VERIFY_EMAIL_OPEN_PATHS, hasVerifiedEmail } from "@/lib/auth/email-verified";
 import type { Database } from "./database.types";
 
 /** Paths anyone can open. Everything else needs a signed-in (and therefore email-verified) user. */
@@ -71,6 +72,14 @@ export async function updateSession(request: NextRequest) {
   if (!signedIn && !isPublic(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
+    url.search = `?next=${encodeURIComponent(pathname + search)}`;
+    return redirectKeepingCookies(url, response);
+  }
+
+  // D27: an account that hasn't entered an email code yet (e.g. straight after Google) verifies first.
+  if (signedIn && !hasVerifiedEmail(data?.claims) && !VERIFY_EMAIL_OPEN_PATHS.includes(pathname) && !pathname.startsWith("/auth/")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/verify-email";
     url.search = `?next=${encodeURIComponent(pathname + search)}`;
     return redirectKeepingCookies(url, response);
   }

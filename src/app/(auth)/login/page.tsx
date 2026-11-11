@@ -4,21 +4,21 @@ import { Suspense } from "react";
 import { AuthShell } from "@/components/auth-shell";
 import { devPasswordSignInAllowed } from "@/lib/auth/dev";
 import { isWaitlistMode } from "@/lib/waitlist/mode";
-import { DevLogInForm, GoogleSignIn } from "./login-form";
+import { DevLogInForm, EmailSignIn, GoogleSignIn } from "./login-form";
 
 export const metadata: Metadata = { title: "Sign in" };
 
 export default function LogInPage() {
-  // AUTH-1 (D25): one Google button signs students in and creates new accounts.
+  // AUTH-1 (D25, D27): an email code or Google signs students in and creates new accounts. No passwords.
   // Before launch (D24) only accounts given early access get past this page.
   const locked = isWaitlistMode();
   return (
     <AuthShell
-      title={locked ? "Early access" : "Welcome to FindMyTeam"}
+      title={locked ? "Early access" : "Log in or sign up"}
       subtitle={
         locked
-          ? "For the FindMyTeam team only, until launch. Sign in with the Google account you were invited with."
-          : "Sign in or create your account with Google."
+          ? "For the FindMyTeam team only, until launch. Use the email you were invited with."
+          : "Enter your email and we'll send you a code. No password needed."
       }
       footer={
         locked ? (
@@ -45,6 +45,12 @@ export default function LogInPage() {
     >
       {/* Both read ?next= and ?error= from the URL, which is request-time data. */}
       <Suspense>
+        <EmailSignIn />
+        <div className="my-5 flex items-center gap-3 text-xs font-medium text-muted">
+          <span className="h-px flex-1 bg-border" />
+          or
+          <span className="h-px flex-1 bg-border" />
+        </div>
         <GoogleSignIn />
         {devPasswordSignInAllowed() && <DevLogInForm />}
       </Suspense>

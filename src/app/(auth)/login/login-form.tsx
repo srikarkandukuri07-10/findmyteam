@@ -4,7 +4,8 @@ import { useSearchParams } from "next/navigation";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Field, FormMessage, Input, SubmitButton } from "@/components/form";
-import { devLogIn, signInWithGoogle, type FormState } from "../actions";
+import { EmailCodeForm } from "@/components/email-code-form";
+import { devLogIn, sendEmailCode, signInWithGoogle, verifyEmailCode, type FormState } from "../actions";
 
 /** Wording for the ?error= values that /auth/confirm sends back here. */
 const ERRORS: Record<string, string> = {
@@ -26,6 +27,12 @@ function GoogleButton() {
       {pending ? "Opening Google…" : "Continue with Google"}
     </button>
   );
+}
+
+/** D27: sign in or sign up with an email code. */
+export function EmailSignIn() {
+  const next = useSearchParams().get("next") ?? "";
+  return <EmailCodeForm send={sendEmailCode} verify={verifyEmailCode} next={next} sendLabel="Continue with email" />;
 }
 
 export function GoogleSignIn() {

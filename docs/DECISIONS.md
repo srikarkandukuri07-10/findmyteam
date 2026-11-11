@@ -295,6 +295,16 @@ Replaces the single onboarding form (D17's step 1) and the "no phone numbers" ru
 - **Landing page.** With the lock off, the page shows **Log in** and **Sign up** (both Google) instead of the waitlist. On the live site this happens at launch, when `WAITLIST_MODE` is turned off.
 - Functions: `save_onboarding_details` (takes the typed college name), `complete_onboarding_profile` (replaces `complete_onboarding`), `add_past_hackathon`, `delete_past_hackathon`, `list_past_hackathons`, `my_onboarding`, `require_account`. The college-email functions now work before onboarding is finished. Checks: `supabase/tests/module-12-onboarding.sql`, plus `module-1-rls.sql` updated.
 
+## D27 · Sign in with an email code or Google; every account confirms its email once (2026-11-11)
+
+Extends D25 (Google only) and brings back AUTH-2 (verified email), without passwords.
+
+- **Two ways in, one page.** `/login` (titled "Log in or sign up") has an email box ("Continue with email") and "Continue with Google". With the email box, Supabase emails a one-time code; entering it signs the student in, creating the account on first use. No passwords anywhere (the local-only password form for test accounts stays, D25).
+- **Everyone confirms their email with a code once.** After Google, the student lands on `/verify-email` and must enter a code sent to that Gmail before going further. Nothing else opens until then: `proxy.ts`, `requireUser()` and `/auth/confirm` all send unverified accounts to `/verify-email`.
+- **The mark.** `app_metadata.email_code_verified`, set only by `confirm_email_code()`, which checks that the current session itself came from an email code (the token's `amr`), so a Google or password session can't set it. It travels in the token; `/auth/refresh` refreshes the token after it's set. Everyone with an account on 2026-11-11 was marked verified.
+- **Before launch** the email box only signs in existing (early-access) accounts; it creates accounts only once the lock is off.
+- **Needs in Supabase before going live:** custom SMTP through Resend, the email templates showing the code (`{{ .Token }}`), "Confirm email" on, sign-ups allowed, and a higher email rate limit. Checks: `supabase/tests/module-13-email-code.sql`.
+
 ---
 
 ## Still open

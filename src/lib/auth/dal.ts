@@ -2,6 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { hasVerifiedEmail } from "@/lib/auth/email-verified";
 import { hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
 
 
@@ -18,6 +19,8 @@ export async function requireUser() {
   if (!data?.claims) redirect("/login");
   // Before launch only early-access accounts use the app (D24); proxy.ts enforces this too.
   if (isWaitlistMode() && !hasEarlyAccess(data.claims)) redirect("/");
+  // D27: nothing past this point until the email is confirmed with a code (proxy.ts checks too).
+  if (!hasVerifiedEmail(data.claims)) redirect("/verify-email");
   return { supabase, userId: data.claims.sub };
 }
 

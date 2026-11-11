@@ -678,6 +678,7 @@ export type Database = {
         Returns: { created_at: string; district: string | null; id: number; name: string; state: string | null; students: number }[]
       }
       admin_set_college_status: { Args: { p_approved: boolean; p_id: number }; Returns: undefined }
+      confirm_email_code: { Args: never; Returns: boolean }
       complete_onboarding_profile: {
         Args: { p_bio: string; p_interests: string[]; p_role_ids: number[]; p_skills: Json }
         Returns: undefined

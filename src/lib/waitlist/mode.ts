@@ -14,7 +14,7 @@ export function isWaitlistMode() {
 export const WAITLIST_OPEN_PATHS = ["/", "/privacy", "/terms"];
 
 /** Reachable while locked so early-access accounts can sign in with Google (D25). */
-export const EARLY_ACCESS_SIGN_IN_PATHS = ["/login", "/auth/confirm", "/auth/error"];
+export const EARLY_ACCESS_SIGN_IN_PATHS = ["/login", "/verify-email", "/auth/confirm", "/auth/refresh", "/auth/error"];
 
 export const EARLY_ACCESS_ONLY_MESSAGE =
   "FindMyTeam hasn't launched yet. Only the founding team can sign in for now. Join the waitlist on the home page.";

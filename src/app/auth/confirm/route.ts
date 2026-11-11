@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { safeNextPath } from "@/lib/site-url";
+import { hasVerifiedEmail } from "@/lib/auth/email-verified";
 import { hasEarlyAccess, isWaitlistMode } from "@/lib/waitlist/mode";
 
 /**
@@ -32,6 +33,10 @@ export async function GET(request: NextRequest) {
     return toLogin("not_invited");
   }
 
+  // D27: a Google sign-up confirms its email with a one-time code before going further.
+  if (!hasVerifiedEmail(data.user)) {
+    return NextResponse.redirect(new URL(`/verify-email?next=${encodeURIComponent(next)}`, origin));
+  }
   // The (app) layout sends students who haven't finished onboarding to /onboarding.
   return NextResponse.redirect(new URL(next, origin));
 }
