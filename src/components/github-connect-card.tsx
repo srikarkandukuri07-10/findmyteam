@@ -62,6 +62,10 @@ export function GithubConnectCard({
             Show your contribution graph, repositories and top projects on your profile. We only read public
             information, and you can disconnect any time.
           </p>
+          <p className="text-xs text-muted">
+            GitHub will ask you to approve the FindMyTeam app with <b>your own</b> GitHub account. If it shows someone
+            else&apos;s account, sign out of github.com in this browser first.
+          </p>
           {username && <p className="text-sm text-muted">The username “{username}” on your profile isn&apos;t verified.</p>}
           <form action={connectGithub} className="flex flex-wrap items-center gap-3">
             <input type="hidden" name="next" value={next} />
