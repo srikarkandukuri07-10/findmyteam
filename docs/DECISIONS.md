@@ -339,6 +339,12 @@ At the founder's request every account and all app data were deleted (`supabase/
 
 ---
 
+## D31 · College email code gives the badge (2026-11-13)
+
+Founder's rule: confirming the 6-digit code sent to a college email is the verification. The Verified student badge is given straight away, with no domain review. Personal providers (Gmail, Outlook and so on) are still refused, one address backs one account, and an admin can still switch a domain off if a fake college appears (`admin_set_college_domain`), which removes those badges. Migration 027 also gave the badge to students who had already confirmed a code.
+
+---
+
 ## Still open
 
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.

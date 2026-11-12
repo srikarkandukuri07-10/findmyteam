@@ -91,10 +91,10 @@ begin
   select * into r from public.my_college_verification();
   if r.pending_email is not null or r.email is not null then raise exception 'FAIL 12: B can see A''s address.'; end if;
 
-  -- Correct code, domain not approved yet: confirmed but no badge.
+  -- D31: a correct code is the verification; the badge comes at once, with no domain review.
   perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
-  if public.confirm_college_verification(' 482913 ') <> 'pending_domain' then raise exception 'FAIL 13: the right code did not confirm.'; end if;
-  if exists (select 1 from public.college_verified_ids(array[a])) then raise exception 'FAIL 14: badge before the domain was approved.'; end if;
+  if public.confirm_college_verification(' 482913 ') <> 'verified' then raise exception 'FAIL 13: the right code did not verify.'; end if;
+  if not exists (select 1 from public.college_verified_ids(array[a])) then raise exception 'FAIL 14: no badge after the right code.'; end if;
   if public.confirm_college_verification('482913') <> 'no_request' then raise exception 'FAIL 15: a code worked twice.'; end if;
   if public.start_college_verification('A@College-Test.ac.in') <> 'already_verified' then raise exception 'FAIL 16: re-verifying the same address.'; end if;
 

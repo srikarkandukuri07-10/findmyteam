@@ -41,7 +41,7 @@ async function Verify() {
     <VerifyPanel
       confirmed={row?.email ?? null}
       badge={Boolean(row?.badge)}
-      waitingForDomain={Boolean(row?.email && !row.domain_approved)}
+      waitingForDomain={Boolean(row?.email && !row.badge)}
       pendingEmail={pendingCode}
     />
   );
