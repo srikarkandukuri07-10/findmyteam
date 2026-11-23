@@ -5,9 +5,7 @@ import { PageHeader } from "@/components/ui";
 
 export const metadata: Metadata = { title: "Plans" };
 
-/** Display only (D20): no payments yet. The Pro price is the founder's working figure. */
-const PRO_PRICE = "₹1,299";
-
+/** Display only (D20): no payments yet, and no prices shown. */
 const FREE = [
   "Scout: swipe through students from other colleges",
   "Up to 25 team-up requests a day",
@@ -33,10 +31,6 @@ export default function PlansPage() {
         <div className="grid items-stretch gap-6 md:grid-cols-2">
           <section className="reveal flex flex-col rounded-[2rem] bg-surface p-8 shadow-card">
             <p className="text-sm font-bold uppercase tracking-widest text-muted">Free</p>
-            <p className="mt-3 flex items-end gap-2">
-              <span className="text-5xl font-bold tracking-tight">₹0</span>
-              <span className="pb-1.5 text-muted">forever</span>
-            </p>
             <p className="mt-3 text-muted">For every B.Tech and B.E. student.</p>
             <ul className="mt-7 space-y-3.5">
               {FREE.map((f) => (
@@ -65,9 +59,6 @@ export default function PlansPage() {
                 <SparkIcon className="size-3.5" /> Coming soon
               </span>
             </div>
-            <p className="relative mt-3 flex items-end gap-2">
-              <span className="text-5xl font-bold tracking-tight">{PRO_PRICE}</span>
-            </p>
             <p className="relative mt-3 text-accent-soft">Everything in Free, plus:</p>
             <ul className="relative mt-7 space-y-3.5">
               {PRO.map((f) => (
