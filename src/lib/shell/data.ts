@@ -7,6 +7,8 @@ export type ShellInfo = {
   firstName: string;
   id: string;
   avatarPath: string | null;
+  /** The college as the student wrote it, for the sidebar's profile card. */
+  college: string | null;
   role: "student" | "investor" | "admin";
   /** Requests waiting for this student's answer (the 14-day expiry included). */
   pendingRequests: number;
@@ -32,6 +34,7 @@ export const getShellInfo = cache(async (): Promise<ShellInfo> => {
   return {
     id: userId,
     avatarPath: me?.avatar_path ?? null,
+    college: profile.colleges?.name ?? profile.college_other ?? null,
     name,
     firstName: name.split(" ")[0] ?? name,
     role: me?.role ?? "student",

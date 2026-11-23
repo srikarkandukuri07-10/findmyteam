@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { BannerArt } from "@/components/home/banner-art";
+import { CollegePeers } from "@/components/home/college-peers";
 import { ArrowRightIcon, TeamsIcon } from "@/components/icons";
 import { PageTransition } from "@/components/page-transition";
 import { Skeleton } from "@/components/skeleton";
@@ -17,10 +18,16 @@ export const metadata: Metadata = { title: "Home" };
 export default function HomePage() {
   return (
     <PageTransition>
-      <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 pb-12 pt-6 sm:px-6">
+      <main className="mx-auto grid w-full max-w-6xl flex-1 content-start gap-6 px-4 pb-12 pt-6 sm:px-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <Suspense fallback={<BannerSkeleton />}>
           <Banner />
         </Suspense>
+        {/* Right side on wide screens; between the banner and the teams on phones. */}
+        <aside className="min-w-0 xl:sticky xl:top-24 xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:self-start">
+          <Suspense fallback={<Skeleton className="h-64 rounded-[2rem]" />}>
+            <CollegePeers />
+          </Suspense>
+        </aside>
         <Suspense fallback={<Skeleton className="h-80 rounded-[2rem]" />}>
           <TeamsLooking />
         </Suspense>

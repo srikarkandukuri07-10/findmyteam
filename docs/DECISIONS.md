@@ -345,6 +345,17 @@ Founder's rule: confirming the 6-digit code sent to a college email is the verif
 
 ---
 
+## D32 · Home layout like Vormex: profile sidebar, phone bottom bar, college card (2026-11-23)
+
+Copied the layout of Vormex's home (not its dark theme):
+- **Sidebar:** a profile card at the top (banner, photo, name, college, "View your profile"), then the menu. Also in the phone drawer.
+- **Phone bottom bar:** Home, Scout, Teams, Requests, Messages fixed at the bottom with the same badges, from the `lg` breakpoint down. It steps aside inside an open chat. The drawer keeps Plans, Settings and Help.
+- **Home right side:** "People from your college", up to 4 students with a Connect button (same as a right swipe, so it counts toward the 25 a day). Between the banner and the teams on phones.
+- **Same-college matching:** colleges are typed text (D26), so two students match when their college names are equal after lowercasing and cleaning spaces and punctuation (`college_key`). Approximate by nature: "MRU" and "Malla Reddy University" won't match.
+- Function `list_college_peers` returns only name, photo, branch, year and college. Checks: `supabase/tests/module-15-college-peers.sql`.
+
+---
+
 ## Still open
 
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.

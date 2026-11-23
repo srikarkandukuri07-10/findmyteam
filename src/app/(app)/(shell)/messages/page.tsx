@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Messages" };
 export default function MessagesPage() {
   return (
     <PageTransition>
-      <main className="mx-auto flex h-[calc(100dvh-5.5rem)] w-full max-w-6xl flex-1 gap-4 px-4 pb-4 pt-4 sm:px-6">
+      <main className="mx-auto flex h-[calc(100dvh-10rem-env(safe-area-inset-bottom))] w-full max-w-6xl flex-1 gap-4 px-4 pb-4 pt-4 sm:px-6 lg:h-[calc(100dvh-5.5rem)]">
         <section className="reveal flex w-full min-w-0 flex-col overflow-hidden rounded-[2rem] bg-surface shadow-card lg:w-[360px] lg:shrink-0">
           <h1 className="px-5 pb-2 pt-5 text-2xl font-bold tracking-tight">Messages</h1>
           <div className="min-h-0 flex-1 overflow-y-auto">

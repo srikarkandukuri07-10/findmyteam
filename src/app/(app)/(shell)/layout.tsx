@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { Logo } from "@/components/logo";
+import { BottomNav, BottomNavLinks } from "@/components/shell/bottom-nav";
 import { ProCard } from "@/components/shell/pro-card";
+import { ProfileCard } from "@/components/shell/profile-card";
 import { SearchBox } from "@/components/shell/search-box";
 import { SidebarLinks, SidebarNav } from "@/components/shell/sidebar-nav";
 import { Topbar, TopbarPlaceholder } from "@/components/shell/topbar";
@@ -11,13 +13,22 @@ async function SidebarNavWithCounts() {
   return <SidebarNav layoutGroup="sidebar" pendingRequests={info.pendingRequests} unreadMessages={info.unreadMessages} />;
 }
 
+async function SidebarProfile() {
+  return <ProfileCard info={await getShellInfo()} />;
+}
+
+async function BottomNavWithCounts() {
+  const info = await getShellInfo();
+  return <BottomNav pendingRequests={info.pendingRequests} unreadMessages={info.unreadMessages} />;
+}
+
 async function TopbarWithInfo() {
   const info = await getShellInfo();
   return <Topbar info={info} search={<SearchBox />} />;
 }
 
 /**
- * The app: a sidebar on the left (a drawer on phones) and a top bar with search and the profile menu.
+ * The app: a sidebar on the left (a drawer and a bottom bar on phones) and a top bar with search and the profile menu.
  * The frame is static, so it paints at once; names and counts stream in behind Suspense.
  */
 export default function ShellLayout({ children }: LayoutProps<"/">) {
@@ -28,6 +39,9 @@ export default function ShellLayout({ children }: LayoutProps<"/">) {
           <div className="flex justify-center">
             <Logo href="/home" stacked />
           </div>
+          <Suspense fallback={<ProfileCard info={null} />}>
+            <SidebarProfile />
+          </Suspense>
           <Suspense fallback={<SidebarLinks pathname="" layoutGroup="sidebar" />}>
             <SidebarNavWithCounts />
           </Suspense>
@@ -41,6 +55,9 @@ export default function ShellLayout({ children }: LayoutProps<"/">) {
           <TopbarWithInfo />
         </Suspense>
         {children}
+        <Suspense fallback={<BottomNavLinks pathname="" />}>
+          <BottomNavWithCounts />
+        </Suspense>
       </div>
     </div>
   );

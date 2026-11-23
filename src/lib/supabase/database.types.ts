@@ -988,6 +988,18 @@ export type Database = {
           created_at: string
         }[]
       }
+      college_key: { Args: { p_name: string }; Returns: string }
+      list_college_peers: {
+        Args: { p_limit?: number }
+        Returns: {
+          id: string
+          display_name: string
+          avatar_path: string | null
+          branch_name: string | null
+          year_of_study: number
+          college_name: string | null
+        }[]
+      }
       list_my_teams: {
         Args: never
         Returns: {

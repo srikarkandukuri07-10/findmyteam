@@ -21,6 +21,7 @@ import { Logo } from "@/components/logo";
 import { StudentAvatar } from "@/components/student-avatar";
 import type { ShellInfo } from "@/lib/shell/data";
 import { ProCard } from "./pro-card";
+import { ProfileCard } from "./profile-card";
 import { SidebarNav } from "./sidebar-nav";
 
 function useOutsideClose(open: boolean, close: () => void) {
@@ -199,6 +200,7 @@ function MobileDrawer({ info }: { info: ShellInfo | null }) {
                       <CloseIcon className="size-5" />
                     </button>
                   </div>
+                  <ProfileCard info={info} onNavigate={() => setOpen(false)} />
                   <SidebarNav
                     layoutGroup="drawer"
                     pendingRequests={info?.pendingRequests}
