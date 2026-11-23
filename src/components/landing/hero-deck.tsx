@@ -47,8 +47,6 @@ export function HeroDeck() {
   }, [reduce]);
 
   const stack = [0, 1, 2].map((k) => ({ card: DEMO[(i + k) % DEMO.length], key: i + k, depth: k }));
-  const leaving = DEMO[(i - 1 + DEMO.length) % DEMO.length];
-  const exitX = leaving.action === "connect" ? 520 : -520;
 
   return (
     <div className="relative mx-auto mt-6 h-[400px] w-full max-w-[340px] sm:mt-0 sm:h-[420px]">
@@ -68,7 +66,11 @@ export function HeroDeck() {
         {stack
           .slice()
           .reverse()
-          .map(({ card, key, depth }) => (
+          .map(({ card, key, depth }) => {
+            // Each card leaves by its own action: right to connect, left to skip. An exiting card keeps the
+            // props it last rendered with, so this has to come from the card itself, not from the deck's state.
+            const exitX = card.action === "connect" ? 520 : -520;
+            return (
             <motion.article
               key={key}
               aria-hidden={depth > 0}
@@ -124,7 +126,8 @@ export function HeroDeck() {
                 </motion.span>
               )}
             </motion.article>
-          ))}
+            );
+          })}
       </AnimatePresence>
 
       <div className="absolute inset-x-0 bottom-0 z-20 flex justify-center gap-5">
