@@ -46,13 +46,6 @@ const FEATURES = [
   { icon: "</>", title: "Real profiles", body: "Connect GitHub to show your repos and contribution graph, not just a list of skills." },
 ];
 
-const AVENGERS = [
-  { name: "Iron Man", chip: "HTML · Beginner" },
-  { name: "Thor", chip: "VS Code: opened 6 months ago" },
-  { name: "Hulk", chip: "PowerPoint · Expert" },
-  { name: "Captain America", chip: "“What's the problem statement?”" },
-];
-
 export default async function LandingPage() {
   // D26: once the lock is off (launch), the page invites students to sign up instead of joining the waitlist.
   const open = !isWaitlistMode();
@@ -160,35 +153,8 @@ export default async function LandingPage() {
           </div>
         </div>
 
-        {/* The problem, as in the reel */}
-        <section className="mx-auto w-full max-w-6xl px-4 py-20">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <Reveal className="space-y-4">
-              <p className="text-sm font-bold uppercase tracking-widest text-accent-ink">Sound familiar?</p>
-              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">You assembled the Avengers. Then round one happened.</h2>
-              <p className="text-lg text-muted">
-                Your friends are great, but a hackathon needs a designer, a backend dev and someone who can pitch. Those
-                people are out there. Usually in the college next door.
-              </p>
-            </Reveal>
-            <Reveal from="below" delay={0.1}>
-              <div className="relative grid grid-cols-2 gap-3">
-                {AVENGERS.map((a) => (
-                  <div key={a.name} className="lift rounded-3xl bg-surface p-4 shadow-card">
-                    <p className="font-semibold">{a.name}</p>
-                    <p className="mt-2 inline-block rounded-2xl bg-sand px-3 py-1.5 text-xs font-semibold">{a.chip}</p>
-                  </div>
-                ))}
-                <span className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-6 whitespace-nowrap rounded-2xl border-[6px] border-danger bg-surface/90 px-5 py-2 text-2xl font-black tracking-wider text-danger shadow-lift sm:text-3xl">
-                  ELIMINATED
-                </span>
-              </div>
-            </Reveal>
-          </div>
-        </section>
-
         {/* How it works */}
-        <section id="how" className="mx-auto w-full max-w-6xl scroll-mt-28 px-4 pb-20">
+        <section id="how" className="mx-auto w-full max-w-6xl scroll-mt-28 px-4 py-20">
           <Reveal className="mb-10 max-w-2xl space-y-3">
             <p className="text-sm font-bold uppercase tracking-widest text-accent-ink">How it works</p>
             <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">From strangers to teammates in three steps.</h2>
