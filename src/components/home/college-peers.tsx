@@ -3,7 +3,7 @@ import { ArrowRightIcon } from "@/components/icons";
 import { StudentAvatar } from "@/components/student-avatar";
 import { getCollegePeers } from "@/lib/college/data";
 import { getShellInfo } from "@/lib/shell/data";
-import { CollegeConnectButton } from "./college-connect-button";
+import { QuickConnectButton } from "@/components/quick-connect-button";
 
 /** Home's right side: students from my college, with a Connect button on each. */
 export async function CollegePeers() {
@@ -31,7 +31,7 @@ export async function CollegePeers() {
                   </span>
                 </span>
               </Link>
-              <CollegeConnectButton id={p.id} name={p.name} />
+              <QuickConnectButton id={p.id} name={p.name} />
             </li>
           ))}
         </ul>

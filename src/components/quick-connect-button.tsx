@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { swipePerson } from "@/app/(app)/(shell)/discover/actions";
 
-/** Sends a team-up request, the same as swiping right in Scout (it counts toward the 25 a day). */
-export function CollegeConnectButton({ id, name }: { id: string; name: string }) {
+/** Sends a team-up request, the same as swiping right in Scout (it counts toward the 25 a day). Used on Home cards and posts. */
+export function QuickConnectButton({ id, name }: { id: string; name: string }) {
   const [state, setState] = useState<"idle" | "sent" | "limit" | "error">("idle");
   const [pending, start] = useTransition();
   const first = name.split(" ")[0] ?? name;

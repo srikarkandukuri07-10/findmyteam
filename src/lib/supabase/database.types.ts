@@ -989,6 +989,33 @@ export type Database = {
         }[]
       }
       college_key: { Args: { p_name: string }; Returns: string }
+      take_link_preview_quota: { Args: never; Returns: boolean }
+      create_post: {
+        Args: { p_body: string; p_link_url: string | null; p_link_preview: Json | null; p_image_path: string | null; p_team_id: string | null }
+        Returns: string
+      }
+      delete_post: { Args: { p_id: string }; Returns: string }
+      report_post: { Args: { p_post: string; p_reason: Database["public"]["Enums"]["report_reason"]; p_details: string | null }; Returns: undefined }
+      list_posts: {
+        Args: { p_limit?: number; p_before?: string | null }
+        Returns: {
+          id: string
+          author_id: string
+          author_name: string
+          author_avatar_path: string | null
+          author_college: string | null
+          author_branch: string | null
+          author_year: number
+          body: string
+          link_url: string | null
+          link_preview: Json | null
+          image_path: string | null
+          created_at: string
+          is_mine: boolean
+          connection: string
+          team: Json | null
+        }[]
+      }
       list_college_peers: {
         Args: { p_limit?: number }
         Returns: {

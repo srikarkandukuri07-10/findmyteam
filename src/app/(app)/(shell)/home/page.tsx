@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { BannerArt } from "@/components/home/banner-art";
 import { CollegePeers } from "@/components/home/college-peers";
+import { PostsFeed } from "@/components/posts/feed";
 import { ArrowRightIcon, TeamsIcon } from "@/components/icons";
 import { PageTransition } from "@/components/page-transition";
 import { Skeleton } from "@/components/skeleton";
@@ -22,8 +23,12 @@ export default function HomePage() {
         <Suspense fallback={<BannerSkeleton />}>
           <Banner />
         </Suspense>
-        {/* Right side on wide screens; between the banner and the teams on phones. */}
-        <aside className="min-w-0 xl:sticky xl:top-24 xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:self-start">
+        {/* The post box and everyone's posts, right under the banner. */}
+        <Suspense fallback={<Skeleton className="h-40 rounded-[2rem]" />}>
+          <PostsFeed />
+        </Suspense>
+        {/* Right side on wide screens; between the posts and the teams on phones. */}
+        <aside className="min-w-0 xl:sticky xl:top-24 xl:col-start-2 xl:row-span-3 xl:row-start-1 xl:self-start">
           <Suspense fallback={<Skeleton className="h-64 rounded-[2rem]" />}>
             <CollegePeers />
           </Suspense>

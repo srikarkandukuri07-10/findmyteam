@@ -356,6 +356,20 @@ Copied the layout of Vormex's home (not its dark theme):
 
 ---
 
+## D33 · Teammate posts on Home (2026-11-23)
+
+Home gets a post box ("What type of teammates are you looking for?") and a feed of posts, under the banner.
+- **Content:** text with no limit a person would meet (a hidden 20,000-character ceiling only guards the database), an optional hackathon link, one optional photo. A post needs at least one of the three.
+- **Team option:** a poster who leads or belongs to an active, recruiting team can attach it. Readers see a team card on the post with **View team & ask to join**, which opens the team page and its existing Request to join. A poster without a team simply doesn't attach one; readers can **Connect** with them directly (a normal team-up request, counted in the 25 a day).
+- **Hackathon summary:** when a link is pasted, the server reads the event page and shows **What the hackathon is about**: name, dates, location and online/offline, prizes, team size, and the description. It is read by rules, not by an AI service (nothing paid): Devfolio's embedded data, the page's structured `Event` data, its meta tags, then the visible text. It is best effort: plain sites may give only a name and summary. The summary is shown as plain text only, labelled as automatic, with a link to the event page.
+- **Safety of the reader:** the server only fetches public web pages. It looks the address up itself and refuses private, loopback and cloud-metadata addresses on every redirect, allows ports 80/443 only, caps the time (7 s) and size (1.5 MB), and limits each student to 40 link reads a day.
+- **Photos:** resized on the phone (max 1280 px, JPEG) before upload to a public `post-images` bucket; each student can write only inside their own folder; the file is removed when the post is deleted.
+- **Housekeeping:** a post disappears after 14 days; 5 posts a day per student; Report on every post goes into the existing reports queue; the author or an admin can delete. Blocked people's posts are hidden both ways.
+- Not done: expired posts' photo files are not yet deleted (a clean-up job is a follow-up). A hackathon summary saved with a post can't be forged through the app, but someone calling the database directly could store a fake one; it is shown as plain text only.
+- Checks: `supabase/tests/module-16-posts.sql`.
+
+---
+
 ## Still open
 
 - **Leaked-password protection** is off in Supabase Auth (dashboard setting, may need a paid plan). Turn it on before launch if available.
